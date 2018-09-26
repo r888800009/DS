@@ -1,5 +1,7 @@
 #include <iostream>
-#include <cstring>
+#include <string>
+#include <vector>
+#include <algorithm>
 using namespace std;
  
 #define MENU_COPY_FILE        1 
@@ -7,15 +9,59 @@ using namespace std;
 #define MENU_MERGE_FILE       3
 #define MENU_QUIT             4
 
+typedef struct college { 
+   
+    // college id and name
+    int id; 
+    string name;
+
+    // department id
+    int departmentId;
+
+    // department name
+    string departmentName;
+
+    // day / extension education
+    string dayAndExtEdu;
+
+    // Educational stage
+    string stage;
+
+    // number of students, teachers, graduates
+    int students, teachers, graduates;
+    
+    // loaction
+    string city;
+
+    // type normal or general etc..
+    string type;
+
+} row;
+
 void errorHandling(string message);
+
+class database {
+    int open(string);
+    int save();
+
+    // merge(file2Name)
+    int merge(string);
+
+    int query(int, int);
+      
+private:
+    string fileName;
+    vector<row> rows;
+};
 
 int main(int argc, char *argv[])
 {
-    int mode;                           // 選單選項
-    int result;                         // 指令回傳檢查
+    // Menu mode and result for check successful
+    int mode, result;
+
     while (1) {
 
-        // 輸出選單
+        // print the menu
         cout << "              MENU              " << endl;
         cout << "* 1. COPY (Read & Save a file) *" << endl;
         cout << "* 2. FILTER (Reduce a file)    *" << endl;
@@ -23,10 +69,10 @@ int main(int argc, char *argv[])
         cout << "* 4. Quit                      *" << endl;
         cout << "choice: ";
 
-        // 輸入選擇
+        // select menu
         cin >> mode;
          
-        // 判斷選擇的內容
+        // execute selected action
         switch (mode) {
             case MENU_QUIT:
                 return 0;               // 退出
@@ -44,7 +90,7 @@ int main(int argc, char *argv[])
                 continue;
         }
 
-        // 檢查回傳值是否為successful
+        // check result of successful
         if (result)
             return 1;                   
     };
@@ -63,6 +109,6 @@ void errorHandling(string message)
     // 消滅最多2048個字元遇到\n 
     cin.ignore(2048, '\n');
 
-    // 顯示錯誤訊息
+    // print Error message
     cout << message << endl;
 }
