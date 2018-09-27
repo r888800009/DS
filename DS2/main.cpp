@@ -62,6 +62,13 @@ public:
     }
 };
 
+int selectedColumn;
+
+bool compare(Data a, Data b)
+{
+    return (atoi(a.column[selectedColumn].c_str()) < atoi(b.column[selectedColumn].c_str())) ;
+}
+
 class HandleFile
 {
     vector<Data> database;
@@ -253,8 +260,14 @@ public:
             while (fmerge >> temp)     // >> overload
                 if (inputSuccess) database.push_back(temp);
             
-            // sort
-            
+            // sort department
+            selectedColumn = DATA_DEPARTMENT__ID;
+            stable_sort(database.begin(), database.end(), compare);
+
+            // sort college
+            selectedColumn = DATA_ID;
+            stable_sort(database.begin(), database.end(), compare);
+
             save();
 
             return 0;
