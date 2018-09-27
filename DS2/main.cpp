@@ -11,6 +11,19 @@ using namespace std;
 #define MENU_QUIT             4
 #define SIZE                  11
 
+#define DATA_ID              0
+#define DATA_NAME            1
+#define DATA_DEPARTMENT__ID  2
+#define DATA_DEPARTMENT_NAME 3
+#define DATA_DAY_EXT_EDU     4
+#define DATA_STAGE           5
+#define DATA_STUDENTS        6
+#define DATA_TEACHERS        7
+#define DATA_GRADUATES       8
+#define DATA_CITY            9
+#define DATA_TYPE            10
+
+
 static bool inputSuccess;
 void errorHandling(string message);
 
@@ -52,20 +65,38 @@ public:
 class HandleFile
 {
     vector<Data> database;
+    fstream fin, fmerge;
+    fstream fout;
 
 public:
-    bool task1_input(fstream &fin, fstream &fout) 
+    void save() 
     {
-        string temp;
+        for (vector<Data>::iterator i = database.begin(); i != database.end(); i++) 
+            fout << *i;         // << overload
+
+        // closs all file
+        if (fin.is_open())
+            fin.close(); 
+        if (fmerge.is_open())
+            fmerge.close(); 
+        if (fout.is_open())
+            fout.close(); 
+
+        cout << "Total number of records: " << database.size() << endl;
+    }
+
+    bool task1_input() 
+    {
+        string fileName;
         string fin_str, fout_str;
         while (true) {
-            cout << "Input ( 201, 202, ...[0]Quit):";
-            cin >> temp;
-            if (temp == "0") 
+            cout << "Input (201, 202, ...[0]Quit): ";
+            cin >> fileName;
+            if (fileName == "0")
                 return 0;
             else {
-                fin_str = "input" + temp + ".txt";
-                fout_str = "copy" + temp + ".txt";
+                fin_str   = "input" + fileName + ".txt";
+                fout_str  = "copy" + fileName + ".txt";
             }
 
             fin.open(fin_str, ios::in);
@@ -80,10 +111,7 @@ public:
 
     bool task1() 
     {
-        fstream fin;
-        fstream fout;
-
-        if (task1_input(fin, fout)) {
+        if (task1_input()) {
             // skip three line
             for (int i = 0; i < 3; ++i)
                 fin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -92,23 +120,147 @@ public:
             while (fin >> temp)     // >> overload
                 if (inputSuccess) database.push_back(temp);
             
-            for (vector<Data>::iterator i = database.begin(); i != database.end(); i++) 
-                fout << *i;         // << overload
-            
-            cout << database.size() << endl;
+            save();
+
+            return 0;
         }
 
-        return 0;
+        return 1;
+    }
+
+    bool task2_input(int &students, int &graduates) 
+    {
+        string fileName;
+        string fin_str, fout_str;
+        while (true) {
+            cout << "Input (201, 202, ...[0]Quit): ";
+            cin >> fileName;
+            
+            
+
+            if (fileName == "0")
+                return 0;
+            else {
+                fin_str   = "input" + fileName + ".txt";
+                fout_str  = "copy" + fileName + ".txt";
+            }
+
+            fin.open(fin_str, ios::in);
+            fout.open(fout_str, ios::out | ios::trunc);
+
+            if (!fin) 
+                errorHandling("Error : there is no such file!");
+                
+        }
+
+        while (true) {
+            cout << "Threshold on number of students: ";
+            cin >> students;
+            if (cin && students > -1)
+                break;
+            else 
+                errorHandling("Error : number out of range!");
+
+        }
+        
+        while (true) {
+            cout << "Threshold on number of graduates: ";
+            cin >> graduates;
+            if (cin && graduates > -1)
+                break;
+            else 
+                errorHandling("Error : number out of range!");
+        }
+
+        return 1;
     }
 
     bool task2()
     {
-        return 0;
+        int students, graduates;
+        if (task2_input(students, graduates)) {
+            // skip three line
+            for (int i = 0; i < 3; ++i)
+                fin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+            Data temp;
+            while (fin >> temp)     // >> overload
+                if (inputSuccess) database.push_back(temp);
+            
+            // query
+            for (vector<Data>::iterator it = database.begin(); it != database.end(); )
+                if (atoi(it->column[DATA_STUDENTS].c_str()) < students ||
+                    atoi(it->column[DATA_GRADUATES].c_str()) < graduates) 
+                {
+                    it = database.erase(it);
+                } else {
+                    ++it;
+                }
+            
+            save();
+
+            return 0;
+        }
+
+        return 1;
     }
 
+    bool task3_input() 
+    {
+        string fileName1, fileName2;
+        string fin_str, fout_str, fmerge_str;
+        while (true) {
+            cout << "Input 1st(201, 202, ...[0]Quit): ";
+            cin >> fileName1;
+
+            cout << "Input 2nd(201, 202, ...[0]Quit): ";
+            cin >> fileName2;
+
+            if (fileName1  == "0")
+                return 0;
+            else {
+                fin_str     = "input" + fileName1 + ".txt";
+                fmerge_str  = "input" + fileName2 + ".txt";
+                fout_str    = "output" + fileName1 + "_" + fileName2 + ".txt";
+            }
+
+            fin.open(fin_str, ios::in);
+            fmerge.open(fmerge_str, ios::in);
+            fout.open(fout_str, ios::out | ios::trunc);
+
+            if (!fin || !fmerge) 
+                errorHandling("Error : there is no such file!");
+            else 
+                return 1;
+        }
+    }
+
+    // merge
     bool task3()
     {
-        return 0;
+        if (task3_input()) {
+            // skip three line
+            for (int i = 0; i < 3; ++i) {
+                fin.ignore(numeric_limits<streamsize>::max(), '\n');
+                fmerge.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+
+            Data temp;
+            while (fin >> temp)     // >> overload
+                if (inputSuccess) database.push_back(temp);
+            
+            // merge
+            while (fmerge >> temp)     // >> overload
+                if (inputSuccess) database.push_back(temp);
+            
+            // sort
+            
+            save();
+
+            return 0;
+        }
+
+        return 1;
     }
 };
 
@@ -139,10 +291,10 @@ int main(int argc, char *argv[])
             result = f.task1();       // 任務1
             break;
         case MENU_FILTER_FILE:
-            // result = task2();       // 任務2
+            result = f.task2();       // 任務2
             break;
         case MENU_MERGE_FILE:
-            // result = task3();       // 任務3
+            result = f.task3();       // 任務3
             break;
         default:
             errorHandling("Error: Command not found!");
