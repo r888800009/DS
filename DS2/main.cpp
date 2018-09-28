@@ -64,9 +64,27 @@ public:
 
 int selectedColumn;
 
+int stringToInt(string str)
+{
+
+    if (str[0] == '\"') {
+        string tmp = "";
+        for (int i = 0; i < str.length(); ++i)
+            if (isdigit(str[i]))
+                tmp += str[i];
+        // cout << " OwO "; 
+        return atoi(tmp.c_str());
+    } else
+        return atoi(str.c_str());
+}
+
 bool compare(Data a, Data b)
 {
-    return (atoi(a.column[selectedColumn].c_str()) < atoi(b.column[selectedColumn].c_str())) ;
+    int numA, numB;
+    numA = stringToInt(a.column[selectedColumn]);
+    numB = stringToInt(b.column[selectedColumn]);
+
+    return (numA < numB) ;
 }
 
 class HandleFile
@@ -157,7 +175,8 @@ public:
 
             if (!fin) 
                 errorHandling("Error : there is no such file!");
-                
+            else 
+                break;
         }
 
         while (true) {
@@ -196,8 +215,8 @@ public:
             
             // query
             for (vector<Data>::iterator it = database.begin(); it != database.end(); )
-                if (atoi(it->column[DATA_STUDENTS].c_str()) < students ||
-                    atoi(it->column[DATA_GRADUATES].c_str()) < graduates) 
+                if (stringToInt(it->column[DATA_STUDENTS]) < students ||
+                    stringToInt(it->column[DATA_GRADUATES]) < graduates) 
                 {
                     it = database.erase(it);
                 } else {
