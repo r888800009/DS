@@ -94,12 +94,10 @@ int numberInput(string message)
         cout << message;
         cin >> result;
         if (cin && result > -1)
-            break;
+            return result;
         else 
             errorHandling("Error : number out of range!");
-
     }
-    return result;
 }
 
 class HandleFile
@@ -119,6 +117,7 @@ public:
         // closs all file
         if (fin.is_open())
             fin.close(); 
+
         if (fmerge.is_open())
             fmerge.close(); 
 
@@ -126,7 +125,7 @@ public:
 
         cout << "Total number of records: " << database.size() << endl;
     }
-    
+
     string fileInput(fstream &file, string message)
     {
         string fileName;
@@ -136,13 +135,21 @@ public:
             cin >> fileName;
             if (!fileName.compare("0"))
                 return "";
-            else
-                file.open("input" + fileName + ".txt", ios::in);
-
+            
+            file.open("input" + fileName + ".txt", ios::in);
             if (!file) 
                 errorHandling("Error : there is no such file!");
-            else 
-                return fileName;
+
+             // skip three line
+            for (int i = 0; i < 3; ++i)
+                file.ignore(numeric_limits<streamsize>::max(), '\n');
+            
+            // load file
+            Data temp;
+            while (file >> temp)     // >> overload
+                if (inputSuccess) database.push_back(temp);
+
+            return fileName;
         }
     }
 
@@ -159,13 +166,6 @@ public:
     {
         string fileName;
         if (task1_input(fileName)) {
-            // skip three line
-            for (int i = 0; i < 3; ++i)
-                fin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-            Data temp;
-            while (fin >> temp)     // >> overload
-                if (inputSuccess) database.push_back(temp);
             
             save("copy" + fileName + ".txt");
 
@@ -192,13 +192,6 @@ public:
         int students, graduates;
         string fileName;
         if (task2_input(students, graduates, fileName)) {
-            // skip three line
-            for (int i = 0; i < 3; ++i)
-                fin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-            Data temp;
-            while (fin >> temp)     // >> overload
-                if (inputSuccess) database.push_back(temp);
             
             // query
             for (vector<Data>::iterator it = database.begin(); it != database.end(); )
@@ -237,19 +230,6 @@ public:
     {
         string fileName1, fileName2;
         if (task3_input(fileName1, fileName2)) {
-            // skip three line
-            for (int i = 0; i < 3; ++i) {
-                fin.ignore(numeric_limits<streamsize>::max(), '\n');
-                fmerge.ignore(numeric_limits<streamsize>::max(), '\n');
-            }
-
-            Data temp;
-            while (fin >> temp)     // >> overload
-                if (inputSuccess) database.push_back(temp);
-            
-            // merge
-            while (fmerge >> temp)     // >> overload
-                if (inputSuccess) database.push_back(temp);
             
             // sort department
             selectedColumn = DATA_DEPARTMENT__ID;
