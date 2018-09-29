@@ -62,7 +62,8 @@ public:
     }
 };
 
-int selectedColumn;
+int selectedColumn1;
+int selectedColumn2;
 
 int stringToInt(string str)
 {
@@ -80,11 +81,26 @@ int stringToInt(string str)
 
 bool compare(Data a, Data b)
 {
+    // return 1 if numA first
     int numA, numB;
-    numA = stringToInt(a.column[selectedColumn]);
-    numB = stringToInt(b.column[selectedColumn]);
 
-    return (numA < numB) ;
+    // first 
+    numA = stringToInt(a.column[selectedColumn1]);
+    numB = stringToInt(b.column[selectedColumn1]);
+    if (numA > numB)
+        return 0;
+    else if (numA < numB)
+        return 1;
+
+    // second
+    numA = stringToInt(a.column[selectedColumn2]);
+    numB = stringToInt(b.column[selectedColumn2]);    
+    if (numA > numB)
+        return 0;
+    else if (numA < numB)
+        return 1;   
+
+    return 1;
 }
 
 int numberInput(string message)
@@ -126,14 +142,14 @@ public:
         cout << "Total number of records: " << database.size() << endl;
     }
 
-    string fileInput(fstream &file, string message)
+    string fileInput(fstream &file, string message, bool loadToDatabase)
     {
         string fileName;
         string fin_str;
         while (true) {
             cout << message;
             cin >> fileName;
-            if (!fileName.compare("0"))
+            if (fileName == "0")
                 return "";
             
             file.open("input" + fileName + ".txt", ios::in);
@@ -144,6 +160,9 @@ public:
             for (int i = 0; i < 3; ++i)
                 file.ignore(numeric_limits<streamsize>::max(), '\n');
             
+            if (!loadToDatabase)
+                return fileName;
+
             // load file
             Data temp;
             while (file >> temp)     // >> overload
@@ -153,10 +172,37 @@ public:
         }
     }
 
+    void merge(bool (*comp)(Data, Data)) {
+        
+        // comp function return which data have priority
+        Data a, b;
+        fin >> a;
+        fmerge >> b;
+        while (fin && fmerge) {
+            if (comp(a, b)) {
+                database.push_back(a);
+                fin >> a;
+            } else {
+                database.push_back(b);
+                fmerge >> b;
+            }
+        }
+
+        while (fin) {
+            if (inputSuccess) database.push_back(a);
+            fin >> a; // >> overload
+        }
+
+        while (fmerge) {
+            if (inputSuccess) database.push_back(b);
+            fmerge >> b; // >> overload
+        }
+    }
+
     bool task1_input(string &fileName) 
     {
-        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): "); 
-        if (!fileName.compare(""))
+        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", true); 
+        if (fileName == "")
             return 0;
         else
             return 1;
@@ -177,8 +223,8 @@ public:
 
     bool task2_input(int &students, int &graduates, string &fileName) 
     {
-        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): "); 
-        if (!fileName.compare(""))
+        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", true); 
+        if (fileName == "")
             return 0;
 
         students  = numberInput("Threshold on number of students: ");
@@ -214,12 +260,12 @@ public:
     bool task3_input(string &fileName1, string &fileName2) 
     {
         string fin_str, fout_str, fmerge_str;
-        fileName1 = fileInput(fin, "Input 1st(201, 202, ...[0]Quit): "); 
-        if (!fileName1.compare(""))
+        fileName1 = fileInput(fin, "Input 1st(201, 202, ...[0]Quit): ", false); 
+        if (fileName1 == "")
             return 0;
 
-        fileName2 = fileInput(fmerge, "Input 2nd(201, 202, ...[0]Quit): "); 
-        if (!fileName2.compare(""))
+        fileName2 = fileInput(fmerge, "Input 2nd(201, 202, ...[0]Quit): ", false); 
+        if (fileName2 == "")
             return 0;
         else
             return 1;
@@ -230,15 +276,11 @@ public:
     {
         string fileName1, fileName2;
         if (task3_input(fileName1, fileName2)) {
-            
-            // sort department
-            selectedColumn = DATA_DEPARTMENT__ID;
-            stable_sort(database.begin(), database.end(), compare);
+            // College priority than department
+            selectedColumn1 = DATA_ID;
+            selectedColumn2 = DATA_DEPARTMENT__ID;
 
-            // sort college
-            selectedColumn = DATA_ID;
-            stable_sort(database.begin(), database.end(), compare);
-
+            merge(compare);
             save("output" + fileName1 + "_" + fileName2 + ".txt");
 
             return 0;
