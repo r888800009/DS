@@ -121,8 +121,8 @@ public:
             fin.close(); 
         if (fmerge.is_open())
             fmerge.close(); 
-        if (fout.is_open())
-            fout.close(); 
+
+        fout.close(); 
 
         cout << "Total number of records: " << database.size() << endl;
     }
