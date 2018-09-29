@@ -37,10 +37,13 @@ public:
         string input, temp;
         getline(in, input);
 
-        // drop \r
+        // drop \r if the program running on unix
+        // or unix like system, the string may be 
+        // contained '\r'
         if (input.back() == '\r')
             input.pop_back();
-
+        
+        // put \t for split easily
         input += '\t';
         if (in) {
             int count = 0;
@@ -70,18 +73,20 @@ public:
 int selectedColumn1;
 int selectedColumn2;
 
+string getOnlyDigits(string str)
+{
+    string tmp = "";
+    for (int i = 0; i < str.length(); ++i)
+        if (isdigit(str[i])) tmp += str[i];
+    return tmp;
+}
+
 int stringToInt(string str)
 {
     try {
-        if (str[0] == '\"') {
-            string tmp = "";
-            for (int i = 0; i < str.length(); ++i)
-                if (isdigit(str[i])) tmp += str[i];
-
-            return stoi(tmp);
-        }
-        else
-            return stoi(str);
+        if (str[0] == '\"') 
+            str = getOnlyDigits(str); 
+        return stoi(str);
     }
     catch (exception e) {
         cout << "ERROR : stoi error!" << endl;
@@ -142,6 +147,11 @@ int numberInput(string message)
     }
 }
 
+bool onlyDigits(string str)
+{
+    return str.find_first_not_of("1234567890") == string::npos;
+}
+
 class HandleFile
 {
     vector<Data> database;
@@ -170,23 +180,11 @@ public:
     
     void dropHeader(fstream &file) 
     {
-        // check has header?
-        string fileHeader;
-        getline(file, fileHeader);
-        if (fileHeader.compare("大專校院各校科系別概況")) {
-            // skip three line
-            // the first line has been dropped, so the for loop only do (3 - 1) = 2 times
-            cout << "found the header" << endl;
-            for (int i = 0; i < 2; ++i)
-                file.ignore(numeric_limits<streamsize>::max(), '\n');
-        } else {
-            // back to begin
-            file.clear();
-            file.seekg(0, ios::beg);
-        }   
+        for (int i = 0; i < 3; ++i)
+            file.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
-    string fileInput(fstream &file, string message, bool loadToDatabase, string prefix)
+    string fileInput(fstream &file, string message, bool loadToDatabase, string prefix = "copy")
     {
         string fileName;
         string fin_str;
@@ -195,15 +193,24 @@ public:
             cin >> fileName;
             if (fileName == "0")
                 return "";
+
+            if (onlyDigits(fileName)) 
+                file.open(prefix + fileName + ".txt", ios::in);
+            else 
+                file.open(fileName, ios::in);
             
-            file.open("input" + fileName + ".txt", ios::in);
-            if (!file) 
+            fileName = getOnlyDigits(fileName);
+                
+            if (!file) {
                 errorHandling("Error : there is no such file!");
-           
-            dropHeader(file);
-            
+                continue;
+            }
+
             if (!loadToDatabase)
                 return fileName;
+
+            if (prefix == "input")
+                dropHeader(file);
 
             // load file
             Data temp;
@@ -216,7 +223,7 @@ public:
 
     void merge(bool (*comp)(Data, Data)) {
         
-        // comp function return which data have priority
+        // comp function return data priority
         Data a, b;
         fin >> a;
         fmerge >> b;
@@ -265,7 +272,7 @@ public:
 
     bool task2_input(int &students, int &graduates, string &fileName) 
     {
-        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", true, "copy"); 
+        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", true); 
         if (fileName == "")
             return 0;
 
@@ -302,11 +309,11 @@ public:
     bool task3_input(string &fileName1, string &fileName2) 
     {
         string fin_str, fout_str, fmerge_str;
-        fileName1 = fileInput(fin, "Input 1st(201, 202, ...[0]Quit): ", false, "copy"); 
+        fileName1 = fileInput(fin, "Input 1st(201, 202, ...[0]Quit): ", false); 
         if (fileName1 == "")
             return 0;
 
-        fileName2 = fileInput(fmerge, "Input 2nd(201, 202, ...[0]Quit): ", false, "copy"); 
+        fileName2 = fileInput(fmerge, "Input 2nd(201, 202, ...[0]Quit): ", false); 
         if (fileName2 == "")
             return 0;
         else
