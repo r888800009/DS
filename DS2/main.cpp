@@ -65,7 +65,7 @@ public:
 int selectedColumn1;
 int selectedColumn2;
 
-long long stringToLong(string str, int base = 10)
+int stringToInt(string str)
 {
     try {
         if (str[0] == '\"') {
@@ -73,10 +73,10 @@ long long stringToLong(string str, int base = 10)
             for (int i = 0; i < str.length(); ++i)
                 if (isdigit(str[i])) tmp += str[i];
 
-            return stol(tmp);
+            return stoi(tmp);
         }
         else
-            return stol(str, nullptr, base);
+            return stoi(str);
     }
     catch (exception e) {
         cout << "ERROR : stoi error!" << endl;
@@ -85,26 +85,41 @@ long long stringToLong(string str, int base = 10)
     }
 }
 
+// a > b return 1, a == b return 0, a < b return -1
+int isMoreThan(string a, string b)
+{
+   if (a.length() > b.length())
+       return 1;
+   else if (a.length() < b.length())
+       return -1;
+
+    for (int i = 0; i < a.length(); ++i) {
+        if (a[i] > b[i])
+            return 1;
+        else if (a[i] < b[i])
+            return -1;
+    }
+    return 0;
+}
+
 bool compare(Data a, Data b)
 {
-    // return 1 if numA first
-    long long numA, numB;
+    // return 1 if a first
+    int comp;
 
     // first 
-    numA = stringToLong(a.column[selectedColumn1], 64);
-    numB = stringToLong(b.column[selectedColumn1], 64);
-    if (numA > numB)
+    comp = isMoreThan(a.column[selectedColumn1], b.column[selectedColumn1]);
+    if (comp == 1)
         return 0;
-    else if (numA < numB)
+    else if (comp == -1)
         return 1;
 
     // second
-    numA = stringToLong(a.column[selectedColumn2], 64);
-    numB = stringToLong(b.column[selectedColumn2], 64);    
-    if (numA > numB)
+    comp = isMoreThan(a.column[selectedColumn2], b.column[selectedColumn2]);
+    if (comp == 1)
         return 0;
-    else if (numA < numB)
-        return 1;   
+    else if (comp == -1)
+        return 1;
 
     return 1;
 }
@@ -247,8 +262,8 @@ public:
             
             // query
             for (vector<Data>::iterator it = database.begin(); it != database.end(); )
-                if (stringToLong(it->column[DATA_STUDENTS]) < students ||
-                    stringToLong(it->column[DATA_GRADUATES]) < graduates) 
+                if (stringToInt(it->column[DATA_STUDENTS]) < students ||
+                    stringToInt(it->column[DATA_GRADUATES]) < graduates) 
                 {
                     it = database.erase(it);
                 } else {
