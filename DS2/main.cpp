@@ -65,36 +65,42 @@ public:
 int selectedColumn1;
 int selectedColumn2;
 
-int stringToInt(string str)
+long long stringToLong(string str, int base = 10)
 {
+	try {
+		if (str[0] == '\"') {
+			string tmp = "";
+			for (int i = 0; i < str.length(); ++i)
+				if (isdigit(str[i])) tmp += str[i];
 
-    if (str[0] == '\"') {
-        string tmp = "";
-        for (int i = 0; i < str.length(); ++i)
-            if (isdigit(str[i]))
-                tmp += str[i];
-        // cout << " OwO "; 
-        return atoi(tmp.c_str());
-    } else
-        return atoi(str.c_str());
+			return stol(tmp);
+		}
+		else
+			return stol(str, nullptr, base);
+	}
+	catch (exception e) {
+		cout << "ERROR : stoi error!" << endl;
+        cout << "Value : " << str << endl;
+		return -1;
+	}
 }
 
 bool compare(Data a, Data b)
 {
     // return 1 if numA first
-    int numA, numB;
+    long long numA, numB;
 
     // first 
-    numA = stringToInt(a.column[selectedColumn1]);
-    numB = stringToInt(b.column[selectedColumn1]);
+    numA = stringToLong(a.column[selectedColumn1], 64);
+    numB = stringToLong(b.column[selectedColumn1], 64);
     if (numA > numB)
         return 0;
     else if (numA < numB)
         return 1;
 
     // second
-    numA = stringToInt(a.column[selectedColumn2]);
-    numB = stringToInt(b.column[selectedColumn2]);    
+    numA = stringToLong(a.column[selectedColumn2], 64);
+    numB = stringToLong(b.column[selectedColumn2], 64);    
     if (numA > numB)
         return 0;
     else if (numA < numB)
@@ -241,8 +247,8 @@ public:
             
             // query
             for (vector<Data>::iterator it = database.begin(); it != database.end(); )
-                if (stringToInt(it->column[DATA_STUDENTS]) < students ||
-                    stringToInt(it->column[DATA_GRADUATES]) < graduates) 
+                if (stringToLong(it->column[DATA_STUDENTS]) < students ||
+                    stringToLong(it->column[DATA_GRADUATES]) < graduates) 
                 {
                     it = database.erase(it);
                 } else {
