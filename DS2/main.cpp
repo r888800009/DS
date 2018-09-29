@@ -36,6 +36,11 @@ public:
     {
         string input, temp;
         getline(in, input);
+
+        // drop \r
+        if (input.back() == '\r')
+            input.pop_back();
+
         input += '\t';
         if (in) {
             int count = 0;
