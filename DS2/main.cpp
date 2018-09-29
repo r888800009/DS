@@ -109,8 +109,10 @@ class HandleFile
     fstream fout;
 
 public:
-    void save() 
+    void save(string saveName) 
     {
+        fout.open(saveName, ios::out | ios::trunc);
+
         for (vector<Data>::iterator i = database.begin(); i != database.end(); i++) 
             fout << *i;         // << overload
 
@@ -124,34 +126,39 @@ public:
 
         cout << "Total number of records: " << database.size() << endl;
     }
-
-    bool task1_input() 
+    
+    string fileInput(fstream &file, string message)
     {
         string fileName;
-        string fin_str, fout_str;
+        string fin_str;
         while (true) {
-            cout << "Input (201, 202, ...[0]Quit): ";
+            cout << message;
             cin >> fileName;
-            if (fileName == "0")
-                return 0;
-            else {
-                fin_str   = "input" + fileName + ".txt";
-                fout_str  = "copy" + fileName + ".txt";
-            }
+            if (!fileName.compare("0"))
+                return "";
+            else
+                file.open("input" + fileName + ".txt", ios::in);
 
-            fin.open(fin_str, ios::in);
-            fout.open(fout_str, ios::out | ios::trunc);
-
-            if (!fin) 
+            if (!file) 
                 errorHandling("Error : there is no such file!");
             else 
-                return 1;
+                return fileName;
         }
+    }
+
+    bool task1_input(string &fileName) 
+    {
+        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): "); 
+        if (!fileName.compare(""))
+            return 0;
+        else
+            return 1;
     }
 
     bool task1() 
     {
-        if (task1_input()) {
+        string fileName;
+        if (task1_input(fileName)) {
             // skip three line
             for (int i = 0; i < 3; ++i)
                 fin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -160,7 +167,7 @@ public:
             while (fin >> temp)     // >> overload
                 if (inputSuccess) database.push_back(temp);
             
-            save();
+            save("copy" + fileName + ".txt");
 
             return 0;
         }
@@ -168,40 +175,23 @@ public:
         return 1;
     }
 
-    bool task2_input(int &students, int &graduates) 
+    bool task2_input(int &students, int &graduates, string &fileName) 
     {
-        string fileName;
-        string fin_str, fout_str;
-        while (true) {
-            cout << "Input (201, 202, ...[0]Quit): ";
-            cin >> fileName;
-
-            if (fileName == "0")
-                return 0;
-            else {
-                fin_str   = "input" + fileName + ".txt";
-                fout_str  = "copy" + fileName + ".txt";
-            }
-
-            fin.open(fin_str, ios::in);
-            fout.open(fout_str, ios::out | ios::trunc);
-
-            if (!fin) 
-                errorHandling("Error : there is no such file!");
-            else 
-                break;
-        }
-
+        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): "); 
         students  = numberInput("Threshold on number of students: ");
         graduates = numberInput("Threshold on number of graduates: ");
-
+        if (!fileName.compare(""))
+            return 0;
+        else
+            return 1;
         return 1;
     }
 
     bool task2()
     {
         int students, graduates;
-        if (task2_input(students, graduates)) {
+        string fileName;
+        if (task2_input(students, graduates, fileName)) {
             // skip three line
             for (int i = 0; i < 3; ++i)
                 fin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -220,7 +210,7 @@ public:
                     ++it;
                 }
             
-            save();
+            save("copy" + fileName + ".txt");
 
             return 0;
         }
@@ -228,40 +218,25 @@ public:
         return 1;
     }
 
-    bool task3_input() 
+    bool task3_input(string &fileName1, string &fileName2) 
     {
-        string fileName1, fileName2;
         string fin_str, fout_str, fmerge_str;
-        while (true) {
-            cout << "Input 1st(201, 202, ...[0]Quit): ";
-            cin >> fileName1;
+        fileName1 = fileInput(fin, "Input 1st(201, 202, ...[0]Quit): "); 
+        if (!fileName1.compare(""))
+            return 0;
 
-            cout << "Input 2nd(201, 202, ...[0]Quit): ";
-            cin >> fileName2;
-
-            if (fileName1  == "0")
-                return 0;
-            else {
-                fin_str     = "input" + fileName1 + ".txt";
-                fmerge_str  = "input" + fileName2 + ".txt";
-                fout_str    = "output" + fileName1 + "_" + fileName2 + ".txt";
-            }
-
-            fin.open(fin_str, ios::in);
-            fmerge.open(fmerge_str, ios::in);
-            fout.open(fout_str, ios::out | ios::trunc);
-
-            if (!fin || !fmerge) 
-                errorHandling("Error : there is no such file!");
-            else 
-                return 1;
-        }
+        fileName2 = fileInput(fmerge, "Input 2nd(201, 202, ...[0]Quit): "); 
+        if (!fileName2.compare(""))
+            return 0;
+        else
+            return 1;
     }
 
     // merge
     bool task3()
     {
-        if (task3_input()) {
+        string fileName1, fileName2;
+        if (task3_input(fileName1, fileName2)) {
             // skip three line
             for (int i = 0; i < 3; ++i) {
                 fin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -284,7 +259,7 @@ public:
             selectedColumn = DATA_ID;
             stable_sort(database.begin(), database.end(), compare);
 
-            save();
+            save("output" + fileName1 + "_" + fileName2 + ".txt");
 
             return 0;
         }
