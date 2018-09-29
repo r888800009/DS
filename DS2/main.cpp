@@ -178,12 +178,12 @@ public:
     bool task2_input(int &students, int &graduates, string &fileName) 
     {
         fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): "); 
-        students  = numberInput("Threshold on number of students: ");
-        graduates = numberInput("Threshold on number of graduates: ");
         if (!fileName.compare(""))
             return 0;
-        else
-            return 1;
+
+        students  = numberInput("Threshold on number of students: ");
+        graduates = numberInput("Threshold on number of graduates: ");
+
         return 1;
     }
 
