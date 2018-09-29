@@ -87,6 +87,21 @@ bool compare(Data a, Data b)
     return (numA < numB) ;
 }
 
+int numberInput(string message)
+{
+    int result;
+    while (true) {
+        cout << message;
+        cin >> result;
+        if (cin && result > -1)
+            break;
+        else 
+            errorHandling("Error : number out of range!");
+
+    }
+    return result;
+}
+
 class HandleFile
 {
     vector<Data> database;
@@ -160,8 +175,6 @@ public:
         while (true) {
             cout << "Input (201, 202, ...[0]Quit): ";
             cin >> fileName;
-            
-            
 
             if (fileName == "0")
                 return 0;
@@ -179,24 +192,8 @@ public:
                 break;
         }
 
-        while (true) {
-            cout << "Threshold on number of students: ";
-            cin >> students;
-            if (cin && students > -1)
-                break;
-            else 
-                errorHandling("Error : number out of range!");
-
-        }
-        
-        while (true) {
-            cout << "Threshold on number of graduates: ";
-            cin >> graduates;
-            if (cin && graduates > -1)
-                break;
-            else 
-                errorHandling("Error : number out of range!");
-        }
+        students  = numberInput("Threshold on number of students: ");
+        graduates = numberInput("Threshold on number of graduates: ");
 
         return 1;
     }
