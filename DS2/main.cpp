@@ -67,22 +67,22 @@ int selectedColumn2;
 
 long long stringToLong(string str, int base = 10)
 {
-	try {
-		if (str[0] == '\"') {
-			string tmp = "";
-			for (int i = 0; i < str.length(); ++i)
-				if (isdigit(str[i])) tmp += str[i];
+    try {
+        if (str[0] == '\"') {
+            string tmp = "";
+            for (int i = 0; i < str.length(); ++i)
+                if (isdigit(str[i])) tmp += str[i];
 
-			return stol(tmp);
-		}
-		else
-			return stol(str, nullptr, base);
-	}
-	catch (exception e) {
-		cout << "ERROR : stoi error!" << endl;
+            return stol(tmp);
+        }
+        else
+            return stol(str, nullptr, base);
+    }
+    catch (exception e) {
+        cout << "ERROR : stoi error!" << endl;
         cout << "Value : " << str << endl;
-		return -1;
-	}
+        return -1;
+    }
 }
 
 bool compare(Data a, Data b)
