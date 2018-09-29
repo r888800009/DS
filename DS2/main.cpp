@@ -162,8 +162,26 @@ public:
 
         cout << "Total number of records: " << database.size() << endl;
     }
+    
+    void dropHeader(fstream &file) 
+    {
+        // check has header?
+        string fileHeader;
+        getline(file, fileHeader);
+        if (fileHeader.compare("大專校院各校科系別概況")) {
+            // skip three line
+            // the first line has been dropped, so the for loop only do (3 - 1) = 2 times
+            cout << "found the header" << endl;
+            for (int i = 0; i < 2; ++i)
+                file.ignore(numeric_limits<streamsize>::max(), '\n');
+        } else {
+            // back to begin
+            file.clear();
+            file.seekg(0, ios::beg);
+        }   
+    }
 
-    string fileInput(fstream &file, string message, bool loadToDatabase)
+    string fileInput(fstream &file, string message, bool loadToDatabase, string prefix)
     {
         string fileName;
         string fin_str;
@@ -176,10 +194,8 @@ public:
             file.open("input" + fileName + ".txt", ios::in);
             if (!file) 
                 errorHandling("Error : there is no such file!");
-
-             // skip three line
-            for (int i = 0; i < 3; ++i)
-                file.ignore(numeric_limits<streamsize>::max(), '\n');
+           
+            dropHeader(file);
             
             if (!loadToDatabase)
                 return fileName;
@@ -222,7 +238,7 @@ public:
 
     bool task1_input(string &fileName) 
     {
-        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", true); 
+        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", true, "input"); 
         if (fileName == "")
             return 0;
         else
@@ -244,7 +260,7 @@ public:
 
     bool task2_input(int &students, int &graduates, string &fileName) 
     {
-        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", true); 
+        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", true, "copy"); 
         if (fileName == "")
             return 0;
 
@@ -281,11 +297,11 @@ public:
     bool task3_input(string &fileName1, string &fileName2) 
     {
         string fin_str, fout_str, fmerge_str;
-        fileName1 = fileInput(fin, "Input 1st(201, 202, ...[0]Quit): ", false); 
+        fileName1 = fileInput(fin, "Input 1st(201, 202, ...[0]Quit): ", false, "copy"); 
         if (fileName1 == "")
             return 0;
 
-        fileName2 = fileInput(fmerge, "Input 2nd(201, 202, ...[0]Quit): ", false); 
+        fileName2 = fileInput(fmerge, "Input 2nd(201, 202, ...[0]Quit): ", false, "copy"); 
         if (fileName2 == "")
             return 0;
         else
