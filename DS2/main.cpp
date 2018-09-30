@@ -25,7 +25,6 @@ using namespace std;
 
 
 static bool inputSuccess;
-static int selectedColumn;
 void errorHandling(string message);
 
 class Data
@@ -37,6 +36,14 @@ public:
     {
         string input, temp;
         getline(in, input);
+
+        // drop \r if the program running on unix
+        // or unix like system, the string may be 
+        // contained '\r'
+        if (input.back() == '\r')
+            input.pop_back();
+        
+        // put \t for split easily
         input += '\t';
         if (in) {
             int count = 0;
@@ -56,249 +63,280 @@ public:
 
     friend ostream &operator<<(ostream &out, Data &data)
     {
-        for (int i = 0; i < SIZE; i++)
-            out << data.column[i] << (i < SIZE - 1 ? '\t' : '\n');
+        for (int i = 0; i < SIZE; i++) 
+            out << data.column[i] << (i < SIZE -1 ? '\t' : '\n');
 
         return out;
     }
-
 };
+
+int selectedColumn1;
+int selectedColumn2;
+
+string getOnlyDigits(string str)
+{
+    string tmp = "";
+    for (int i = 0; i < str.length(); ++i)
+        if (isdigit(str[i])) tmp += str[i];
+    return tmp;
+}
 
 int stringToInt(string str)
 {
     try {
-        if (str[0] == '\"') {
-            string tmp = "";
-            for (int i = 0; i < str.length(); ++i)
-                if (isdigit(str[i])) tmp += str[i];
-
-            return stoi(tmp);
-        }
-        else
-            return stoi(str);
+        if (str[0] == '\"') 
+            str = getOnlyDigits(str); 
+        return stoi(str);
     }
     catch (exception e) {
-        errorHandling("ERROR : stoi error!");
+        cout << "ERROR : stoi error!" << endl;
+        cout << "Value : " << str << endl;
         return -1;
     }
 }
 
+// a > b return 1, a == b return 0, a < b return -1
+int isMoreThan(string a, string b)
+{
+   if (a.length() > b.length())
+       return 1;
+   else if (a.length() < b.length())
+       return -1;
+
+    for (int i = 0; i < a.length(); ++i) {
+        if (a[i] > b[i])
+            return 1;
+        else if (a[i] < b[i])
+            return -1;
+    }
+    return 0;
+}
+
 bool compare(Data a, Data b)
 {
-    int numA, numB;
-    numA = stringToInt(a.column[selectedColumn]);
-    numB = stringToInt(b.column[selectedColumn]);
+    // return 1 if a first
+    int comp;
 
-    return (numA < numB);
+    // first 
+    comp = isMoreThan(a.column[selectedColumn1], b.column[selectedColumn1]);
+    if (comp == 1)
+        return 0;
+    else if (comp == -1)
+        return 1;
+
+    // second
+    comp = isMoreThan(a.column[selectedColumn2], b.column[selectedColumn2]);
+    if (comp == 1)
+        return 0;
+    else if (comp == -1)
+        return 1;
+
+    return 1;
+}
+
+int numberInput(string message)
+{
+    int result;
+    while (true) {
+        cout << message;
+        cin >> result;
+        if (cin && result > -1)
+            return result;
+        else 
+            errorHandling("Error : number out of range!");
+    }
+}
+
+bool onlyDigits(string str)
+{
+    return str.find_first_not_of("1234567890") == string::npos;
 }
 
 class HandleFile
 {
     vector<Data> database;
-    vector<Data> out_database;
     fstream fin, fmerge;
     fstream fout;
-    
-    void save()
+
+public:
+    void save(string saveName) 
     {
-        for (vector<Data>::iterator i = out_database.begin(); i != out_database.end(); i++)
+        fout.open(saveName, ios::out | ios::trunc);
+
+        for (vector<Data>::iterator i = database.begin(); i != database.end(); i++) 
             fout << *i;         // << overload
 
         // closs all file
         if (fin.is_open())
-            fin.close();
-        if (fmerge.is_open())
-            fmerge.close();
-        if (fout.is_open())
-            fout.close();
+            fin.close(); 
 
-        cout << "Total number of records: " << out_database.size() << endl;
+        if (fmerge.is_open())
+            fmerge.close(); 
+
+        fout.close(); 
+
+        cout << "Total number of records: " << database.size() << endl;
+    }
+    
+    void dropHeader(fstream &file) 
+    {
+        for (int i = 0; i < 3; ++i)
+            file.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
-    bool task1_input()
+    string fileInput(fstream &file, string message, bool loadToDatabase, string prefix = "copy")
     {
         string fileName;
-        string fin_str, fout_str;
+        string fin_str;
         while (true) {
-            cout << "Input (201, 202, ...[0]Quit): ";
+            cout << message;
             cin >> fileName;
             if (fileName == "0")
-                return false;
-            else {
-                fin_str = "input" + fileName + ".txt";
-                fout_str = "copy" + fileName + ".txt";
-            }
+                return "";
 
-            fin.open(fin_str, ios::in);
-
-            if (!fin)
+            if (onlyDigits(fileName)) 
+                file.open(prefix + fileName + ".txt", ios::in);
+            else 
+                file.open(fileName, ios::in);
+            
+            fileName = getOnlyDigits(fileName);
+                
+            if (!file) {
                 errorHandling("Error : there is no such file!");
-            else {
-                fout.open(fout_str, ios::out | ios::trunc);
-                return true;
-            }
-        }
-    }
-
-    bool task2_input(int &students, int &graduates)
-    {
-        // finish file open
-        if (!task1_input()) { // success return true
-            return false; // quit
-        }
-
-        while (true) {
-            cout << "Threshold on number of students: ";
-            cin >> students;
-            if (cin && students > -1)
-                break;
-            else
-                errorHandling("Error : number out of range!");
-
-        }
-
-        while (true) {
-            cout << "Threshold on number of graduates: ";
-            cin >> graduates;
-            if (cin && graduates > -1)
-                break;
-            else
-                errorHandling("Error : number out of range!");
-        }
-
-        return true;
-    }
-
-    bool task3_input()
-    {
-        string fileName1, fileName2;
-        string fin_str, fout_str, fmerge_str;
-
-        while (true) {
-
-            while (true) {
-                cout << "Input (201, 202, ...[0]Quit): ";
-                cin >> fileName1;
-                if (fileName1 == "0")
-                    return false;
-                else
-                    fin_str = "input" + fileName1 + ".txt";
-
-                fin.open(fin_str, ios::in);
-
-                if (!fin)
-                    errorHandling("Error : there is no such file!");
-                else {
-                    break;
-                }
+                continue;
             }
 
-            while (true) {
-                cout << "Input (201, 202, ...[0]Quit): ";
-                cin >> fileName2;
-                if (fileName2 == "0")
-                    return false;
-                else
-                    fmerge_str = "input" + fileName2 + ".txt";
+            if (!loadToDatabase)
+                return fileName;
 
-                fmerge.open(fmerge_str, ios::in);
+            if (prefix == "input")
+                dropHeader(file);
 
-                if (!fmerge)
-                    errorHandling("Error : there is no such file!");
-                else {
-                    break;
-                }
-            }
-
-            fout_str = "output" + fileName1 + "_" + fileName2 + ".txt";
-            fout.open(fout_str, ios::out | ios::trunc);
-            return true;
-
-        }
-    }
-
-public:
-    
-    bool task1()
-    {
-        if (task1_input()) { // success return true
-
-            // skip three line
-            for (int i = 0; i < 3; ++i)
-                fin.ignore(numeric_limits<streamsize>::max(), '\n');
-
+            // load file
             Data temp;
-            while (fin >> temp)     // >> overload
-                if (inputSuccess) out_database.push_back(temp);
+            while (file >> temp)     // >> overload
+                if (inputSuccess) database.push_back(temp);
 
-            save();
+            return fileName;
+        }
+    }
+
+    void merge(bool (*comp)(Data, Data)) {
+        
+        // comp function return data priority
+        Data a, b;
+        fin >> a;
+        fmerge >> b;
+        while (fin && fmerge) {
+            if (comp(a, b)) {
+                database.push_back(a);
+                fin >> a;
+            } else {
+                database.push_back(b);
+                fmerge >> b;
+            }
+        }
+
+        while (fin) {
+            if (inputSuccess) database.push_back(a);
+            fin >> a; // >> overload
+        }
+
+        while (fmerge) {
+            if (inputSuccess) database.push_back(b);
+            fmerge >> b; // >> overload
+        }
+    }
+
+    bool task1_input(string &fileName) 
+    {
+        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", true, "input"); 
+        if (fileName == "")
+            return 0;
+        else
+            return 1;
+    }
+
+    bool task1() 
+    {
+        string fileName;
+        if (task1_input(fileName)) {
+            
+            save("copy" + fileName + ".txt");
 
             return 0;
         }
-        else return 0; // quit
+
+        return 1;
+    }
+
+    bool task2_input(int &students, int &graduates, string &fileName) 
+    {
+        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", true); 
+        if (fileName == "")
+            return 0;
+
+        students  = numberInput("Threshold on number of students: ");
+        graduates = numberInput("Threshold on number of graduates: ");
+
+        return 1;
     }
 
     bool task2()
     {
         int students, graduates;
-        if (task2_input(students, graduates)) { // success return true
-
-            // skip three line
-            for (int i = 0; i < 3; ++i)
-                fin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-            Data temp;
-            while (fin >> temp)     // >> overload
-                if (inputSuccess) database.push_back(temp);
-
+        string fileName;
+        if (task2_input(students, graduates, fileName)) {
+            
             // query
-            for (vector<Data>::iterator it = database.begin(); it != database.end(); ++it)
-                if (stringToInt(it->column[DATA_STUDENTS]) >= students &&
-                    stringToInt(it->column[DATA_GRADUATES]) >= graduates)
+            for (vector<Data>::iterator it = database.begin(); it != database.end(); )
+                if (stringToInt(it->column[DATA_STUDENTS]) < students ||
+                    stringToInt(it->column[DATA_GRADUATES]) < graduates) 
                 {
-                    out_database.push_back(*it);
+                    it = database.erase(it);
+                } else {
+                    ++it;
                 }
-
-            save();
+            
+            save("copy" + fileName + ".txt");
 
             return 0;
         }
-        else return 0; // quit
+
+        return 1;
     }
 
+    bool task3_input(string &fileName1, string &fileName2) 
+    {
+        string fin_str, fout_str, fmerge_str;
+        fileName1 = fileInput(fin, "Input 1st(201, 202, ...[0]Quit): ", false); 
+        if (fileName1 == "")
+            return 0;
+
+        fileName2 = fileInput(fmerge, "Input 2nd(201, 202, ...[0]Quit): ", false); 
+        if (fileName2 == "")
+            return 0;
+        else
+            return 1;
+    }
+
+    // merge
     bool task3()
     {
-        if (task3_input()) { // success return true
+        string fileName1, fileName2;
+        if (task3_input(fileName1, fileName2)) {
+            // College priority than department
+            selectedColumn1 = DATA_ID;
+            selectedColumn2 = DATA_DEPARTMENT__ID;
 
-            // skip three line
-            for (int i = 0; i < 3; ++i) {
-                fin.ignore(numeric_limits<streamsize>::max(), '\n');
-                fmerge.ignore(numeric_limits<streamsize>::max(), '\n');
-            }
-
-            Data temp;
-            while (fin >> temp)     // >> overload
-                if (inputSuccess) out_database.push_back(temp);
-
-            // merge
-            while (fmerge >> temp)     // >> overload
-                if (inputSuccess) out_database.push_back(temp);
-
-            // sort department
-            selectedColumn = DATA_DEPARTMENT__ID;
-            stable_sort(out_database.begin(), out_database.end(), compare);
-
-            // sort college
-            selectedColumn = DATA_ID;
-            stable_sort(out_database.begin(), out_database.end(), compare);
-
-            save();
+            merge(compare);
+            save("output" + fileName1 + "_" + fileName2 + ".txt");
 
             return 0;
         }
-        else return 0; // quit
-    }
 
+        return 1;
+    }
 };
 
 int main(int argc, char *argv[])
@@ -360,5 +398,3 @@ void errorHandling(string message)
     // Åã¥Ü¿ù»~°T®§
     cout << message << endl;
 }
-
-
