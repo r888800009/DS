@@ -125,13 +125,18 @@ class HandleFile
     fstream fin, fmerge;
     fstream fout;
 
+    string getOnlyDigits(string str)
+    {
+        string tmp = "";
+        for (int i = 0; i < str.length(); ++i) {
+            if (isdigit(str[i])) tmp += str[i];
+        }
+        return tmp;
+    }
+
     // common function
     void save(string saveName)
     {
-        fout.open(saveName, ios::out | ios::trunc);
-
-        for (vector<Data>::iterator i = database.begin(); i != database.end(); i++)
-            fout << *i;         // << overload
 
         // closs all file
         if (fin.is_open())
@@ -139,6 +144,10 @@ class HandleFile
 
         if (fmerge.is_open())
             fmerge.close();
+
+        fout.open(saveName, ios::out | ios::trunc);
+        for (vector<Data>::iterator i = database.begin(); i != database.end(); i++)
+            fout << *i;         // << overload
 
         fout.close();
 
@@ -161,6 +170,7 @@ class HandleFile
             if (fileName == "0")
                 return ""; // quit
 
+            fileName = getOnlyDigits(fileName);
             file.open(prefix + fileName + ".txt", ios::in);
 
             if (!file) {
@@ -180,7 +190,7 @@ class HandleFile
     {
         fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", "input");
         if (fileName == "")
-            return 0; //  quit
+            return 0; // quit
         else
             return 1;
     }
@@ -202,13 +212,9 @@ class HandleFile
     int stringToInt(string str)
     {
         try {
-            if (str[0] == '\"') {
-                string tmp = "";
-                for (int i = 0; i < str.length(); ++i) {
-                    if (isdigit(str[i])) tmp += str[i];
-                }
-                return stoi(tmp);
-            }
+            if (str[0] == '\"') 
+                return stoi(getOnlyDigits(str));
+
             return stoi(str);
         }
         catch (exception e) {
@@ -220,7 +226,7 @@ class HandleFile
 
     bool task2_input(int &students, int &graduates, string &fileName)
     {
-        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", "input");
+        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", "copy");
         if (fileName == "")
             return 0; // quit
 

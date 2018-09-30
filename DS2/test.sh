@@ -1,15 +1,16 @@
 #!/bin/bash 
 
+g++ main.cpp -o main
 function clean1() 
 {
 
     echo clean 
-    rmdir test1
     rm test1/*
-    rmdir test2
+    rmdir test1
     rm test2/*
-    rmdir test3
+    rmdir test2
     rm test3/*
+    rmdir test3
 }
 
 function init1()
