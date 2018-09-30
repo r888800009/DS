@@ -38,12 +38,7 @@ do
     $i
     " | ./main | grep "Total number of records"
     mv "copy$i.txt" "test$i.txt"
-    echo \
-    "
-    1
-    input$i.txt
-    " | ./main | grep "Total number of records"
-    diff "copy$i.txt" "test$i.txt"
+
 done
 move1 "test1"
 
@@ -58,13 +53,6 @@ do
     100 1
     " | ./main | grep "Total number of records"
     mv "copy$i.txt" "test$i.txt"
-    echo \
-    "
-    1 $i
-    2 copy$i.txt
-    100 1
-    " | ./main | grep "Total number of records"
-    diff "copy$i.txt" "test$i.txt"
 done
 move1 "test2"
 
@@ -80,12 +68,18 @@ do
     " | ./main | grep "Total number of records"
     j="$i"_"$(($i + 1))"
     mv "output$j.txt" "test$j.txt"
-    echo \
-    "
-    1 input$i.txt
-    1 input$(($i + 1)).txt
-    3 copy$i.txt copy$(($i + 1)).txt
-    " | ./main | grep "Total number of records"
-    diff "output$j.txt" "test$j.txt"
+
 done
 move1 "test3"
+
+echo
+echo "test input"
+for i in {201..205};
+do
+    echo \
+    "
+    1
+    input$i.txt
+    0" | ./main | grep "number"
+
+done

@@ -163,14 +163,21 @@ class HandleFile
     string fileInput(fstream &file, string message, string prefix)
     {
         string fileName;
+        int fileNum;
         string fin_str;
         while (true) {
-            cout << message;
-            cin >> fileName;
+            while (true) {
+                cout << message;
+                cin >> fileNum;
+                if (!cin)
+                    errorHandling("Error: Must file number!");
+                else
+                    break;
+            };
+            fileName = to_string(fileNum);
             if (fileName == "0")
                 return ""; // quit
 
-            fileName = getOnlyDigits(fileName);
             file.open(prefix + fileName + ".txt", ios::in);
 
             if (!file) {
