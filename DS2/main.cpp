@@ -74,56 +74,13 @@ public:
     }
 };
 
-int selectedColumn1;
-int selectedColumn2;
-
-int isLessThan(string a, string b)
-{
-    // a < b return 1, a == b return 0, a > b return -1
-    if (a.length() < b.length())
-        return 1;
-    else if (a.length() > b.length())
-        return -1;
-
-    for (int i = 0; i < a.length(); ++i) {
-        if (a[i] < b[i])
-            return 1;
-        else if (a[i] > b[i])
-            return -1;
-    }
-
-    return 0;
-}
-
-bool compare(Data a, Data b)
-{
-    // comp return 1, return 1 push a
-    // comp return -1, return 0 push b
-    int comp;
-
-    // first 
-    comp = isLessThan(a.column[selectedColumn1], b.column[selectedColumn1]);
-    if (comp == 1)
-        return 1;
-    else if (comp == -1)
-        return 0;
-
-    // second
-    comp = isLessThan(a.column[selectedColumn2], b.column[selectedColumn2]);
-    if (comp == 1)
-        return 1;
-    else if (comp == -1)
-        return 0;
-
-    // same return 1 push a
-    return 1;
-}
-
 class HandleFile
 {
     vector<Data> database;
     fstream fin, fmerge;
     fstream fout;
+    int selectedColumn1;
+    int selectedColumn2;
 
     string getOnlyDigits(string str)
     {
@@ -132,6 +89,48 @@ class HandleFile
             if (isdigit(str[i])) tmp += str[i];
         }
         return tmp;
+    }
+
+    int isLessThan(string a, string b)
+    {
+        // a < b return 1, a == b return 0, a > b return -1
+        if (a.length() < b.length())
+            return 1;
+        else if (a.length() > b.length())
+            return -1;
+
+        for (int i = 0; i < a.length(); ++i) {
+            if (a[i] < b[i])
+                return 1;
+            else if (a[i] > b[i])
+                return -1;
+        }
+
+        return 0;
+    }
+
+    bool comp(Data a, Data b)
+    {
+        // comp return 1, return 1 push a
+        // comp return -1, return 0 push b
+        int comp;
+
+        // first 
+        comp = isLessThan(a.column[selectedColumn1], b.column[selectedColumn1]);
+        if (comp == 1)
+            return 1;
+        else if (comp == -1)
+            return 0;
+
+        // second
+        comp = isLessThan(a.column[selectedColumn2], b.column[selectedColumn2]);
+        if (comp == 1)
+            return 1;
+        else if (comp == -1)
+            return 0;
+
+        // same return 1 push a
+        return 1;
     }
 
     // common function
@@ -250,7 +249,7 @@ class HandleFile
     }
 
     // use in task3
-    void merge(bool(*comp)(Data, Data)) {
+    void merge() {
 
         // comp function return data priority
         Data a, b;
@@ -347,7 +346,7 @@ public:
             selectedColumn1 = DATA_ID;
             selectedColumn2 = DATA_DEPARTMENT__ID;
 
-            merge(compare);
+            merge();
             save("output" + fileName1 + "_" + fileName2 + ".txt");
 
             return 0;
