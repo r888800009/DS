@@ -52,9 +52,9 @@ public:
             // splitting
             int count = 0;
             inputSuccess = true;
-            for (int i = 0; i < input.length(); i++) {
-                if (input[i] != '\t')
-                    temp += input[i];
+            for (char c : input) {
+                if (c != '\t')
+                    temp += c;
                 else {
                     data.column[count++] = temp;
                     temp = "";
@@ -85,9 +85,9 @@ class HandleFile
     string getOnlyDigits(string str)
     {
         string tmp = "";
-        for (int i = 0; i < str.length(); ++i) {
-            if (isdigit(str[i])) tmp += str[i];
-        }
+        for (char c : str) 
+            if (isdigit(c)) tmp += c;
+
         return tmp;
     }
 
@@ -145,8 +145,8 @@ class HandleFile
             fmerge.close();
 
         fout.open(saveName, ios::out | ios::trunc);
-        for (vector<Data>::iterator i = database.begin(); i != database.end(); i++)
-            fout << *i;         // << overload
+        for (Data i : database)
+            fout << i;         // << overload
 
         fout.close();
 
@@ -169,12 +169,12 @@ class HandleFile
             // input file number
             while (true) {
                 cout << message;
-                cin >> fileNum;
+                cin  >> fileNum;
                 if (!cin)
                     errorHandling("Error: Must file number!");
                 else
                     break;
-            };
+            }
 
             fileName = to_string(fileNum);
 
@@ -231,7 +231,7 @@ class HandleFile
         }
         catch (exception e) {
             cout << "ERROR : stoi error!" << endl;
-            cout << "Value : " << str << endl;
+            cout << "Value : " <<   str   << endl;
             return -1;
         }
     }
@@ -242,7 +242,7 @@ class HandleFile
         if (fileName == "")
             return 0; // quit
 
-        students = numberInput("Threshold on number of students: ");
+        students  = numberInput("Threshold on number of students: ");
         graduates = numberInput("Threshold on number of graduates: ");
 
         return 1;
@@ -253,7 +253,7 @@ class HandleFile
 
         // comp function return data priority
         Data a, b;
-        fin >> a;
+        fin    >> a;
         fmerge >> b;
         while (fin && fmerge) {
             if (comp(a, b)) {
