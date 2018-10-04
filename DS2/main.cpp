@@ -1,5 +1,4 @@
-
-//must to use -std=c++11 or higher version
+// must to use -std=c++11 or higher version
 
 #include <iostream>
 #include <string>
@@ -50,6 +49,7 @@ public:
             // put \t for split easily
             input += '\t';
 
+            // splitting
             int count = 0;
             inputSuccess = true;
             for (int i = 0; i < input.length(); i++) {
@@ -166,6 +166,8 @@ class HandleFile
         int fileNum;
         string fin_str;
         while (true) {
+
+            // input file number
             while (true) {
                 cout << message;
                 cin >> fileNum;
@@ -174,9 +176,12 @@ class HandleFile
                 else
                     break;
             };
+
             fileName = to_string(fileNum);
+
+            // quit program if input "0"
             if (fileName == "0")
-                return ""; // quit
+                return ""; 
 
             file.open(prefix + fileName + ".txt", ios::in);
 
@@ -184,7 +189,7 @@ class HandleFile
                 errorHandling("Error : there is no such file!");
                 continue;
             }
-
+            
             if (prefix == "input")
                 dropHeader(file);
 
@@ -219,6 +224,7 @@ class HandleFile
     int stringToInt(string str)
     {
         try {
+            // "1,223,234,234,234"
             if (str[0] == '\"') 
                 return stoi(getOnlyDigits(str));
 
