@@ -15,7 +15,7 @@ using namespace std;
 #define DATA_SIZE             11
 #define DATA_ID               0
 #define DATA_NAME             1
-#define DATA_DEPARTMENT__ID   2
+#define DATA_DEPARTMENT_ID    2
 #define DATA_DEPARTMENT_NAME  3
 #define DATA_DAY_EXT_EDU      4
 #define DATA_STAGE            5
@@ -77,11 +77,15 @@ public:
 class HandleFile
 {
     vector<Data> database;
+    vector<int>  selected;
     fstream fin, fmerge;
     fstream fout;
-    int selectedColumn1;
-    int selectedColumn2;
 
+    void select(int column)
+    {
+        selected.push_back(column);
+    }
+    
     string getOnlyDigits(string str)
     {
         string tmp = "";
@@ -115,19 +119,14 @@ class HandleFile
         // comp return -1, return 0 push b
         int comp;
 
-        // first 
-        comp = isLessThan(a.column[selectedColumn1], b.column[selectedColumn1]);
-        if (comp == 1)
-            return 1;
-        else if (comp == -1)
-            return 0;
-
-        // second
-        comp = isLessThan(a.column[selectedColumn2], b.column[selectedColumn2]);
-        if (comp == 1)
-            return 1;
-        else if (comp == -1)
-            return 0;
+        // comp all selected 
+        for (int select1 : selected) {
+            comp = isLessThan(a.column[select1], b.column[select1]);
+            if (comp == 1)
+                return 1;
+            else if (comp == -1)
+                return 0;
+        }
 
         // same return 1 push a
         return 1;
@@ -343,8 +342,8 @@ public:
         string fileName1, fileName2;
         if (task3_input(fileName1, fileName2)) {
             // College priority than department
-            selectedColumn1 = DATA_ID;
-            selectedColumn2 = DATA_DEPARTMENT__ID;
+            select(DATA_ID);
+            select(DATA_DEPARTMENT_ID);
 
             merge();
             save("output" + fileName1 + "_" + fileName2 + ".txt");
