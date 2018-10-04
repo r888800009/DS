@@ -162,7 +162,6 @@ class HandleFile
     {
         string fileName;
         int fileNum;
-        string fin_str;
         while (true) {
 
             // input file number
@@ -278,7 +277,6 @@ class HandleFile
 
     bool task3_input(string &fileName1, string &fileName2)
     {
-        string fin_str, fout_str, fmerge_str;
         fileName1 = fileInput(fin, "Input 1st(201, 202, ...[0]Quit): ", "copy");
         if (fileName1 == "")
             return 0; // quit
