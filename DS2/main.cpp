@@ -11,19 +11,19 @@ using namespace std;
 #define MENU_FILTER_FILE      2
 #define MENU_MERGE_FILE       3
 #define MENU_QUIT             4
-#define SIZE                  11
 
-#define DATA_ID              0
-#define DATA_NAME            1
-#define DATA_DEPARTMENT__ID  2
-#define DATA_DEPARTMENT_NAME 3
-#define DATA_DAY_EXT_EDU     4
-#define DATA_STAGE           5
-#define DATA_STUDENTS        6
-#define DATA_TEACHERS        7
-#define DATA_GRADUATES       8
-#define DATA_CITY            9
-#define DATA_TYPE            10
+#define DATA_SIZE             11
+#define DATA_ID               0
+#define DATA_NAME             1
+#define DATA_DEPARTMENT__ID   2
+#define DATA_DEPARTMENT_NAME  3
+#define DATA_DAY_EXT_EDU      4
+#define DATA_STAGE            5
+#define DATA_STUDENTS         6
+#define DATA_TEACHERS         7
+#define DATA_GRADUATES        8
+#define DATA_CITY             9
+#define DATA_TYPE             10
 
 
 static bool inputSuccess;
@@ -32,7 +32,7 @@ void errorHandling(string message);
 class Data
 {
 public:
-    string column[SIZE];
+    string column[DATA_SIZE];
 
     friend istream &operator>>(istream &in, Data &data)
     {
@@ -60,15 +60,15 @@ public:
                     temp = "";
                 }
             }
-            if (count != SIZE) inputSuccess = false;
+            if (count != DATA_SIZE) inputSuccess = false;
         }
         return in;
     }
 
     friend ostream &operator<<(ostream &out, Data &data)
     {
-        for (int i = 0; i < SIZE; i++)
-            out << data.column[i] << (i < SIZE - 1 ? '\t' : '\n');
+        for (int i = 0; i < DATA_SIZE; i++)
+            out << data.column[i] << (i < DATA_SIZE - 1 ? '\t' : '\n');
 
         return out;
     }
