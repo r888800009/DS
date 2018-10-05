@@ -39,29 +39,32 @@ public:
         string input, temp;
         getline(in, input);
 
-        if (in) {
-            // drop \r if the program running on unix
-            // or unix like system, the string may be 
-            // contained '\r'
-            if (input.back() == '\r')
-                input.pop_back();
+        if (!in) 
+            return in;
+        // drop \r if the program running on unix
+        // or unix like system, the string may be 
+        // contained '\r'
+        if (input.back() == '\r')
+            input.pop_back();
 
-            // put \t for split easily
-            input += '\t';
+        // put \t for split easily
+        input += '\t';
 
-            // splitting
-            int count = 0;
-            inputSuccess = true;
-            for (char c : input) {
-                if (c != '\t')
-                    temp += c;
-                else {
-                    data.column[count++] = temp;
-                    temp = "";
-                }
+        // splitting
+        int count = 0;
+        inputSuccess = true;
+        for (char c : input) {
+            if (c != '\t')
+                temp += c;
+            else {
+                data.column[count++] = temp;
+                temp = "";
             }
-            if (count != DATA_SIZE) inputSuccess = false;
         }
+
+        if (count != DATA_SIZE)
+            inputSuccess = false;
+
         return in;
     }
 
@@ -76,16 +79,9 @@ public:
 
 class HandleFile
 {
-    vector<Data> database;
-    vector<int>  selected;
     fstream fin, fmerge;
     fstream fout;
 
-    void select(int column)
-    {
-        selected.push_back(column);
-    }
-    
     string getOnlyDigits(string str)
     {
         string tmp = "";
@@ -113,7 +109,7 @@ class HandleFile
         return 0;
     }
 
-    bool comp(Data a, Data b)
+    bool comp(Data a, Data b, vector<int> &selected)
     {
         // comp return 1, return 1 push a
         // comp return -1, return 0 push b
@@ -133,7 +129,7 @@ class HandleFile
     }
 
     // common function
-    void save(string saveName)
+    void save(string saveName, vector<Data> &database)
     {
 
         // closs all file
@@ -247,14 +243,14 @@ class HandleFile
     }
 
     // use in task3
-    void merge() {
+    void merge(vector<Data> &database, vector<int> &selected) {
 
         // comp function return data priority
         Data a, b;
         fin    >> a;
         fmerge >> b;
         while (fin && fmerge) {
-            if (comp(a, b)) {
+            if (comp(a, b, selected)) {
                 database.push_back(a);
                 fin >> a;
             }
@@ -292,66 +288,70 @@ public:
 
     bool task1()
     {
+
+        vector<Data> database;
         string fileName;
-        if (task1_input(fileName)) {
 
-            Data temp;
-            while (fin >> temp)     // >> overload
-                if (inputSuccess) database.push_back(temp);
-
-            save("copy" + fileName + ".txt");
-
-            return 0;
-        }
-        else {
+        if (!task1_input(fileName)) {
             cout << "switch to menu" << endl;
             return 0;
         }
+
+        Data temp;
+        while (fin >> temp)     // >> overload
+            if (inputSuccess) database.push_back(temp);
+
+        save("copy" + fileName + ".txt", database);
+
+        return 0;
     }
 
     bool task2()
     {
+        vector<Data> database;
         int students, graduates;
         string fileName;
-        if (task2_input(students, graduates, fileName)) {
 
-            Data temp;
-            while (fin >> temp) {
-                if (inputSuccess &&
-                    stringToInt(temp.column[DATA_STUDENTS]) >= students &&
-                    stringToInt(temp.column[DATA_GRADUATES]) >= graduates)
-                {
-                    database.push_back(temp);
-                }
-            }
-
-            save("copy" + fileName + ".txt");
-
-            return 0;
-        }
-        else {
+        if (!task2_input(students, graduates, fileName)) {
             cout << "switch to menu" << endl;
             return 0;
         }
+
+        Data temp;
+        while (fin >> temp) {
+            if (inputSuccess &&
+                stringToInt(temp.column[DATA_STUDENTS]) >= students &&
+                stringToInt(temp.column[DATA_GRADUATES]) >= graduates)
+            {
+                database.push_back(temp);
+            }
+        }
+
+        save("copy" + fileName + ".txt", database);
+
+        return 0;
+
     }
 
     bool task3()
     {
+        vector<Data> database;
+        vector<int>  selected;
         string fileName1, fileName2;
-        if (task3_input(fileName1, fileName2)) {
-            // College priority than department
-            select(DATA_ID);
-            select(DATA_DEPARTMENT_ID);
-
-            merge();
-            save("output" + fileName1 + "_" + fileName2 + ".txt");
-
-            return 0;
-        }
-        else {
+        
+        if (!task3_input(fileName1, fileName2)) {
             cout << "switch to menu" << endl;
             return 0;
         }
+
+        // College priority than department
+        selected.push_back(DATA_ID);
+        selected.push_back(DATA_DEPARTMENT_ID);
+
+        merge(database, selected);
+        save("output" + fileName1 + "_" + fileName2 + ".txt", database);
+
+        return 0;
     }
 };
 
