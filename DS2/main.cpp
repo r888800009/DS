@@ -76,15 +76,9 @@ public:
 
 class HandleFile
 {
-    vector<int>  selected;
     fstream fin, fmerge;
     fstream fout;
 
-    void select(int column)
-    {
-        selected.push_back(column);
-    }
-    
     string getOnlyDigits(string str)
     {
         string tmp = "";
@@ -112,7 +106,7 @@ class HandleFile
         return 0;
     }
 
-    bool comp(Data a, Data b)
+    bool comp(Data a, Data b, vector<int> &selected)
     {
         // comp return 1, return 1 push a
         // comp return -1, return 0 push b
@@ -247,14 +241,14 @@ class HandleFile
     }
 
     // use in task3
-    void merge(vector<Data> &database) {
+    void merge(vector<Data> &database, vector<int> &selected) {
 
         // comp function return data priority
         Data a, b;
         fin    >> a;
         fmerge >> b;
         while (fin && fmerge) {
-            if (comp(a, b)) {
+            if (comp(a, b, selected)) {
                 database.push_back(a);
                 fin >> a;
             }
@@ -342,13 +336,14 @@ public:
     bool task3()
     {
         vector<Data> database;
+        vector<int>  selected;
         string fileName1, fileName2;
         if (task3_input(fileName1, fileName2)) {
             // College priority than department
-            select(DATA_ID);
-            select(DATA_DEPARTMENT_ID);
+            selected.push_back(DATA_ID);
+            selected.push_back(DATA_DEPARTMENT_ID);
 
-            merge(database);
+            merge(database, selected);
             save("output" + fileName1 + "_" + fileName2 + ".txt", database);
 
             return 0;
