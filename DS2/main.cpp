@@ -39,29 +39,32 @@ public:
         string input, temp;
         getline(in, input);
 
-        if (in) {
-            // drop \r if the program running on unix
-            // or unix like system, the string may be 
-            // contained '\r'
-            if (input.back() == '\r')
-                input.pop_back();
+        if (!in) 
+            return in;
+        // drop \r if the program running on unix
+        // or unix like system, the string may be 
+        // contained '\r'
+        if (input.back() == '\r')
+            input.pop_back();
 
-            // put \t for split easily
-            input += '\t';
+        // put \t for split easily
+        input += '\t';
 
-            // splitting
-            int count = 0;
-            inputSuccess = true;
-            for (char c : input) {
-                if (c != '\t')
-                    temp += c;
-                else {
-                    data.column[count++] = temp;
-                    temp = "";
-                }
+        // splitting
+        int count = 0;
+        inputSuccess = true;
+        for (char c : input) {
+            if (c != '\t')
+                temp += c;
+            else {
+                data.column[count++] = temp;
+                temp = "";
             }
-            if (count != DATA_SIZE) inputSuccess = false;
         }
+
+        if (count != DATA_SIZE)
+            inputSuccess = false;
+
         return in;
     }
 
@@ -290,20 +293,19 @@ public:
 
         vector<Data> database;
         string fileName;
-        if (task1_input(fileName)) {
 
-            Data temp;
-            while (fin >> temp)     // >> overload
-                if (inputSuccess) database.push_back(temp);
-
-            save("copy" + fileName + ".txt", database);
-
-            return 0;
-        }
-        else {
+        if (!task1_input(fileName)) {
             cout << "switch to menu" << endl;
             return 0;
         }
+
+        Data temp;
+        while (fin >> temp)     // >> overload
+            if (inputSuccess) database.push_back(temp);
+
+        save("copy" + fileName + ".txt", database);
+
+        return 0;
     }
 
     bool task2()
@@ -311,26 +313,26 @@ public:
         vector<Data> database;
         int students, graduates;
         string fileName;
-        if (task2_input(students, graduates, fileName)) {
 
-            Data temp;
-            while (fin >> temp) {
-                if (inputSuccess &&
-                    stringToInt(temp.column[DATA_STUDENTS]) >= students &&
-                    stringToInt(temp.column[DATA_GRADUATES]) >= graduates)
-                {
-                    database.push_back(temp);
-                }
-            }
-
-            save("copy" + fileName + ".txt", database);
-
-            return 0;
-        }
-        else {
+        if (!task2_input(students, graduates, fileName)) {
             cout << "switch to menu" << endl;
             return 0;
         }
+
+        Data temp;
+        while (fin >> temp) {
+            if (inputSuccess &&
+                stringToInt(temp.column[DATA_STUDENTS]) >= students &&
+                stringToInt(temp.column[DATA_GRADUATES]) >= graduates)
+            {
+                database.push_back(temp);
+            }
+        }
+
+        save("copy" + fileName + ".txt", database);
+
+        return 0;
+
     }
 
     bool task3()
@@ -338,20 +340,20 @@ public:
         vector<Data> database;
         vector<int>  selected;
         string fileName1, fileName2;
-        if (task3_input(fileName1, fileName2)) {
-            // College priority than department
-            selected.push_back(DATA_ID);
-            selected.push_back(DATA_DEPARTMENT_ID);
-
-            merge(database, selected);
-            save("output" + fileName1 + "_" + fileName2 + ".txt", database);
-
-            return 0;
-        }
-        else {
+        
+        if (!task3_input(fileName1, fileName2)) {
             cout << "switch to menu" << endl;
             return 0;
         }
+
+        // College priority than department
+        selected.push_back(DATA_ID);
+        selected.push_back(DATA_DEPARTMENT_ID);
+
+        merge(database, selected);
+        save("output" + fileName1 + "_" + fileName2 + ".txt", database);
+
+        return 0;
     }
 };
 
