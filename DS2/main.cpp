@@ -76,7 +76,6 @@ public:
 
 class HandleFile
 {
-    vector<Data> database;
     vector<int>  selected;
     fstream fin, fmerge;
     fstream fout;
@@ -133,7 +132,7 @@ class HandleFile
     }
 
     // common function
-    void save(string saveName)
+    void save(string saveName, vector<Data> &database)
     {
 
         // closs all file
@@ -248,7 +247,7 @@ class HandleFile
     }
 
     // use in task3
-    void merge() {
+    void merge(vector<Data> &database) {
 
         // comp function return data priority
         Data a, b;
@@ -294,6 +293,8 @@ public:
 
     bool task1()
     {
+
+        vector<Data> database;
         string fileName;
         if (task1_input(fileName)) {
 
@@ -301,7 +302,7 @@ public:
             while (fin >> temp)     // >> overload
                 if (inputSuccess) database.push_back(temp);
 
-            save("copy" + fileName + ".txt");
+            save("copy" + fileName + ".txt", database);
 
             return 0;
         }
@@ -313,6 +314,7 @@ public:
 
     bool task2()
     {
+        vector<Data> database;
         int students, graduates;
         string fileName;
         if (task2_input(students, graduates, fileName)) {
@@ -327,7 +329,7 @@ public:
                 }
             }
 
-            save("copy" + fileName + ".txt");
+            save("copy" + fileName + ".txt", database);
 
             return 0;
         }
@@ -339,14 +341,15 @@ public:
 
     bool task3()
     {
+        vector<Data> database;
         string fileName1, fileName2;
         if (task3_input(fileName1, fileName2)) {
             // College priority than department
             select(DATA_ID);
             select(DATA_DEPARTMENT_ID);
 
-            merge();
-            save("output" + fileName1 + "_" + fileName2 + ".txt");
+            merge(database);
+            save("output" + fileName1 + "_" + fileName2 + ".txt", database);
 
             return 0;
         }
