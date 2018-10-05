@@ -82,6 +82,7 @@ class HandleFile
     fstream fin, fmerge;
     fstream fout;
 
+    // common function
     string getOnlyDigits(string str)
     {
         string tmp = "";
@@ -91,6 +92,111 @@ class HandleFile
         return tmp;
     }
 
+    int numberInput(string message, string errorMsg)
+    {
+        int result;
+        while (true) {
+            cout << message;
+            cin >> result;
+            if (cin && result > -1)
+                return result;
+            else
+                errorHandling("Error : " + errorMsg);
+        }
+    }
+
+    void save(string saveName, vector<Data> &database)
+    {
+        // closs all file
+        if (fin.is_open())
+            fin.close();
+
+        if (fmerge.is_open())
+            fmerge.close();
+
+        fout.open(saveName, ios::out | ios::trunc);
+        for (Data i : database)
+            fout << i;         // << overload
+
+        fout.close();
+
+        cout << "Total number of records: " << database.size() << endl;
+    }
+
+    void dropHeader(fstream &file)
+    {
+        for (int i = 0; i < 3; ++i)
+            file.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    string fileInput(fstream &file, string message, string prefix)
+    {
+        string fileName;
+        int fileNum;
+        while (true) {
+
+            // input file number
+            string errorMsg = "Must file number!";
+            fileNum  = numberInput(message, errorMsg); 
+            fileName = to_string(fileNum);
+
+            // quit program if input "0"
+            if (fileName == "0")
+                return ""; 
+
+            file.open(prefix + fileName + ".txt", ios::in);
+
+            if (!file) {
+                errorHandling("Error : there is no such file!");
+                continue; // input again
+            }
+            
+            if (prefix == "input")
+                dropHeader(file);
+
+            return fileName;
+        }
+    }
+
+    // use in task1
+    bool task1_input(string &fileName)
+    {
+        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", "input");
+
+        // if fileName == "" then quit to menu
+        return fileName != "";  // {quit: 0, continue: 1}
+    }
+
+    int stringToInt(string str)
+    {
+        try {
+            // "1,223,234,234,234"
+            if (str[0] == '\"') 
+                str = getOnlyDigits(str);
+
+            return stoi(str);
+        }
+        catch (exception e) {
+            cout << "ERROR : stoi error!" << endl;
+            cout << "Value : " <<   str   << endl;
+            return -1; // return error value
+        }
+    }
+
+    bool task2_input(int &students, int &graduates, string &fileName)
+    {
+        string errorMsg = "number out of range!";
+        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", "copy");
+        if (fileName == "")
+            return 0; // quit
+
+        students  = numberInput("Threshold on number of students: ", errorMsg);
+        graduates = numberInput("Threshold on number of graduates: ", errorMsg);
+
+        return 1;
+    }
+
+    // use in task3
     int isLessThan(string a, string b)
     {
         // a < b return 1, a == b return 0, a > b return -1
@@ -128,121 +234,6 @@ class HandleFile
         return 1;
     }
 
-    // common function
-    void save(string saveName, vector<Data> &database)
-    {
-
-        // closs all file
-        if (fin.is_open())
-            fin.close();
-
-        if (fmerge.is_open())
-            fmerge.close();
-
-        fout.open(saveName, ios::out | ios::trunc);
-        for (Data i : database)
-            fout << i;         // << overload
-
-        fout.close();
-
-        cout << "Total number of records: " << database.size() << endl;
-    }
-
-    void dropHeader(fstream &file)
-    {
-        for (int i = 0; i < 3; ++i)
-            file.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
-
-    string fileInput(fstream &file, string message, string prefix)
-    {
-        string fileName;
-        int fileNum;
-        while (true) {
-
-            // input file number
-            while (true) {
-                cout << message;
-                cin  >> fileNum;
-                if (!cin)
-                    errorHandling("Error: Must file number!");
-                else
-                    break;
-            }
-
-            fileName = to_string(fileNum);
-
-            // quit program if input "0"
-            if (fileName == "0")
-                return ""; 
-
-            file.open(prefix + fileName + ".txt", ios::in);
-
-            if (!file) {
-                errorHandling("Error : there is no such file!");
-                continue;
-            }
-            
-            if (prefix == "input")
-                dropHeader(file);
-
-            return fileName;
-        }
-    }
-
-    // use in task1
-    bool task1_input(string &fileName)
-    {
-        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", "input");
-        if (fileName == "")
-            return 0; // quit
-        else
-            return 1;
-    }
-
-    // use in task2
-    int numberInput(string message)
-    {
-        int result;
-        while (true) {
-            cout << message;
-            cin >> result;
-            if (cin && result > -1)
-                return result;
-            else
-                errorHandling("Error : number out of range!");
-        }
-    }
-
-    int stringToInt(string str)
-    {
-        try {
-            // "1,223,234,234,234"
-            if (str[0] == '\"') 
-                return stoi(getOnlyDigits(str));
-
-            return stoi(str);
-        }
-        catch (exception e) {
-            cout << "ERROR : stoi error!" << endl;
-            cout << "Value : " <<   str   << endl;
-            return -1;
-        }
-    }
-
-    bool task2_input(int &students, int &graduates, string &fileName)
-    {
-        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", "copy");
-        if (fileName == "")
-            return 0; // quit
-
-        students  = numberInput("Threshold on number of students: ");
-        graduates = numberInput("Threshold on number of graduates: ");
-
-        return 1;
-    }
-
-    // use in task3
     void merge(vector<Data> &database, vector<int> &selected) {
 
         // comp function return data priority
@@ -288,7 +279,6 @@ public:
 
     bool task1()
     {
-
         vector<Data> database;
         string fileName;
 
@@ -330,7 +320,6 @@ public:
         save("copy" + fileName + ".txt", database);
 
         return 0;
-
     }
 
     bool task3()
@@ -378,15 +367,19 @@ int main(int argc, char *argv[])
         switch (mode) {
         case MENU_QUIT:
             return 0;               // 退出
+
         case MENU_COPY_FILE:
             result = f.task1();       // 任務1
             break;
+
         case MENU_FILTER_FILE:
             result = f.task2();       // 任務2
             break;
+
         case MENU_MERGE_FILE:
             result = f.task3();       // 任務3
             break;
+
         default:
             errorHandling("Error: Command not found!");
             continue;
