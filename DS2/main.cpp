@@ -214,25 +214,6 @@ class HandleFile
 
         return 0;
     }
-
-    bool comp(Data a, Data b, vector<int> &selected)
-    {
-        // comp return 1, return 1 push a
-        // comp return -1, return 0 push b
-        int comp;
-
-        // comp all selected 
-        for (int select1 : selected) {
-            comp = isLessThan(a.column[select1], b.column[select1]);
-            if (comp == 1)
-                return 1;
-            else if (comp == -1)
-                return 0;
-        }
-
-        // same return 1 push a
-        return 1;
-    }
     
     bool condition1(Data a, Data b, int times, vector<int> &selected) {
         switch (times) {
