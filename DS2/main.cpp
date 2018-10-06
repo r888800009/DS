@@ -39,7 +39,7 @@ public:
         string input, temp;
         getline(in, input);
 
-        if (!in) 
+        if (!in)
             return in;
         // drop \r if the program running on unix
         // or unix like system, the string may be 
@@ -86,7 +86,7 @@ class HandleFile
     string getOnlyDigits(string str)
     {
         string tmp = "";
-        for (char c : str) 
+        for (char c : str)
             if (isdigit(c)) tmp += c;
 
         return tmp;
@@ -137,12 +137,12 @@ class HandleFile
 
             // input file number
             string errorMsg = "Must file number!";
-            fileNum  = numberInput(message, errorMsg); 
+            fileNum = numberInput(message, errorMsg);
             fileName = to_string(fileNum);
 
             // quit program if input "0"
             if (fileName == "0")
-                return ""; 
+                return "";
 
             file.open(prefix + fileName + ".txt", ios::in);
 
@@ -150,7 +150,7 @@ class HandleFile
                 errorHandling("Error : there is no such file!");
                 continue; // input again
             }
-            
+
             if (prefix == "input")
                 dropHeader(file);
 
@@ -171,14 +171,14 @@ class HandleFile
     {
         try {
             // "1,223,234,234,234"
-            if (str[0] == '\"') 
+            if (str[0] == '\"')
                 str = getOnlyDigits(str);
 
             return stoi(str);
         }
         catch (exception e) {
             cout << "ERROR : stoi error!" << endl;
-            cout << "Value : " <<   str   << endl;
+            cout << "Value : " << str << endl;
             return -1; // return error value
         }
     }
@@ -190,7 +190,7 @@ class HandleFile
         if (fileName == "")
             return 0; // quit
 
-        students  = numberInput("Threshold on number of students: ", errorMsg);
+        students = numberInput("Threshold on number of students: ", errorMsg);
         graduates = numberInput("Threshold on number of graduates: ", errorMsg);
 
         return 1;
@@ -237,28 +237,27 @@ class HandleFile
     void merge(vector<Data> &database, vector<int> &selected) {
 
         // comp function return data priority
-        Data a, b;
-        fin    >> a;
-        fmerge >> b;
-        while (fin && fmerge) {
-            if (comp(a, b, selected)) {
-                database.push_back(a);
-                fin >> a;
-            }
-            else {
-                database.push_back(b);
-                fmerge >> b;
-            }
-        }
+        Data temp;
+        while (fmerge >> temp) {
+            bool success = false;
 
-        while (fin) {
-            if (inputSuccess) database.push_back(a);
-            fin >> a; // >> overload
-        }
-
-        while (fmerge) {
-            if (inputSuccess) database.push_back(b);
-            fmerge >> b; // >> overload
+            for (int i = database.size() -1 ; !success && i > -1; i--) {
+                if (isLessThan(database[i].column[DATA_ID],temp.column[DATA_ID]) == 1) break;
+                if (database[i].column[DATA_ID] == temp.column[DATA_ID]) {
+                    for (int j = i; !success && j > -1; j--) {
+                        if (database[j].column[DATA_ID] != temp.column[DATA_ID]) break;
+                        if (database[j].column[DATA_DEPARTMENT_NAME] == temp.column[DATA_DEPARTMENT_NAME]) {
+                            database.insert(database.begin()+j+1, temp);
+                            success = true;
+                        }
+                    }
+                    if (!success) {
+                        database.insert(database.begin()+i+1, temp);
+                        success = true;
+                    }
+                }
+            }
+            if (!success) database.push_back(temp);
         }
     }
 
@@ -327,11 +326,15 @@ public:
         vector<Data> database;
         vector<int>  selected;
         string fileName1, fileName2;
-        
+
         if (!task3_input(fileName1, fileName2)) {
             cout << "switch to menu" << endl;
             return 0;
         }
+
+        Data temp;
+        while (fin >> temp)     // >> overload
+            if (inputSuccess) database.push_back(temp);
 
         // College priority than department
         selected.push_back(DATA_ID);
