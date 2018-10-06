@@ -215,53 +215,42 @@ class HandleFile
         return 0;
     }
     
-    bool condition1(Data a, Data b, int times, vector<int> &selected) {
+    bool condition1(Data &a, Data &b, int times, vector<int> &selected) {
         switch (times) {
             case 0:
                 return isLessThan(a.column[selected[times]], b.column[selected[times]]) == 1;
             case 1:
-                return a.column[selected[times]] != b.column[selected[times]];
+                return a.column[selected[DATA_ID]] != b.column[selected[DATA_ID]];
         }
         return 0;
     }
 
-    bool condition2(Data a, Data b, int times, vector<int> &selected) {
-        switch (times) {
-            case 0:
-                return a.column[selected[times]] == b.column[selected[times]];
-            case 1:
-                return a.column[selected[times]] == b.column[selected[times]];
-        }
-        return 0;
+    bool condition2(Data &a, Data &b, int times, vector<int> &selected) {
+        return a.column[selected[times]] == b.column[selected[times]];
     }
 
-    
-    bool subMerge(vector<Data> &database, vector<int> &selected, Data temp, int i, int times = 0) {
+    bool subMerge(vector<Data> &database, vector<int> &selected, Data &temp, int i, int times = 0) {
+        if (times == selected.size()) {
+            database.insert(database.begin() + i + 1, temp);
+            return 1;
+        }
+
         for (int j = i ;j > -1; j--) {
             if (condition1(database[j], temp, times, selected))
                break;
 
-            if (condition2(database[j], temp, times, selected)) {
-                bool ret = false;
-                if (times + 1 < selected.size()) {
-                    if (subMerge(database, selected, temp, j, times + 1))
-                        return 1;
-                }
-
-                database.insert(database.begin() + j + 1, temp);
-                return 1;
-            }
+            if (condition2(database[j], temp, times, selected))
+                return subMerge(database, selected, temp, j, times + 1);
         }
 
         database.insert(database.begin() + i + 1, temp);
-
         return 1;
     }
 
     void merge(vector<Data> &database, vector<int> &selected) {
         Data temp;
         while (fmerge >> temp)
-            subMerge(database, selected, temp, database.size() - 1);
+            subMerge(database, selected, temp, database.size() - 1, 0);
         
     }
 
