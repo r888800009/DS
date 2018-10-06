@@ -197,49 +197,30 @@ class HandleFile
     }
 
     // use in task3
-    int isLessThan(string &a, string &b)
-    {
-        // a < b return 1, a == b return 0, a > b return -1
-        if (a.length() < b.length())
-            return 1;
-        else if (a.length() > b.length())
-            return -1;
+    bool isPrevKeyChange(Data &a, Data &b, int times, vector<int> &selected) {
+        // no prev key
+        if (times == 0)
+            return 0;
 
-        for (int i = 0; i < a.length(); ++i) {
-            if (a[i] < b[i])
-                return 1;
-            else if (a[i] > b[i])
-                return -1;
-        }
-
-        return 0;
-    }
-    
-    bool condition1(Data &a, Data &b, int times, vector<int> &selected) {
-        switch (times) {
-            case 0:
-                return isLessThan(a.column[selected[times]], b.column[selected[times]]) == 1;
-            case 1:
-                return a.column[selected[DATA_ID]] != b.column[selected[DATA_ID]];
-        }
-        return 0;
+        return a.column[selected[times - 1]] != b.column[selected[times - 1]];
     }
 
-    bool condition2(Data &a, Data &b, int times, vector<int> &selected) {
+    bool isCurrentKeyStill(Data &a, Data &b, int times, vector<int> &selected) {
         return a.column[selected[times]] == b.column[selected[times]];
     }
 
     bool subMerge(vector<Data> &database, vector<int> &selected, Data &temp, int i, int times = 0) {
+        // basecase
         if (times == selected.size()) {
             database.insert(database.begin() + i + 1, temp);
             return 1;
         }
 
         for (int j = i ;j > -1; j--) {
-            if (condition1(database[j], temp, times, selected))
-               break;
+            if (isPrevKeyChange(database[j], temp, times, selected))
+                break;
 
-            if (condition2(database[j], temp, times, selected))
+            if (isCurrentKeyStill(database[j], temp, times, selected))
                 return subMerge(database, selected, temp, j, times + 1);
         }
 
@@ -326,7 +307,7 @@ public:
         }
 
         // College priority than department
-        selected.push_back(DATA_ID);
+        selected.push_back(DATA_NAME);
         selected.push_back(DATA_DEPARTMENT_NAME);
 
         Data temp;
