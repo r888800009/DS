@@ -233,32 +233,55 @@ class HandleFile
         // same return 1 push a
         return 1;
     }
+    
+    bool condition1(Data a, Data b, int times, vector<int> &selected) {
+        switch (times) {
+            case 0:
+                return isLessThan(a.column[selected[times]], b.column[selected[times]]) == 1;
+            case 1:
+                return a.column[selected[times]] != b.column[selected[times]];
+        }
+        return 0;
+    }
+
+    bool condition2(Data a, Data b, int times, vector<int> &selected) {
+        switch (times) {
+            case 0:
+                return a.column[selected[times]] == b.column[selected[times]];
+            case 1:
+                return a.column[selected[times]] == b.column[selected[times]];
+        }
+        return 0;
+    }
+
+    
+    bool subMerge(vector<Data> &database, vector<int> &selected, Data temp, int i, int times = 0) {
+        for (int j = i ;j > -1; j--) {
+            if (condition1(database[j], temp, times, selected))
+               break;
+
+            if (condition2(database[j], temp, times, selected)) {
+                bool ret = false;
+                if (times + 1 < selected.size()) {
+                    if (subMerge(database, selected, temp, j, times + 1))
+                        return 1;
+                }
+
+                database.insert(database.begin() + j + 1, temp);
+                return 1;
+            }
+        }
+
+        database.insert(database.begin() + i + 1, temp);
+
+        return 1;
+    }
 
     void merge(vector<Data> &database, vector<int> &selected) {
-
-        // comp function return data priority
         Data temp;
-        while (fmerge >> temp) {
-            bool success = false;
-
-            for (int i = database.size() -1 ; !success && i > -1; i--) {
-                if (isLessThan(database[i].column[DATA_ID],temp.column[DATA_ID]) == 1) break;
-                if (database[i].column[DATA_ID] == temp.column[DATA_ID]) {
-                    for (int j = i; !success && j > -1; j--) {
-                        if (database[j].column[DATA_ID] != temp.column[DATA_ID]) break;
-                        if (database[j].column[DATA_DEPARTMENT_NAME] == temp.column[DATA_DEPARTMENT_NAME]) {
-                            database.insert(database.begin()+j+1, temp);
-                            success = true;
-                        }
-                    }
-                    if (!success) {
-                        database.insert(database.begin()+i+1, temp);
-                        success = true;
-                    }
-                }
-            }
-            if (!success) database.push_back(temp);
-        }
+        while (fmerge >> temp)
+            subMerge(database, selected, temp, database.size() - 1);
+        
     }
 
     bool task3_input(string &fileName1, string &fileName2)
@@ -273,7 +296,7 @@ class HandleFile
 
         return 1;
     }
-
+    
 public:
 
     bool task1()
@@ -332,13 +355,13 @@ public:
             return 0;
         }
 
+        // College priority than department
+        selected.push_back(DATA_ID);
+        selected.push_back(DATA_DEPARTMENT_NAME);
+
         Data temp;
         while (fin >> temp)     // >> overload
             if (inputSuccess) database.push_back(temp);
-
-        // College priority than department
-        selected.push_back(DATA_ID);
-        selected.push_back(DATA_DEPARTMENT_ID);
 
         merge(database, selected);
         save("output" + fileName1 + "_" + fileName2 + ".txt", database);
