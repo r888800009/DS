@@ -197,7 +197,7 @@ class HandleFile
     }
 
     // use in task3
-    int isLessThan(string a, string b)
+    int isLessThan(string &a, string &b)
     {
         // a < b return 1, a == b return 0, a > b return -1
         if (a.length() < b.length())
