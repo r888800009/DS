@@ -197,8 +197,10 @@ class HandleFile
     }
 
     // use in task3
-    int isLessThan(string a, string b)
+    int isLessThan(Data dataA, Data dataB, int selected)
     {
+        string a = dataA.column[selected];
+        string b = dataB.column[selected];
         // a < b return 1, a == b return 0, a > b return -1
         if (a.length() < b.length())
             return 1;
@@ -215,47 +217,106 @@ class HandleFile
         return 0;
     }
 
-    bool comp(Data a, Data b, vector<int> &selected)
+    bool equal(Data a, string str, int selected)
     {
-        // comp return 1, return 1 push a
-        // comp return -1, return 0 push b
-        int comp;
+        return a.column[selected] == str;
+    }
 
-        // comp all selected 
-        for (int select1 : selected) {
-            comp = isLessThan(a.column[select1], b.column[select1]);
-            if (comp == 1)
-                return 1;
-            else if (comp == -1)
-                return 0;
+    void addDebug(vector<Data> &database, string msg = "debug")
+    {
+        Data debug;
+        for (string &d: debug.column)
+            d = msg;
+        database.push_back(debug);
+    }
+
+    void mergeDepartment(vector<Data> &database, Data &a, Data &b, vector<int> &selected, string id)
+    {
+        vector<Data> wait;
+        while (fin && fmerge && equal(a, id, selected[0]) && equal(b, id, selected[0])) {
+            // comp function return data priority
+            int comp = isLessThan(a, b , selected[1]);
+            if (comp == -1) {       // A > B
+                wait.push_back(b);
+                fmerge >> b;
+
+            } else if (comp == 0) { // A == B
+                string department = a.column[selected[1]];
+                string department_name = a.column[DATA_DEPARTMENT_NAME];
+
+                while (fin && equal(a, department, selected[1])) {
+                    database.push_back(a);
+                    fin >> a;
+                }
+
+                while (fmerge && equal(b, department, selected[1])) {
+                    if (equal(b, department_name, DATA_DEPARTMENT_NAME)) {
+                        database.push_back(b);
+                        fmerge >> b;
+                    } else {
+                        wait.push_back(b);
+                        fmerge >> b;
+                    }
+                }
+
+            } else if (comp == 1) { // A < B
+                database.push_back(a);
+                fin >> a;
+            }
         }
 
-        // same return 1 push a
-        return 1;
+        // load not loaded
+        while (fin && equal(a, id, selected[0])) {
+            if (inputSuccess) database.push_back(a);
+            fin >> a; // >> overload
+        }
+        
+        addDebug(database, "debug");
+        // merge loaded
+        for (Data d : wait)
+            database.push_back(d);
+
+        // merge not loaded
+        while (fmerge && equal(b, id, selected[0])) {
+            if (inputSuccess) database.push_back(b);
+            fmerge >> b; // >> overload
+        }
     }
 
     void merge(vector<Data> &database, vector<int> &selected) {
 
-        // comp function return data priority
         Data a, b;
         fin    >> a;
         fmerge >> b;
+        vector<Data> wait;
         while (fin && fmerge) {
-            if (comp(a, b, selected)) {
+            // comp function return data priority
+            int comp = isLessThan(a, b ,selected[0]);
+            if (comp == -1) {       // A > B
+                wait.push_back(b);
+                fmerge >> b;
+
+            } else if (comp == 0) { // A == B
+                string id = a.column[selected[0]];
+                mergeDepartment(database, a, b, selected, id);
+
+            } else if (comp == 1) { // A < B
                 database.push_back(a);
                 fin >> a;
             }
-            else {
-                database.push_back(b);
-                fmerge >> b;
-            }
         }
 
+        // load not loaded
         while (fin) {
             if (inputSuccess) database.push_back(a);
             fin >> a; // >> overload
         }
 
+        // merge loaded
+        for (Data d : wait)
+            database.push_back(d);
+
+        // merge not loaded
         while (fmerge) {
             if (inputSuccess) database.push_back(b);
             fmerge >> b; // >> overload
