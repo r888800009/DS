@@ -202,12 +202,18 @@ class HandleFile
         // comp function return data priority
         Data temp;
         while (fmerge >> temp) {
-
+            
+            // check database frome end to begin
             for (int i = database.size() -1 ; i >= 0; i--) {
+
+                // check current condition DATA_NAME
                 if (database[i].column[DATA_NAME] == temp.column[DATA_NAME]) {
                     for (int j = i; j >= 0; j--) {
+                        // check previous condition {DATA_NAME}
                         if (database[j].column[DATA_NAME] != temp.column[DATA_NAME]) 
                             break;
+
+                        // check current condition DATA_DEPARTMENT_NAME
                         if (database[j].column[DATA_DEPARTMENT_NAME] == temp.column[DATA_DEPARTMENT_NAME]) {
                             database.insert(database.begin()+j+1, temp);
                             goto success;
@@ -218,6 +224,7 @@ class HandleFile
                     goto success;
                 }
             }
+            // if not found any thing than put in back
             database.push_back(temp);
         success:;
         }
