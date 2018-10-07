@@ -203,7 +203,7 @@ class HandleFile
         Data temp;
         while (fmerge >> temp) {
             
-            // check database frome end to begin
+            // check database from end to begin
             for (int i = database.size() -1 ; i >= 0; i--) {
 
                 // check current condition DATA_NAME
