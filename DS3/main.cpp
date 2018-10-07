@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <list>
 
 #define MENU_QUIT       0
 #define MENU_CHECK      1
@@ -12,32 +13,25 @@ using namespace std;
 
 int priority[ASCII_SIZE];
 
-
-class LinkedList {
-
-public:
-
-
-};
-
 class Stack {
-    LinkedList list;
+    list<char> stackList;
 public:
     void pop()
-    {
+    {   
+        stackList.pop_back();
     }
     
-    void top()
+    char top()
     {
-
+       return stackList.back(); 
     }
     
-    void push()
+    void push(char c)
     {
+        stackList.push_back(c);
     }
 
 };
-
 
 void errorHandling(string message)
 {
