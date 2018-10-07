@@ -197,42 +197,30 @@ class HandleFile
     }
 
     // use in task3
-    bool isPrevKeyChange(Data &a, Data &b, int times, vector<int> &selected) {
-        // no prev key
-        if (times == 0)
-            return 0;
-
-        return a.column[selected[times - 1]] != b.column[selected[times - 1]];
-    }
-
-    bool isCurrentKeyStill(Data &a, Data &b, int times, vector<int> &selected) {
-        return a.column[selected[times]] == b.column[selected[times]];
-    }
-
-    bool subMerge(vector<Data> &database, vector<int> &selected, Data &temp, int i, int times = 0) {
-        // basecase
-        if (times == selected.size()) {
-            database.insert(database.begin() + i + 1, temp);
-            return 1;
-        }
-
-        for (int j = i ;j > -1; j--) {
-            if (isPrevKeyChange(database[j], temp, times, selected))
-                break;
-
-            if (isCurrentKeyStill(database[j], temp, times, selected))
-                return subMerge(database, selected, temp, j, times + 1);
-        }
-
-        database.insert(database.begin() + i + 1, temp);
-        return 1;
-    }
-
     void merge(vector<Data> &database, vector<int> &selected) {
+
+        // comp function return data priority
         Data temp;
-        while (fmerge >> temp)
-            subMerge(database, selected, temp, database.size() - 1, 0);
-        
+        while (fmerge >> temp) {
+
+            for (int i = database.size() -1 ; i >= 0; i--) {
+                if (database[i].column[DATA_NAME] == temp.column[DATA_NAME]) {
+                    for (int j = i; j >= 0; j--) {
+                        if (database[j].column[DATA_NAME] != temp.column[DATA_NAME]) 
+                            break;
+                        if (database[j].column[DATA_DEPARTMENT_NAME] == temp.column[DATA_DEPARTMENT_NAME]) {
+                            database.insert(database.begin()+j+1, temp);
+                            goto success;
+                        }
+                    }
+                    
+                    database.insert(database.begin()+i+1, temp);
+                    goto success;
+                }
+            }
+            database.push_back(temp);
+        success:;
+        }
     }
 
     bool task3_input(string &fileName1, string &fileName2)
@@ -247,7 +235,7 @@ class HandleFile
 
         return 1;
     }
-    
+
 public:
 
     bool task1()
@@ -306,13 +294,13 @@ public:
             return 0;
         }
 
-        // College priority than department
-        selected.push_back(DATA_NAME);
-        selected.push_back(DATA_DEPARTMENT_NAME);
-
         Data temp;
         while (fin >> temp)     // >> overload
             if (inputSuccess) database.push_back(temp);
+
+        // College priority than department
+        selected.push_back(DATA_ID);
+        selected.push_back(DATA_DEPARTMENT_ID);
 
         merge(database, selected);
         save("output" + fileName1 + "_" + fileName2 + ".txt", database);
@@ -325,6 +313,7 @@ int main(int argc, char *argv[])
 {
     int mode;                           // 選單選項
     int result;                         // 指令回傳檢查
+    char* test = new char[0];
     while (true) {
 
         // 輸出選單
@@ -365,6 +354,7 @@ int main(int argc, char *argv[])
         // 檢查回傳值是否為successful
         if (result)
             return 1;
+        else cout << endl;
     };
     return 0;
 }
