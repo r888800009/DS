@@ -132,13 +132,11 @@ class HandleFile
     string fileInput(fstream &file, string message, string prefix)
     {
         string fileName;
-        int fileNum;
         while (true) {
 
-            // input file number
-            string errorMsg = "Must file number!";
-            fileNum = numberInput(message, errorMsg);
-            fileName = to_string(fileNum);
+            // input file name
+            cout << message;
+            cin  >> fileName;
 
             // quit program if input "0"
             if (fileName == "0")
