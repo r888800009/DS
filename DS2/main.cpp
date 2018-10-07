@@ -313,7 +313,6 @@ int main(int argc, char *argv[])
 {
     int mode;                           // 選單選項
     int result;                         // 指令回傳檢查
-    char* test = new char[0];
     while (true) {
 
         // 輸出選單
