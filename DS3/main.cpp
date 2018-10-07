@@ -1,12 +1,17 @@
 #include <iostream>
-
+#include <algorithm>
 
 #define MENU_QUIT       0
 #define MENU_CHECK      1
 #define MENU_TOPOSTFIX  2
 #define MENU_SOLVE      3
 
+#define ASCII_SIZE 256
+
 using namespace std;
+
+int priority[ASCII_SIZE];
+
 
 class LinkedList {
 
@@ -49,10 +54,41 @@ void errorHandling(string message)
     cout << message << endl;
 }
 
+int task1()
+{
+    return 0;
+}
+
+int task2()
+{
+    return 0;
+}
+
+int task3()
+{
+    return 0;
+}
+
+void init()
+{
+    // disable priority
+    fill(&priority[0], &priority[ASCII_SIZE], -1);
+    
+    priority['('] = 5;
+    priority[')'] = 5;
+    priority['*'] = 10;
+    priority['/'] = 10;
+    priority['+'] = 20;
+    priority['-'] = 20;
+     
+}
+
+
 int main(int argc, char *argv[])
 {
     int mode;                           // 選單選項
     int result;                         // 指令回傳檢查
+    init();
     while (true) {
 
         // 輸出選單
@@ -65,7 +101,6 @@ int main(int argc, char *argv[])
 
         // 輸入選擇
         cin >> mode;
-
 
         // 判斷選擇的內容
         switch (mode) {
