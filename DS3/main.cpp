@@ -285,6 +285,48 @@ void syntaxCheck(string str)
 
 }
 
+int task3(list<Data> postfix)
+{
+    Stack stack;
+    for (Data data : postfix) {
+        switch (data.type) {
+        case NUMBER:
+            stack.push(data);
+            break;
+
+        case OPERATOR:
+            int a, b;
+            char oper = data.value.c;  
+            b = stack.top().value.i32;
+            stack.pop();
+            a = stack.top().value.i32;
+            stack.pop();
+            switch (oper) {
+            case '+':
+                a += b;
+                break;
+
+            case '-':
+
+                a -= b;
+                break;
+
+            case '*':
+                a *= b;
+                break;
+
+            case '/':
+                a /= b;
+                // a / 0
+            }
+            stack.push(Data(NUMBER, a));
+            break;
+        }
+    }
+    cout << stack.top().value.i32 << endl;
+    return 0;
+}
+
 int task2(string str)
 {
     Stack stack;
@@ -342,13 +384,10 @@ int task2(string str)
     }
     
     printList(postfix);
+    task3(postfix);
     return 0;
 }
 
-int task3()
-{
-    return 0;
-}
 
 int task1()
 {
