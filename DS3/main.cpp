@@ -79,6 +79,11 @@ class Stack {
 
 public:
 
+    int size() 
+    {
+        return stackList.size();
+    }
+
     bool empty()
     {
         return stackList.empty();
@@ -201,7 +206,7 @@ void syntaxNumber(Stack &stack, Data &tmp)
         stack.push(tmp);
     }
     else {
-        throw "error1";
+        throw "Error 3: there is one extra operand.";
     }
 }
 
@@ -217,10 +222,10 @@ void syntaxParenthesesR(Stack &stack, Data &tmp)
             } else
                 stack.pop(); 
             if (stack.empty()) 
-                throw "error2-1";
+                throw "Error 2: there is one extra close parenthesis.";
         }
     } else {
-        throw"error2-2";
+        throw "Error 2: there is one extra close parenthesis.";
     }
 }
 
@@ -234,7 +239,7 @@ void syntaxOperator(Stack &stack, Data &tmp)
         stack.push(tmp);
     }
     else {
-        throw "error1";
+        throw "Error 3: there is one extra operator.";
     }
 }
 
@@ -243,45 +248,42 @@ void syntaxCheck(string str)
     Stack stack;
     Tokenizer tokenizer(str);
     Data tmp;
-    try {
-        while (tokenizer.hasNext()) {
-            tmp = tokenizer.nextToken();    
-            if (tokenizer.hasDefine()) {
-                switch(tmp.type) {
-                case NUMBER:
-                    syntaxNumber(stack, tmp);
-                    break;
+    while (tokenizer.hasNext()) {
+        tmp = tokenizer.nextToken();    
+        if (tokenizer.hasDefine()) {
+            switch(tmp.type) {
+            case NUMBER:
+                syntaxNumber(stack, tmp);
+                break;
 
-                case PARENTHESES_R:
-                    syntaxParenthesesR(stack, tmp); 
-                    break;
+            case PARENTHESES_R:
+                syntaxParenthesesR(stack, tmp); 
+                break;
 
-                case PARENTHESES_L:
-                    syntaxNumber(stack, tmp);
-                    break;
+            case PARENTHESES_L:
+                syntaxNumber(stack, tmp);
+                break;
 
-                case OPERATOR:
-                    syntaxOperator(stack, tmp);
-                    break;
-                }
-                  
-            } else {
+            case OPERATOR:
+                syntaxOperator(stack, tmp);
                 break;
             }
+              
+        } else {
+            break;
         }
-
-        if (!stack.empty()) {
-            if (stack.top().type != NUMBER)
-                throw "error4" ;
-        }
-
-    } catch (char const *e) {
-        cout << e;
-
-    } catch (string &e) {
-        cout << e;
-
     }
+
+    if (!stack.empty()) {
+        while (stack.size() > 1)
+            stack.pop();
+        if (stack.top().type == PARENTHESES_L) {
+            throw "Error 2: there is one extra open parenthesis.";
+        }
+        // if (stack.top().type != NUMBER || stack.size() != 1)
+        //    throw "error4" ;
+    }
+
 
 }
 
@@ -409,6 +411,13 @@ int task1()
         cout << e.what();
     } catch (exception &e) {
         cout << e.what();   
+    
+    } catch (char const *e) {
+        cout << e << endl;
+
+    } catch (string &e) {
+        cout << e << endl;
+
     }
     
     return 0;
