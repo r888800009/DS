@@ -61,18 +61,27 @@ vector<pair<regex, Type>> tokenDefine;
 class Stack {
     list<Data> stackList;
 public:
-    void pop()
-    {   
-        stackList.pop_back();
+    bool empty()
+    {
+        return stackList.empty();
     }
+
+
     
     Data top()
     {
        return stackList.back(); 
     }
     
+    void pop()
+    {   
+        // cout << "pop:" << top().type<< " "<< (top().type == NUMBER ? top().value.i32 : top().value.c) << endl; 
+        stackList.pop_back();
+    }
+
     void push(Data c)
     {
+        // cout << "push:" << c.type<< " " << (c.type == NUMBER ? c.value.i32 : c.value.c) << endl; 
         stackList.push_back(c);
     }
     
@@ -110,7 +119,7 @@ public:
 
     bool hasNext() 
     {
-        return !str.empty();
+        return !str.empty() && ret.type != UNDEFINE;
     }
 
     bool hasDefine() 
@@ -131,11 +140,7 @@ Data Tokenizer::nextToken()
             string get = m.str();
             str = m.suffix().str();
 
-            // trim space
-            if (rgx->second == SPACE)
-                rgx = tokenDefine.begin();
-
-            else if (rgx->second == NUMBER)
+            if (rgx->second == NUMBER)
                 return ret = Data(rgx->second, stoi(get));
 
             else 
@@ -143,8 +148,8 @@ Data Tokenizer::nextToken()
         } 
     }   
 
-    cout << "\t"  << str << endl;
-    cout << "\t^ is not a legitimate character." << endl;
+    throw "\t" + str + "\n" +
+          "\t^ is not a legitimate character." + "\n";
 
     return Data(UNDEFINE, ' ');
 }
@@ -156,16 +161,17 @@ list<Data> getToken(string str)
     Data tmp;
     while (tokenizer.hasNext()) {
         tmp = tokenizer.nextToken();     
-        if (tokenizer.hasDefine()) {
+        if (tokenizer.hasDefine())
             ret.push_back(tmp);
-        } else {
+        else 
             break;
-        }
     }    
+    
     return ret;
 }
 
-void printList(list<Data> list1) {
+void printList(list<Data> list1) 
+{
     for (auto it = list1.begin(); it != list1.end();) { 
         if (it->type == NUMBER)
             cout << it->value.i32;
@@ -176,19 +182,99 @@ void printList(list<Data> list1) {
     }
 }
 
+void syntaxNumber(Stack &stack, Data &tmp)
+{
+    if (stack.empty())
+        stack.push(tmp);
+    else if (stack.top().type == PARENTHESES_L)
+        stack.push(tmp);
+    else if (stack.top().type == OPERATOR)
+    {
+        stack.pop();
+        stack.push(tmp);
+    }
+    else {
+        throw "error1";
+    }
+}
 
-void syntaxCheck(string str) {
+void syntaxParenthesesR(Stack &stack, Data &tmp)
+{
+    if (!stack.empty()) {                        
+        while (!stack.empty()) {
+            if (stack.top().type == PARENTHESES_L) {
+
+                stack.pop(); 
+                break;
+            } else
+                stack.pop(); 
+            if (stack.empty()) 
+                throw "error2-1";
+        }
+    } else {
+        throw"error2-2";
+    }
+}
+
+void syntaxOperator(Stack &stack, Data &tmp)
+{
+    if (stack.empty())
+        throw "error3";
+    if (stack.top().type == NUMBER)
+    {
+        stack.pop();
+        stack.push(tmp);
+    }
+    else {
+        throw "error1";
+    }
+}
+
+void syntaxCheck(string str)
+{
     Stack stack;
     Tokenizer tokenizer(str);
     Data tmp;
-    while (tokenizer.hasNext()) {
-        tmp = tokenizer.nextToken();     
-        if (tokenizer.hasDefine()) {
+    try {
+        while (tokenizer.hasNext()) {
+            tmp = tokenizer.nextToken();     
+            if (tokenizer.hasDefine()) {
+                switch(tmp.type) {
+                case NUMBER:
+                    syntaxNumber(stack, tmp);
+                    break;
 
-        } else {
-            break;
+                case PARENTHESES_R:
+                    syntaxParenthesesR(stack, tmp); 
+                    break;
+
+                case PARENTHESES_L:
+                    syntaxNumber(stack, tmp);
+                    break;
+
+                case OPERATOR:
+                    syntaxOperator(stack, tmp);
+                    break;
+                }
+                  
+            } else {
+                break;
+            }
         }
+
+        if (!stack.empty()) {
+            if (stack.top().type != NUMBER)
+                throw "error4" ;
+        }
+
+    } catch (char const *e) {
+        cout << e;
+
+    } catch (string &e) {
+        cout << e;
+
     }
+
 }
 
 int task1()
@@ -202,6 +288,7 @@ int task1()
     try {
         // check syntax
         syntaxCheck(expr);
+        cout << "It is a legitimate infix expression." << endl;
 
     } catch (invalid_argument &e) {
         cout << e.what();
@@ -264,6 +351,8 @@ int main(int argc, char *argv[])
 
         // 輸入選擇
         cin >> mode;
+        if (cin.eof())
+            return 0;
 
         // 判斷選擇的內容
         switch (mode) {
