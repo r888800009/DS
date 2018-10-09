@@ -16,11 +16,15 @@
 using namespace std;
 
 enum Type {
-    SPACE,
-    NUMBER,
+
     PARENTHESES_L,
     PARENTHESES_R,
-    OPERATOR
+    OPERATOR,
+    NUMBER,
+    SPACE,
+    EXPRESSION,
+    UNDEFINE
+
 };
 
 class Data {
@@ -48,6 +52,7 @@ public:
 
 int priority[ASCII_SIZE];
 vector<pair<regex, Type>> tokenDefine;
+vector<vector<Type>> exprDefine;
 
 class Stack {
     list<Data> stackList;
@@ -133,9 +138,36 @@ void printList(list<Data> list1) {
         else 
             cout << it->value.c;
 
-        cout << (++it  != list1.end() ? ',' : '\n');
+        cout << (++it != list1.end() ? ',' : '\n');
     }
     
+}
+
+bool whichFirst(Data &a, Data &b) {
+    // a first return 1
+    if (a.type > b.type) {
+        return 0; 
+    } else if (a.type < b.type) {
+        return 1; 
+    } else if (a.type == OPERATOR) {
+        if (priority[a.value.c] < priority[b.value.c])
+            return 1;
+    } else {
+        return 0;
+    }
+}
+
+Type syntaxCheck(list<Data>::iterator begin, list<Data>::iterator end) {
+    // get priority 
+    list<Data>::iterator priorityOpterate = begin, it = begin;
+    
+    while (it != end) {
+        if (whichFirst(*it, *priorityOpterate)) 
+            priorityOpterate = it;
+        it++;
+    }
+
+    throw UNDEFINE;
 }
 
 int task1()
@@ -145,9 +177,16 @@ int task1()
     cin.ignore();
     getline(cin, expr);
 
-    // getToken 
-    printList(getToken(expr));
+    try {
+        // getToken 
+        list<Data> tokenize = getToken(expr);
+        
+        // check syntax
+        syntaxCheck(tokenize.begin(), tokenize.end());
+    } catch (exception e) {
 
+    }
+    
     return 0;
 }
 
@@ -175,9 +214,15 @@ void init()
 
     // define <expr>
     // <expr> ::= 
-    // 1. <num>                 ::= [0-9]+ 
-    // 2. '(' <expr> ')'        ::= \(-.-\)
-    // 3. <expr> <oper> <expr>  ::= [+\-*/]
+    // 1. '(' <expr> ')'        ::= \(-.-\)
+    // 2. <expr> <oper> <expr>  ::= [+\-*/]
+    // 3. <num>                 ::= [0-9]+ 
+    exprDefine = vector<vector<Type>> {
+        { PARENTHESES_L, EXPRESSION ,PARENTHESES_R },
+        { EXPRESSION , OPERATOR, EXPRESSION },
+        { NUMBER }
+    };
+    
     // num   
     // oper  [+\-*/]
     tokenDefine = vector<pair<regex, Type>> {
