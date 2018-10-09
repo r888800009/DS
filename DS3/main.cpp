@@ -22,7 +22,8 @@ enum Type {
     OPERATOR,
     NUMBER,
     SPACE,
-    UNDEFINE
+    UNDEFINE,
+    INIT
 
 };
 
@@ -58,16 +59,31 @@ public:
 int priority[ASCII_SIZE];
 vector<pair<regex, Type>> tokenDefine;
 
+
+void printList(list<Data> list1) 
+{
+    for (auto it = list1.begin(); it != list1.end();) { 
+        if (it->type == NUMBER)
+            cout << it->value.i32;
+        else 
+            cout << it->value.c;
+
+        cout << (++it != list1.end() ? ',' : '\n');
+    }
+    cout.flush();
+}
+
 class Stack {
     list<Data> stackList;
+
+
 public:
+
     bool empty()
     {
         return stackList.empty();
     }
 
-
-    
     Data top()
     {
        return stackList.back(); 
@@ -87,7 +103,7 @@ public:
     
     void print() 
     {
-
+        printList(stackList);
     }
 
 };
@@ -114,7 +130,8 @@ class Tokenizer {
 public:  
     Tokenizer(string strGet) 
     {
-        str = strGet;
+        ret.type = INIT; 
+        str = string(strGet);
     }
 
     bool hasNext() 
@@ -170,17 +187,7 @@ list<Data> getToken(string str)
     return ret;
 }
 
-void printList(list<Data> list1) 
-{
-    for (auto it = list1.begin(); it != list1.end();) { 
-        if (it->type == NUMBER)
-            cout << it->value.i32;
-        else 
-            cout << it->value.c;
 
-        cout << (++it != list1.end() ? ',' : '\n');
-    }
-}
 
 void syntaxNumber(Stack &stack, Data &tmp)
 {
@@ -205,6 +212,7 @@ void syntaxParenthesesR(Stack &stack, Data &tmp)
             if (stack.top().type == PARENTHESES_L) {
 
                 stack.pop(); 
+                stack.push(Data(NUMBER, ' '));
                 break;
             } else
                 stack.pop(); 
@@ -237,7 +245,7 @@ void syntaxCheck(string str)
     Data tmp;
     try {
         while (tokenizer.hasNext()) {
-            tmp = tokenizer.nextToken();     
+            tmp = tokenizer.nextToken();    
             if (tokenizer.hasDefine()) {
                 switch(tmp.type) {
                 case NUMBER:
@@ -277,6 +285,71 @@ void syntaxCheck(string str)
 
 }
 
+int task2(string str)
+{
+    Stack stack;
+    list<Data> postfix;
+    Tokenizer tokenizer(str);
+    Data tmp;
+    while (tokenizer.hasNext()) {
+        tmp = tokenizer.nextToken();     
+        switch(tmp.type) {
+        case NUMBER:
+            postfix.push_back(tmp);
+            break;
+
+        case PARENTHESES_R:
+            while (stack.top().type != PARENTHESES_L) {                        
+                postfix.push_back(stack.top());
+                stack.pop();
+            }
+            stack.pop();
+            break;
+
+        case PARENTHESES_L:
+            stack.push(tmp);
+            break;
+
+        case OPERATOR:
+            if (stack.empty()) {
+                stack.push(tmp);
+                break;
+            }
+
+            Data top = stack.top();
+            if (top.type == OPERATOR) {
+                while (priority[tmp.value.c] >= priority[top.value.c] && !stack.empty()) {
+
+                    postfix.push_back(top);
+                    stack.pop();
+                    if (!stack.empty())
+                        top = stack.top();
+                } 
+                stack.push(tmp);
+            } else 
+                stack.push(tmp);
+                
+            break;
+        }
+          
+    }
+
+    // dump
+    while (!stack.empty()) {
+        Data top = stack.top();
+        stack.pop();
+        postfix.push_back(top);
+    }
+    
+    printList(postfix);
+    return 0;
+}
+
+int task3()
+{
+    return 0;
+}
+
 int task1()
 {
     string expr;
@@ -287,8 +360,11 @@ int task1()
 
     try {
         // check syntax
+        //
         syntaxCheck(expr);
         cout << "It is a legitimate infix expression." << endl;
+
+        task2(expr);
 
     } catch (invalid_argument &e) {
         cout << e.what();
@@ -296,16 +372,6 @@ int task1()
         cout << e.what();   
     }
     
-    return 0;
-}
-
-int task2()
-{
-    return 0;
-}
-
-int task3()
-{
     return 0;
 }
 
@@ -361,13 +427,6 @@ int main(int argc, char *argv[])
 
         case MENU_CHECK:
             task1();
-            break;
-
-        case MENU_TOPOSTFIX:
-            break;
-
-        case MENU_SOLVE:
-            break;
 
         default:
             errorHandling("Error: Command not found!");
