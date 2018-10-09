@@ -23,8 +23,6 @@ enum Type {
     OPERATOR
 };
 
-
-
 class Data {
 
 public:
@@ -103,6 +101,8 @@ list<Data> getToken(string str)
         for (pair<regex, Type> rgx : tokenDefine) {
             if ((status = regex_search(str, m, rgx.first))) {
                 string get = m.str();
+
+                // ignore space
                 if (rgx.second == SPACE)
                     goto next;
                 
@@ -115,8 +115,10 @@ list<Data> getToken(string str)
                 goto next;
             }
         }
-        cout << "notFound" << endl;
-        cout << ">>> " << str << endl;
+
+        cout << "\t"  << str << endl;
+        cout << "\t^ is not a legitimate character." << endl;
+
         break;
     next:;
     }
