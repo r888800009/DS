@@ -21,7 +21,8 @@ enum Type {
     PARENTHESES_R,
     OPERATOR,
     NUMBER,
-    SPACE
+    SPACE,
+    UNDEFINE
 
 };
 
@@ -35,13 +36,19 @@ public:
 
     Value value;
     Type type;
- 
-    Data(Type t, int v1) {
+
+    Data() 
+    {
+    }
+
+    Data(Type t, int v1) 
+    {
         value.i32 = v1;
         type = t;
     }
 
-    Data(Type t, char v1) {
+    Data(Type t, char v1) 
+    {
         value.c = v1;
         type = t;
     }
@@ -91,36 +98,70 @@ void errorHandling(string message)
     cout << message << endl;
 }
 
+class Tokenizer {
+    string str;
+    Data ret;
+
+public:  
+    Tokenizer(string strGet) 
+    {
+        str = strGet;
+    }
+
+    bool hasNext() 
+    {
+        return !str.empty();
+    }
+
+    bool hasDefine() 
+    {
+        return ret.type != UNDEFINE;
+    }
+
+    Data nextToken();
+
+};
+
+Data Tokenizer::nextToken()
+{
+    smatch m;
+    
+    for (auto rgx = tokenDefine.begin(); rgx != tokenDefine.end(); ++rgx) {
+        if (regex_search(str, m, rgx->first)) {
+            string get = m.str();
+            str = m.suffix().str();
+
+            // trim space
+            if (rgx->second == SPACE)
+                rgx = tokenDefine.begin();
+
+            else if (rgx->second == NUMBER)
+                return ret = Data(rgx->second, stoi(get));
+
+            else 
+                return ret = Data(rgx->second, get[0]);
+        } 
+    }   
+
+    cout << "\t"  << str << endl;
+    cout << "\t^ is not a legitimate character." << endl;
+
+    return Data(UNDEFINE, ' ');
+}
+
 list<Data> getToken(string str)
 {
     list<Data> ret;
-    smatch m;
-    bool status = true;
-    while (status) {
-        if (str.empty())
+    Tokenizer tokenizer(str);
+    Data tmp;
+    while (tokenizer.hasNext()) {
+        tmp = tokenizer.nextToken();     
+        if (tokenizer.hasDefine()) {
+            ret.push_back(tmp);
+        } else {
             break;
-
-        for (pair<regex, Type> rgx : tokenDefine) {
-            if ((status = regex_search(str, m, rgx.first))) {
-                string get = m.str();
-                
-                if (rgx.second == NUMBER)
-                    ret.push_back(Data(rgx.second, stoi(get)));
-                else 
-                    ret.push_back(Data(rgx.second, get[0]));
-
-                str = m.suffix().str();
-                goto next;
-            }
         }
-
-        cout << "\t"  << str << endl;
-        cout << "\t^ is not a legitimate character." << endl;
-
-        break;
-    next:;
-    }
-    
+    }    
     return ret;
 }
 
@@ -133,36 +174,39 @@ void printList(list<Data> list1) {
 
         cout << (++it != list1.end() ? ',' : '\n');
     }
-    
 }
 
-void syntaxCheck(list<Data>::iterator begin, list<Data>::iterator end) {
-    // get priority 
-    list<Data>::iterator priorityOpterate = begin, it = begin;
-    
-    while (it != end) {
-        if (1) 
-            priorityOpterate = it;
-        it++;
-    }
 
+void syntaxCheck(string str) {
+    Stack stack;
+    Tokenizer tokenizer(str);
+    Data tmp;
+    while (tokenizer.hasNext()) {
+        tmp = tokenizer.nextToken();     
+        if (tokenizer.hasDefine()) {
+
+        } else {
+            break;
+        }
+    }
 }
 
 int task1()
 {
     string expr;
 
+    // input
     cin.ignore();
     getline(cin, expr);
 
     try {
-        // getToken 
-        list<Data> tokenize = getToken(expr);
-        
         // check syntax
-        syntaxCheck(tokenize.begin(), tokenize.end());
-    } catch (exception e) {
+        syntaxCheck(expr);
+
+    } catch (invalid_argument &e) {
         cout << e.what();
+    } catch (exception &e) {
+        cout << e.what();   
     }
     
     return 0;
