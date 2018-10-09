@@ -13,6 +13,4 @@ def genInfix(deep):
         6: lambda x: ' ' * random.randint(0, 6) + genInfix(x) + ' ' * random.randint(0, 6) 
     }
     return result[random.randint(1, 6)](deep - 1)
-for i in range(0, 100):
-    print("1 {}".format( genInfix(6)))
-print("4")
+print("1\n{}".format( genInfix(6)))
