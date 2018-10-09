@@ -1,34 +1,77 @@
+
+
 #include <iostream>
 #include <algorithm>
 #include <list>
+#include <regex>
 
-#define MENU_QUIT       0
 #define MENU_CHECK      1
 #define MENU_TOPOSTFIX  2
 #define MENU_SOLVE      3
+#define MENU_QUIT       4
 
 #define ASCII_SIZE 256
 
+
 using namespace std;
 
+enum Type {
+    SPACE,
+    NUMBER,
+    PARENTHESES_L,
+    PARENTHESES_R,
+    OPERATOR
+};
+
+
+
+class Data {
+
+public:
+    union Value {
+        char c;
+        int i32;
+    };
+
+    Value value;
+    Type type;
+ 
+    Data(Type t, int v1) {
+        value.i32 = v1;
+        type = t;
+    }
+
+    Data(Type t, char v1) {
+        value.c = v1;
+        type = t;
+    }
+
+};
+
 int priority[ASCII_SIZE];
+vector<pair<regex, Type>> tokenDefine;
 
 class Stack {
-    list<char> stackList;
+    list<Data> stackList;
 public:
     void pop()
     {   
         stackList.pop_back();
     }
     
-    char top()
+    Data top()
     {
        return stackList.back(); 
     }
     
-    void push(char c)
+    void push(Data c)
     {
         stackList.push_back(c);
+    }
+    
+    void print() 
+    {
+
     }
 
 };
@@ -48,8 +91,61 @@ void errorHandling(string message)
     cout << message << endl;
 }
 
+list<Data> getToken(string str)
+{
+    list<Data> ret;
+    smatch m;
+    bool status = true;
+    while (status) {
+        if (str.empty())
+            break;
+
+        for (pair<regex, Type> rgx : tokenDefine) {
+            if ((status = regex_search(str, m, rgx.first))) {
+                string get = m.str();
+                if (rgx.second == SPACE)
+                    goto next;
+                
+                if (rgx.second == NUMBER)
+                    ret.push_back(Data(rgx.second, stoi(get)));
+                else 
+                    ret.push_back(Data(rgx.second, get[0]));
+
+                str = m.suffix().str();
+                goto next;
+            }
+        }
+        cout << "notFound" << endl;
+        cout << ">>> " << str << endl;
+        break;
+    next:;
+    }
+    
+    return ret;
+}
+
+void printList(list<Data> list1) {
+    for (auto it = list1.begin(); it != list1.end();) { 
+        if (it->type == NUMBER)
+            cout << it->value.i32;
+        else 
+            cout << it->value.c;
+
+        cout << (++it  != list1.end() ? ',' : '\n');
+    }
+    
+}
+
 int task1()
 {
+    string expr;
+
+    cin.ignore();
+    getline(cin, expr);
+
+    // getToken 
+    printList(getToken(expr));
+
     return 0;
 }
 
@@ -74,7 +170,21 @@ void init()
     priority['/'] = 10;
     priority['+'] = 20;
     priority['-'] = 20;
-     
+
+    // define <expr>
+    // <expr> ::= 
+    // 1. <num>                 ::= [0-9]+ 
+    // 2. '(' <expr> ')'        ::= \(-.-\)
+    // 3. <expr> <oper> <expr>  ::= [+\-*/]
+    // num   
+    // oper  [+\-*/]
+    tokenDefine = vector<pair<regex, Type>> {
+        { regex("^ +"), SPACE },
+        { regex("^[0-9]+"), NUMBER },
+        { regex("^[+\\-*/]"), OPERATOR },
+        { regex("^\\)"), PARENTHESES_R },
+        { regex("^\\("), PARENTHESES_L }
+    };
 }
 
 
@@ -83,6 +193,7 @@ int main(int argc, char *argv[])
     int mode;                           // 選單選項
     int result;                         // 指令回傳檢查
     init();
+     
     while (true) {
 
         // 輸出選單
@@ -102,6 +213,7 @@ int main(int argc, char *argv[])
             return 0;               // 退出
 
         case MENU_CHECK:
+            task1();
             break;
 
         case MENU_TOPOSTFIX:
@@ -116,7 +228,7 @@ int main(int argc, char *argv[])
         }
 
         // 檢查回傳值是否為successful
-        if (result)
+        if (!result)
             return 1;
         else cout << endl;
     }
