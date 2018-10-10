@@ -304,7 +304,7 @@ int task3(list<Data> postfix)
         }
     }
 
-    cout << stack.top().value.i32 << endl;
+    cout << "Answer: " << stack.top().value.i32 << endl;
     return 0;
 }
 
@@ -380,7 +380,11 @@ int task2(string str)
         postfix.push_back(top);
     }
     
+    // print
+    cout << "Postfix expression: ";
     printList(postfix);
+
+    // next task
     task3(postfix);
     postfix.clear();
     return 0;
@@ -392,6 +396,7 @@ int task1()
     string expr;
 
     // input
+    cout << "Input:";
     cin.ignore(2048, '\n');
     getline(cin, expr);
 
