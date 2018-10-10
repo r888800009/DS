@@ -13,7 +13,22 @@ def genInfix(deep):
         6: lambda x: ' ' * random.randint(0, 6) + genInfix(x) + ' ' * random.randint(0, 6) 
     }
     return result[random.randint(1, 6)](deep - 1)
-for i in range (1, 50):
+time = 50
+
+for i in range (1, time):
     print("1")
     print("{}".format( genInfix(4)))
+
+for i in range (1, time):
+    print("1")
+    print("{})".format( genInfix(4)))
+
+for i in range (1, time):
+    print("1")
+    print("({}".format( genInfix(4)))
+
+for i in range (1, time):
+    print("1")
+    print("{} {}".format(genInfix(3), genInfix(3)))
+
 print("4")
