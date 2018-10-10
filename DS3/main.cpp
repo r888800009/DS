@@ -176,69 +176,41 @@ Data Tokenizer::nextToken()
     return Data(UNDEFINE, ' ');
 }
 
-list<Data> getToken(string str)
-{
-    list<Data> ret;
-    Tokenizer tokenizer(str);
-    Data tmp;
-    while (tokenizer.hasNext()) {
-        tmp = tokenizer.nextToken();     
-        if (tokenizer.hasDefine())
-            ret.push_back(tmp);
-        else 
-            break;
-    }    
-    
-    return ret;
-}
-
-
-
 void syntaxNumber(Stack &stack, Data &tmp)
 {
-    if (stack.empty())
-        stack.push(tmp);
-    else if (stack.top().type == PARENTHESES_L)
-        stack.push(tmp);
-    else if (stack.top().type == OPERATOR)
-    {
-        stack.pop();
-        stack.push(tmp);
+    if (!stack.empty()) {
+        if (stack.top().type == NUMBER)
+            throw "Error 3: there is one extra operand.";
+        else if (stack.top().type == OPERATOR)
+            stack.pop();
     }
-    else {
-        throw "Error 3: there is one extra operand.";
-    }
+    stack.push(tmp);
 }
 
-void syntaxParenthesesR(Stack &stack, Data &tmp)
+void syntaxParenthesesR(Stack &stack)
 {
-    if (!stack.empty()) {                        
-        while (!stack.empty()) {
-            if (stack.top().type == PARENTHESES_L) {
+    while (!stack.empty()) {
+        if (stack.top().type == PARENTHESES_L) {
+            stack.pop(); 
+            stack.push(Data(NUMBER, ' '));
+            return;
+        } 
 
-                stack.pop(); 
-                stack.push(Data(NUMBER, ' '));
-                break;
-            } else
-                stack.pop(); 
-            if (stack.empty()) 
-                throw "Error 2: there is one extra close parenthesis.";
-        }
-    } else {
-        throw "Error 2: there is one extra close parenthesis.";
+        stack.pop(); 
     }
+
+    if (stack.empty()) 
+        throw "Error 2: there is one extra close parenthesis.";
 }
 
 void syntaxOperator(Stack &stack, Data &tmp)
 {
-    if (stack.empty())
-        throw "error3";
-    if (stack.top().type == NUMBER)
-    {
-        stack.pop();
-        stack.push(tmp);
-    }
-    else {
+    if (!stack.empty()) {
+        if (stack.top().type == NUMBER) {
+            stack.pop();
+            stack.push(tmp);
+        }
+    } else {
         throw "Error 3: there is one extra operator.";
     }
 }
@@ -250,26 +222,24 @@ void syntaxCheck(string str)
     Data tmp;
     while (tokenizer.hasNext()) {
         tmp = tokenizer.nextToken();    
-        if (tokenizer.hasDefine()) {
-            switch(tmp.type) {
-            case NUMBER:
-                syntaxNumber(stack, tmp);
-                break;
+        if (!tokenizer.hasDefine()) 
+            break;
 
-            case PARENTHESES_R:
-                syntaxParenthesesR(stack, tmp); 
-                break;
+        switch(tmp.type) {
+        case NUMBER:
+            syntaxNumber(stack, tmp);
+            break;
 
-            case PARENTHESES_L:
-                syntaxNumber(stack, tmp);
-                break;
+        case PARENTHESES_R:
+            syntaxParenthesesR(stack); 
+            break;
 
-            case OPERATOR:
-                syntaxOperator(stack, tmp);
-                break;
-            }
-              
-        } else {
+        case PARENTHESES_L:
+            syntaxNumber(stack, tmp);
+            break;
+
+        case OPERATOR:
+            syntaxOperator(stack, tmp);
             break;
         }
     }
@@ -277,6 +247,7 @@ void syntaxCheck(string str)
     if (!stack.empty()) {
         while (stack.size() > 1)
             stack.pop();
+
         if (stack.top().type == PARENTHESES_L) {
             throw "Error 2: there is one extra open parenthesis.";
         }
@@ -309,7 +280,6 @@ int task3(list<Data> postfix)
                 break;
 
             case '-':
-
                 a -= b;
                 break;
 
@@ -331,6 +301,43 @@ int task3(list<Data> postfix)
     return 0;
 }
 
+void toPostParenthesesR(Stack &stack, list<Data> &postfix)
+{
+    while (stack.top().type != PARENTHESES_L) {                        
+        postfix.push_back(stack.top());
+        stack.pop();
+    }
+    if (!stack.empty())
+        stack.pop();
+}
+
+void toPostOperator(Stack &stack, Data &tmp, list<Data> &postfix)
+{
+    if (stack.empty()) {
+        stack.push(tmp);
+        return;
+    }
+
+    Data top = stack.top();
+    if (top.type != OPERATOR) {
+        stack.push(tmp);
+        return;
+    }  
+
+    while (priority[tmp.value.c] >= priority[top.value.c]) {
+
+        postfix.push_back(top);
+        stack.pop();
+
+        if (stack.empty())
+            break;
+
+        top = stack.top();
+    } 
+
+    stack.push(tmp);
+}
+
 int task2(string str)
 {
     Stack stack;
@@ -345,12 +352,7 @@ int task2(string str)
             break;
 
         case PARENTHESES_R:
-            while (stack.top().type != PARENTHESES_L) {                        
-                postfix.push_back(stack.top());
-                stack.pop();
-            }
-            if (!stack.empty())
-                stack.pop();
+            toPostParenthesesR(stack, postfix);
             break;
 
         case PARENTHESES_L:
@@ -358,24 +360,7 @@ int task2(string str)
             break;
 
         case OPERATOR:
-            if (stack.empty()) {
-                stack.push(tmp);
-                break;
-            }
-
-            Data top = stack.top();
-            if (top.type == OPERATOR) {
-                while (priority[tmp.value.c] >= priority[top.value.c] && !stack.empty()) {
-
-                    postfix.push_back(top);
-                    stack.pop();
-                    if (!stack.empty())
-                        top = stack.top();
-                } 
-                stack.push(tmp);
-            } else 
-                stack.push(tmp);
-                
+            toPostOperator(stack, tmp, postfix);
             break;
         }
           
