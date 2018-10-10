@@ -318,8 +318,10 @@ int task3(list<Data> postfix)
                 break;
 
             case '/':
-                a /= b;
-                // a / 0
+                if (b == 0) // a/0
+                    throw "num / 0 !!!";
+                else
+                    a /= b;
             }
             stack.push(Data(NUMBER, a));
             break;
@@ -347,7 +349,8 @@ int task2(string str)
                 postfix.push_back(stack.top());
                 stack.pop();
             }
-            stack.pop();
+            if (!stack.empty())
+                stack.pop();
             break;
 
         case PARENTHESES_L:
@@ -387,6 +390,7 @@ int task2(string str)
     
     printList(postfix);
     task3(postfix);
+    postfix.clear();
     return 0;
 }
 
