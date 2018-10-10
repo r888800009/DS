@@ -158,16 +158,17 @@ Data Tokenizer::nextToken()
     smatch m;
     
     for (auto rgx = tokenDefine.begin(); rgx != tokenDefine.end(); ++rgx) {
-        if (regex_search(str, m, rgx->first)) {
-            string get = m.str();
-            str = m.suffix().str();
+        if (!regex_search(str, m, rgx->first)) 
+            continue;
 
-            if (rgx->second == NUMBER)
-                return ret = Data(rgx->second, stoi(get));
+        string get = m.str();
+        str = m.suffix().str();
 
-            else 
-                return ret = Data(rgx->second, get[0]);
-        } 
+        if (rgx->second == NUMBER)
+            return ret = Data(rgx->second, stoi(get));
+
+        else 
+            return ret = Data(rgx->second, get[0]);
     }   
 
     throw "\t" + str + "\n" +
