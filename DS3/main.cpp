@@ -224,7 +224,7 @@ void syntaxCheck(string str)
     while (tokenizer.hasNext()) {
         tmp = tokenizer.nextToken();    
         if (!tokenizer.hasDefine()) 
-            break;
+            return;
 
         switch(tmp.type) {
         case NUMBER:
@@ -259,45 +259,51 @@ void syntaxCheck(string str)
 
 }
 
+void calculate(int &a, int &b, char oper)
+{
+    switch (oper) {
+    case '+':
+        a += b;
+        break;
+
+    case '-':
+        a -= b;
+        break;
+
+    case '*':
+        a *= b;
+        break;
+
+    case '/':
+        if (b == 0) // a/0
+            throw "num / 0 !!!";
+        else
+            a /= b;
+    }
+}
+
 int task3(list<Data> postfix)
 {
     Stack stack;
     for (Data data : postfix) {
-        switch (data.type) {
-        case NUMBER:
+        if (data.type == NUMBER)
             stack.push(data);
-            break;
 
-        case OPERATOR:
+        else if (data.type == OPERATOR) {
             int a, b;
             char oper = data.value.c;  
+            
+            // get two number
             b = stack.top().value.i32;
             stack.pop();
             a = stack.top().value.i32;
             stack.pop();
-            switch (oper) {
-            case '+':
-                a += b;
-                break;
 
-            case '-':
-                a -= b;
-                break;
-
-            case '*':
-                a *= b;
-                break;
-
-            case '/':
-                if (b == 0) // a/0
-                    throw "num / 0 !!!";
-                else
-                    a /= b;
-            }
+            calculate(a, b, oper);
             stack.push(Data(NUMBER, a));
-            break;
         }
     }
+
     cout << stack.top().value.i32 << endl;
     return 0;
 }
@@ -308,6 +314,7 @@ void toPostParenthesesR(Stack &stack, list<Data> &postfix)
         postfix.push_back(stack.top());
         stack.pop();
     }
+
     if (!stack.empty())
         stack.pop();
 }
@@ -330,13 +337,13 @@ void toPostOperator(Stack &stack, Data &tmp, list<Data> &postfix)
         postfix.push_back(top);
         stack.pop();
 
-        if (stack.empty())
-            break;
+        if (stack.empty()) {
+            stack.push(tmp);
+            return;
+        }
 
         top = stack.top();
     } 
-
-    stack.push(tmp);
 }
 
 int task2(string str)
@@ -364,7 +371,6 @@ int task2(string str)
             toPostOperator(stack, tmp, postfix);
             break;
         }
-          
     }
 
     // dump
@@ -386,7 +392,7 @@ int task1()
     string expr;
 
     // input
-    cin.ignore();
+    cin.ignore(2048, '\n');
     getline(cin, expr);
 
     try {
@@ -447,10 +453,8 @@ int main(int argc, char *argv[])
 
         // 輸出選單
         cout << "              MENU              " << endl;
-        cout << "* 1. COPY (Read & Save a file) *" << endl;
-        cout << "* 2. FILTER (Reduce a file)    *" << endl;
-        cout << "* 3. MERGE (Join two files)    *" << endl;
-        cout << "* 4. Quit                      *" << endl;
+        cout << "* 1.       Calculator          *" << endl;
+        cout << "* 4.          Quit             *" << endl;
         cout << "choice: ";
 
         // 輸入選擇
@@ -465,6 +469,7 @@ int main(int argc, char *argv[])
 
         case MENU_CHECK:
             task1();
+            break;
 
         default:
             errorHandling("Error: Command not found!");
