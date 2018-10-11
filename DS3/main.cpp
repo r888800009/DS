@@ -179,12 +179,16 @@ Data Tokenizer::nextToken()
 
 void syntaxNumber(Stack &stack, Data &tmp)
 {
-    if (!stack.empty()) {
-        if (stack.top().type == NUMBER)
-            throw "Error 3: there is one extra operand.";
-        else if (stack.top().type == OPERATOR)
-            stack.pop();
+    if (stack.empty()) {
+        stack.push(tmp);
+        return;
     }
+
+    if (stack.top().type == NUMBER)
+        throw "Error 3: there is one extra operand.";
+    else if (stack.top().type == OPERATOR)
+        stack.pop();
+
     stack.push(tmp);
 }
 
@@ -206,13 +210,12 @@ void syntaxParenthesesR(Stack &stack)
 
 void syntaxOperator(Stack &stack, Data &tmp)
 {
-    if (!stack.empty()) {
-        if (stack.top().type == NUMBER) {
-            stack.pop();
-            stack.push(tmp);
-        }
-    } else {
+    if (stack.empty()) 
         throw "Error 3: there is one extra operator.";
+
+    if (stack.top().type == NUMBER) {
+        stack.pop();
+        stack.push(tmp);
     }
 }
 
