@@ -481,7 +481,7 @@ void toPostOperator(Stack &stack, Data &tmp, LinkedList &postfix)
         return;
     }  
 
-    while (priority[tmp.value.c] >= priority[top.value.c]) {
+    while (priority[tmp.value.c] >= priority[top.value.c] && top.type != PARENTHESES_L) {
 
         postfix.push_back(top);
         stack.pop();
