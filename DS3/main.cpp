@@ -480,8 +480,9 @@ void toPostOperator(Stack &stack, Data &tmp, LinkedList &postfix)
         stack.push(tmp);
         return;
     }  
-
-    while (priority[tmp.value.c] >= priority[top.value.c] && top.type != PARENTHESES_L) {
+    
+    // 
+    while (priority[tmp.value.c] >= priority[top.value.c] && top.type == OPERATOR) {
 
         postfix.push_back(top);
         stack.pop();
@@ -493,6 +494,8 @@ void toPostOperator(Stack &stack, Data &tmp, LinkedList &postfix)
 
         top = stack.top();
     } 
+
+    stack.push(tmp);
 }
 
 int task2(string str)
