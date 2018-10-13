@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <algorithm>
-#include <list>
 #include <regex>
 
 #define MENU_CHECK      1
@@ -11,6 +10,8 @@
 #define MENU_QUIT       4
 
 #define ASCII_SIZE 256
+
+//#define DEBUGGING
 
 
 using namespace std;
@@ -59,22 +60,158 @@ public:
 int priority[ASCII_SIZE];
 vector<pair<regex, Type>> tokenDefine;
 
+class LinkedList {
+private:
 
-void printList(list<Data> list1) 
-{
-    for (auto it = list1.begin(); it != list1.end();) { 
-        if (it->type == NUMBER)
-            cout << it->value.i32;
-        else 
-            cout << it->value.c;
+    typedef struct node {
+        Data data;
+        node *next, *prev;
+    } node;
 
-        cout << (++it != list1.end() ? ',' : '\n');
+    node *firstNode, *endNode;
+
+public:
+
+    LinkedList()
+    {
+        firstNode = endNode = nullptr;
     }
-    cout.flush();
-}
+
+    void pop_back() 
+    {
+        // mark remove node
+        node *rmNode = endNode;
+
+        if (rmNode == nullptr) {  // nothing
+            throw "LinkedList empty!!";
+
+        } else if (firstNode == endNode) {           // only one node
+            endNode = firstNode = nullptr;
+
+        } else {                             // not only one
+            // replace end node with prev
+            endNode = rmNode->prev;
+            // unlink
+            endNode->next = nullptr;
+        }
+
+        // free memory
+        delete rmNode;
+        rmNode = nullptr;
+    }
+
+    void push_back(const Data d) 
+    {
+        node *newNode = new node;
+        newNode->data = d;
+        newNode->next  = nullptr;
+
+        if (firstNode == nullptr) {  // no node
+            firstNode = endNode = newNode;
+            newNode->prev = nullptr;
+
+        } else {              // have node
+            // set new node prev
+            newNode->prev = endNode;                        
+            // set prev node link to newNode
+            endNode->next = newNode;                        
+            // ptr to new
+            endNode = newNode;
+        }
+    }  
+   
+    int size()
+    {
+        int count = 0;
+        node *cur = firstNode;   // current 
+
+        while (cur != nullptr)
+            cur = cur->next, count++;
+
+        return count;
+    }
+
+    bool empty()
+    {
+        return firstNode == nullptr;
+    }
+    
+    Data back()
+    {
+        return endNode->data;
+    }
+
+    void print()
+    {
+        // current
+        node *cur = firstNode;
+
+        while (cur != nullptr) {
+            if (cur->data.type == NUMBER)
+                cout << cur->data.value.i32;
+            else 
+                cout << cur->data.value.c;
+
+            cout << (cur != endNode ? ',' : '\n');
+            cur = cur->next;
+        }
+
+        cout.flush();
+    }
+
+    void clear()
+    {
+        node *cur = firstNode;   // current 
+        firstNode = nullptr;
+        while (cur != nullptr) {
+            if (cur->prev != nullptr)
+                delete cur->prev;
+
+            cur = cur->next;
+        }
+    }
+    
+    // range based for
+    class iterator {
+        node *current;
+
+    public: 
+        iterator(node *node) 
+        {
+            current = node;
+        }
+
+        Data operator*()
+        {
+            return current->data;
+        }
+
+        bool operator!=(const iterator &it2)
+        {
+            return current != it2.current;
+        }
+
+        iterator &operator++()
+        {
+            current = current->next;
+            return *this;
+        }
+    };
+
+    iterator begin()
+    {
+        return iterator(firstNode);
+    }
+
+    iterator end()
+    {
+        return iterator(nullptr);
+    }
+
+};
 
 class Stack {
-    list<Data> stackList;
+    LinkedList stackList;
 
 
 public:
@@ -91,24 +228,30 @@ public:
 
     Data top()
     {
-       return stackList.back(); 
+        return stackList.back(); 
     }
     
     void pop()
     {   
-        // cout << "pop:" << top().type<< " "<< (top().type == NUMBER ? top().value.i32 : top().value.c) << endl; 
+        #ifdef DEBUGGING
+            cout << "pop:" << top().type<< " "<< (top().type == NUMBER ? top().value.i32 : top().value.c) << endl; 
+        #endif
+
         stackList.pop_back();
     }
 
     void push(Data c)
     {
-        // cout << "push:" << c.type<< " " << (c.type == NUMBER ? c.value.i32 : c.value.c) << endl; 
+        #ifdef DEBUGGING
+            cout << "push:" << c.type<< " " << (c.type == NUMBER ? c.value.i32 : c.value.c) << endl; 
+        #endif
+
         stackList.push_back(c);
     }
     
     void print() 
     {
-        printList(stackList);
+        stackList.print();
     }
 
 };
@@ -285,7 +428,7 @@ void calculate(int &a, int &b, char oper)
     }
 }
 
-int task3(list<Data> postfix)
+int task3(LinkedList postfix)
 {
     Stack stack;
     for (Data data : postfix) {
@@ -311,9 +454,12 @@ int task3(list<Data> postfix)
     return 0;
 }
 
-void toPostParenthesesR(Stack &stack, list<Data> &postfix)
+void toPostParenthesesR(Stack &stack, LinkedList &postfix)
 {
-    while (stack.top().type != PARENTHESES_L) {                        
+    while (!stack.empty()) {
+        if (stack.top().type == PARENTHESES_L)
+            break;
+
         postfix.push_back(stack.top());
         stack.pop();
     }
@@ -322,7 +468,7 @@ void toPostParenthesesR(Stack &stack, list<Data> &postfix)
         stack.pop();
 }
 
-void toPostOperator(Stack &stack, Data &tmp, list<Data> &postfix)
+void toPostOperator(Stack &stack, Data &tmp, LinkedList &postfix)
 {
     if (stack.empty()) {
         stack.push(tmp);
@@ -352,7 +498,7 @@ void toPostOperator(Stack &stack, Data &tmp, list<Data> &postfix)
 int task2(string str)
 {
     Stack stack;
-    list<Data> postfix;
+    LinkedList postfix;
     Tokenizer tokenizer(str);
     Data tmp;
     while (tokenizer.hasNext()) {
@@ -385,7 +531,7 @@ int task2(string str)
     
     // print
     cout << "Postfix expression: ";
-    printList(postfix);
+    postfix.print();
 
     // next task
     task3(postfix);
@@ -402,6 +548,10 @@ int task1()
     cout << "Input:";
     cin.ignore(2048, '\n');
     getline(cin, expr);
+
+    #ifdef DEBUGGING
+        cout << "expr: " <<expr << endl;
+    # endif
 
     try {
         // check syntax
