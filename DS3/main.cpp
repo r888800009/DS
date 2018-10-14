@@ -356,6 +356,9 @@ void syntaxOperator(Stack &stack, Data &tmp)
     if (stack.empty()) 
         throw "Error 3: there is one extra operator.";
 
+    if (stack.top().type == OPERATOR) 
+        throw "Error 3: there is one extra operator.";
+
     if (stack.top().type == NUMBER) {
         stack.pop();
         stack.push(tmp);
@@ -470,16 +473,12 @@ void toPostParenthesesR(Stack &stack, LinkedList &postfix)
 
 void toPostOperator(Stack &stack, Data &tmp, LinkedList &postfix)
 {
-    if (stack.empty()) {
-        stack.push(tmp);
+    if (stack.empty())
         return;
-    }
 
     Data top = stack.top();
-    if (top.type != OPERATOR) {
-        stack.push(tmp);
+    if (top.type != OPERATOR)
         return;
-    }  
     
     // 
     while (priority[tmp.value.c] >= priority[top.value.c] && top.type == OPERATOR) {
@@ -487,15 +486,12 @@ void toPostOperator(Stack &stack, Data &tmp, LinkedList &postfix)
         postfix.push_back(top);
         stack.pop();
 
-        if (stack.empty()) {
-            stack.push(tmp);
+        if (stack.empty()) 
             return;
-        }
 
         top = stack.top();
     } 
 
-    stack.push(tmp);
 }
 
 int task2(string str)
@@ -521,6 +517,7 @@ int task2(string str)
 
         case OPERATOR:
             toPostOperator(stack, tmp, postfix);
+            stack.push(tmp);
             break;
         }
     }
