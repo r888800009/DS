@@ -347,8 +347,7 @@ void syntaxParenthesesR(Stack &stack)
         stack.pop(); 
     }
 
-    if (stack.empty()) 
-        throw "Error 2: there is one extra close parenthesis.";
+    throw "Error 2: there is one extra close parenthesis.";
 }
 
 void syntaxOperator(Stack &stack, Data &tmp)
