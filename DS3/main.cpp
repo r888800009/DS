@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <algorithm>
+#include <cctype>
+#include <string>
 #include <regex>
 
 #define MENU_CHECK      1
@@ -22,7 +24,6 @@ enum Type {
     PARENTHESES_R,
     OPERATOR,
     NUMBER,
-    SPACE,
     UNDEFINE,
     INIT
 
@@ -538,7 +539,6 @@ int task2(string str)
     return 0;
 }
 
-
 int task1()
 {
     string expr;
@@ -547,6 +547,9 @@ int task1()
     cout << "Input:";
     cin.ignore(2048, '\n');
     getline(cin, expr);
+
+    // remove all space
+    expr.erase(remove_if(expr.begin(), expr.end(), ::isspace), expr.end());
 
     #ifdef DEBUGGING
         cout << "expr: " <<expr << endl;
@@ -591,7 +594,6 @@ void init()
     // num   
     // oper  [+\-*/]
     tokenDefine = vector<pair<regex, Type>> {
-        { regex("^ +"), SPACE },
         { regex("^[0-9]+"), NUMBER },
         { regex("^[+\\-*/]"), OPERATOR },
         { regex("^\\)"), PARENTHESES_R },
