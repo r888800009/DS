@@ -38,7 +38,32 @@ for i in range (1, time):
 
 for i in range (1, time):
     print("1", file = fileout)
+    print("{}++{}".format(genInfix(3), genInfix(3)), file = fileout)
+
+for i in range (1, time):
+    print("1", file = fileout)
     print("{}/0".format(genInfix(4)), file = fileout)
 
+print("""1
+(+
+1
+6()
+1
+1*2(+)3
+1
+1(*)2+3
+1
+( ) ( ) 3
+1
+6*50(+)50
+1
+(*)
+1
+(**)
+1
+((*))
+5 + 4 2 - 6
+1
+( (5) )""", file = fileout)
 
 print("4", file = fileout)
