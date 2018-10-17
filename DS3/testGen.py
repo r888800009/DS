@@ -44,6 +44,7 @@ for i in range (1, time):
     print("1", file = fileout)
     print("{}/0".format(genInfix(4)), file = fileout)
 
+# illegal infix
 print("""1
 (+
 1
@@ -62,8 +63,19 @@ print("""1
 (**)
 1
 ((*))
+1
+()
+1
+(   )
+1
+(  ) * """, file = fileout)
+
+# legal infix
+print("""1
 5 + 4 2 - 6
 1
-( (5) )""", file = fileout)
+( (5) )
+1
+(   (2+((4   )  )   ))""", file = fileout)
 
 print("4", file = fileout)
