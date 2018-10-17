@@ -40,17 +40,17 @@ public:
     Value value;
     Type type;
 
-    Data() 
+    Data()
     {
     }
 
-    Data(Type t, int v1) 
+    Data(Type t, int v1)
     {
         value.i32 = v1;
         type = t;
     }
 
-    Data(Type t, char v1) 
+    Data(Type t, char v1)
     {
         value.c = v1;
         type = t;
@@ -78,7 +78,7 @@ public:
         firstNode = endNode = nullptr;
     }
 
-    void pop_back() 
+    void pop_back()
     {
         // mark remove node
         node *rmNode = endNode;
@@ -86,11 +86,13 @@ public:
         if (rmNode == nullptr) {  // nothing
             throw "LinkedList empty!!";
 
-        } else if (firstNode == endNode) {           // only one node
+        }
+        else if (firstNode == endNode) {           // only one node
             endNode = firstNode = nullptr;
 
-        } else {                             // not only one
-            // replace end node with prev
+        }
+        else {                             // not only one
+         // replace end node with prev
             endNode = rmNode->prev;
             // unlink
             endNode->next = nullptr;
@@ -101,26 +103,27 @@ public:
         rmNode = nullptr;
     }
 
-    void push_back(const Data d) 
+    void push_back(const Data d)
     {
         node *newNode = new node;
         newNode->data = d;
-        newNode->next  = nullptr;
+        newNode->next = nullptr;
 
         if (firstNode == nullptr) {  // no node
             firstNode = endNode = newNode;
             newNode->prev = nullptr;
 
-        } else {              // have node
-            // set new node prev
-            newNode->prev = endNode;                        
+        }
+        else {              // have node
+         // set new node prev
+            newNode->prev = endNode;
             // set prev node link to newNode
-            endNode->next = newNode;                        
+            endNode->next = newNode;
             // ptr to new
             endNode = newNode;
         }
-    }  
-   
+    }
+
     int size()
     {
         int count = 0;
@@ -136,7 +139,7 @@ public:
     {
         return firstNode == nullptr;
     }
-    
+
     Data back()
     {
         return endNode->data;
@@ -150,7 +153,7 @@ public:
         while (cur != nullptr) {
             if (cur->data.type == NUMBER)
                 cout << cur->data.value.i32;
-            else 
+            else
                 cout << cur->data.value.c;
 
             cout << (cur != endNode ? ',' : '\n');
@@ -171,13 +174,13 @@ public:
             cur = cur->next;
         }
     }
-    
+
     // range based for
     class iterator {
         node *current;
 
-    public: 
-        iterator(node *node) 
+    public:
+        iterator(node *node)
         {
             current = node;
         }
@@ -217,7 +220,7 @@ class Stack {
 
 public:
 
-    int size() 
+    int size()
     {
         return stackList.size();
     }
@@ -229,28 +232,28 @@ public:
 
     Data top()
     {
-        return stackList.back(); 
+        return stackList.back();
     }
-    
+
     void pop()
-    {   
-        #ifdef DEBUGGING
-            cout << "pop:" << top().type<< " "<< (top().type == NUMBER ? top().value.i32 : top().value.c) << endl; 
-        #endif
+    {
+#ifdef DEBUGGING
+        cout << "pop:" << top().type << " " << (top().type == NUMBER ? top().value.i32 : top().value.c) << endl;
+#endif
 
         stackList.pop_back();
     }
 
     void push(Data c)
     {
-        #ifdef DEBUGGING
-            cout << "push:" << c.type<< " " << (c.type == NUMBER ? c.value.i32 : c.value.c) << endl; 
-        #endif
+#ifdef DEBUGGING
+        cout << "push:" << c.type << " " << (c.type == NUMBER ? c.value.i32 : c.value.c) << endl;
+#endif
 
         stackList.push_back(c);
     }
-    
-    void print() 
+
+    void print()
     {
         stackList.print();
     }
@@ -262,13 +265,13 @@ void errorHandling(string message)
     if (cin.eof())
         exit(0);
 
-    // æ¢å¾©cinçš„ç‹€æ…‹ 
+    // «ì´_cinªºª¬ºA 
     cin.clear();
 
-    // æ¶ˆæ»…æœ€å¤š2048å€‹å­—å…ƒé‡åˆ°\n 
+    // ®ø·À³Ì¦h2048­Ó¦r¤¸¹J¨ì\n 
     cin.ignore(2048, '\n');
 
-    // é¡¯ç¤ºéŒ¯èª¤è¨Šæ¯
+    // Åã¥Ü¿ù»~°T®§
     cout << message << endl;
 }
 
@@ -276,19 +279,19 @@ class Tokenizer {
     string str;
     Data ret;
 
-public:  
-    Tokenizer(string strGet) 
+public:
+    Tokenizer(string strGet)
     {
-        ret.type = INIT; 
+        ret.type = INIT;
         str = string(strGet);
     }
 
-    bool hasNext() 
+    bool hasNext()
     {
         return !str.empty() && ret.type != UNDEFINE;
     }
 
-    bool hasDefine() 
+    bool hasDefine()
     {
         return ret.type != UNDEFINE;
     }
@@ -300,9 +303,9 @@ public:
 Data Tokenizer::nextToken()
 {
     smatch m;
-    
+
     for (auto rgx = tokenDefine.begin(); rgx != tokenDefine.end(); ++rgx) {
-        if (!regex_search(str, m, rgx->first)) 
+        if (!regex_search(str, m, rgx->first))
             continue;
 
         string get = m.str();
@@ -311,18 +314,19 @@ Data Tokenizer::nextToken()
         if (rgx->second == NUMBER)
             return ret = Data(rgx->second, stoi(get));
 
-        else 
+        else
             return ret = Data(rgx->second, get[0]);
-    }   
+    }
 
     throw "\t" + str + "\n" +
-          "\t^ is not a legitimate character." + "\n";
+        "\t^ is not a legitimate character." + "\n";
 
     return Data(UNDEFINE, ' ');
 }
 
-void syntaxNumber(Stack &stack, Data &tmp)
+void syntaxNumber(Stack &stack, Data &tmp, bool &hasNum)
 {
+    hasNum = true;
     if (stack.empty()) {
         stack.push(tmp);
         return;
@@ -336,27 +340,50 @@ void syntaxNumber(Stack &stack, Data &tmp)
     stack.push(tmp);
 }
 
-void syntaxParenthesesR(Stack &stack)
+void syntaxParenthesesL(Stack &stack, Data &tmp, bool &hasNum)
 {
+    hasNum = false;
+    stack.push(tmp);
+    return;
+}
+
+void syntaxParenthesesR(Stack &stack, bool &hasNum)
+{
+    if (hasNum == false) {
+        throw "Error 2: deficient operand.";
+    }
+
+    if (!stack.empty()) {
+        stack.pop();
+    }
+    else {
+        throw "Error 2: there is one extra close parenthesis.";
+    }
+
+    if (stack.empty()) {
+        hasNum = false;
+    }
+    /*
     while (!stack.empty()) {
         if (stack.top().type == PARENTHESES_L) {
-            stack.pop(); 
+            stack.pop();
             stack.push(Data(NUMBER, ' '));
             return;
-        } 
+        }
 
-        stack.pop(); 
+        stack.pop();
     }
 
     throw "Error 2: there is one extra close parenthesis.";
+    */
 }
 
 void syntaxOperator(Stack &stack, Data &tmp)
 {
-    if (stack.empty()) 
+    if (stack.empty())
         throw "Error 3: there is one extra operator.";
 
-    if (stack.top().type == OPERATOR) 
+    if (stack.top().type == OPERATOR)
         throw "Error 3: there is one extra operator.";
 
     if (stack.top().type == NUMBER) {
@@ -368,24 +395,26 @@ void syntaxOperator(Stack &stack, Data &tmp)
 void syntaxCheck(string str)
 {
     Stack stack;
+    Stack stack_PARENTHESES;
+    bool hasNum = false;
     Tokenizer tokenizer(str);
     Data tmp;
     while (tokenizer.hasNext()) {
-        tmp = tokenizer.nextToken();    
-        if (!tokenizer.hasDefine()) 
+        tmp = tokenizer.nextToken();
+        if (!tokenizer.hasDefine())
             return;
 
-        switch(tmp.type) {
+        switch (tmp.type) {
         case NUMBER:
-            syntaxNumber(stack, tmp);
+            syntaxNumber(stack, tmp, hasNum);
             break;
 
         case PARENTHESES_R:
-            syntaxParenthesesR(stack); 
+            syntaxParenthesesR(stack_PARENTHESES, hasNum);
             break;
 
         case PARENTHESES_L:
-            syntaxNumber(stack, tmp);
+            syntaxParenthesesL(stack_PARENTHESES, tmp, hasNum);
             break;
 
         case OPERATOR:
@@ -394,6 +423,10 @@ void syntaxCheck(string str)
         }
     }
 
+    if (!stack_PARENTHESES.empty()) {
+        throw "Error 2: there is one extra open parenthesis.";
+    }
+    /*
     if (!stack.empty()) {
         while (stack.size() > 1)
             stack.pop();
@@ -404,7 +437,7 @@ void syntaxCheck(string str)
         // if (stack.top().type != NUMBER || stack.size() != 1)
         //    throw "error4" ;
     }
-
+    */
 
 }
 
@@ -440,8 +473,8 @@ int task3(LinkedList postfix)
 
         else if (data.type == OPERATOR) {
             int a, b;
-            char oper = data.value.c;  
-            
+            char oper = data.value.c;
+
             // get two number
             b = stack.top().value.i32;
             stack.pop();
@@ -479,18 +512,18 @@ void toPostOperator(Stack &stack, Data &tmp, LinkedList &postfix)
     Data top = stack.top();
     if (top.type != OPERATOR)
         return;
-    
+
     // 
     while (priority[tmp.value.c] >= priority[top.value.c] && top.type == OPERATOR) {
 
         postfix.push_back(top);
         stack.pop();
 
-        if (stack.empty()) 
+        if (stack.empty())
             return;
 
         top = stack.top();
-    } 
+    }
 
 }
 
@@ -501,8 +534,8 @@ int task2(string str)
     Tokenizer tokenizer(str);
     Data tmp;
     while (tokenizer.hasNext()) {
-        tmp = tokenizer.nextToken();     
-        switch(tmp.type) {
+        tmp = tokenizer.nextToken();
+        switch (tmp.type) {
         case NUMBER:
             postfix.push_back(tmp);
             break;
@@ -528,7 +561,7 @@ int task2(string str)
         stack.pop();
         postfix.push_back(top);
     }
-    
+
     // print
     cout << "Postfix expression: ";
     postfix.print();
@@ -551,9 +584,9 @@ int task1()
     // remove all space
     expr.erase(remove_if(expr.begin(), expr.end(), ::isspace), expr.end());
 
-    #ifdef DEBUGGING
-        cout << "expr: " <<expr << endl;
-    # endif
+#ifdef DEBUGGING
+    cout << "expr: " << expr << endl;
+# endif
 
     try {
         // check syntax
@@ -563,19 +596,23 @@ int task1()
 
         task2(expr);
 
-    } catch (invalid_argument &e) {
+    }
+    catch (invalid_argument &e) {
         cout << e.what();
-    } catch (exception &e) {
-        cout << e.what();   
-    
-    } catch (char const *e) {
-        cout << e << endl;
+    }
+    catch (exception &e) {
+        cout << e.what();
 
-    } catch (string &e) {
+    }
+    catch (char const *e) {
         cout << e << endl;
 
     }
-    
+    catch (string &e) {
+        cout << e << endl;
+
+    }
+
     return 0;
 }
 
@@ -583,7 +620,7 @@ void init()
 {
     // disable priority
     fill(&priority[0], &priority[ASCII_SIZE], -1);
-    
+
     priority['('] = 5;
     priority[')'] = 5;
     priority['*'] = 10;
@@ -593,7 +630,7 @@ void init()
 
     // num   
     // oper  [+\-*/]
-    tokenDefine = vector<pair<regex, Type>> {
+    tokenDefine = vector<pair<regex, Type>>{
         { regex("^[0-9]+"), NUMBER },
         { regex("^[+\\-*/]"), OPERATOR },
         { regex("^\\)"), PARENTHESES_R },
@@ -604,30 +641,30 @@ void init()
 
 int main(int argc, char *argv[])
 {
-    int mode;                           // é¸å–®é¸é …
-    int result;                         // æŒ‡ä»¤å›å‚³æª¢æŸ¥
+    int mode;                           // ¿ï³æ¿ï¶µ
+    int result = false;                         // «ü¥O¦^¶ÇÀË¬d
     init();
-     
+
     while (true) {
 
-        // è¼¸å‡ºé¸å–®
+        // ¿é¥X¿ï³æ
         cout << "              MENU              " << endl;
         cout << "* 1.       Calculator          *" << endl;
         cout << "* 4.          Quit             *" << endl;
         cout << "choice: ";
 
-        // è¼¸å…¥é¸æ“‡
+        // ¿é¤J¿ï¾Ü
         cin >> mode;
         if (cin.eof())
             return 0;
 
-        // åˆ¤æ–·é¸æ“‡çš„å…§å®¹
+        // §PÂ_¿ï¾Üªº¤º®e
         switch (mode) {
         case MENU_QUIT:
-            return 0;               // é€€å‡º
+            return 0;               // °h¥X
 
         case MENU_CHECK:
-            task1();
+            result = task1();
             break;
 
         default:
@@ -635,12 +672,14 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        // æª¢æŸ¥å›å‚³å€¼æ˜¯å¦ç‚ºsuccessful
-        if (!result)
+        // ÀË¬d¦^¶Ç­È¬O§_¬°successful
+        if (result)
             return 1;
         else cout << endl;
     }
 
+    system("PAUSE");
     return 0;
 }
+
 
