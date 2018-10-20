@@ -127,7 +127,7 @@ public:
     int size()
     {
         int count = 0;
-        node *cur = firstNode;   // current 
+        node *cur = firstNode;   // current
 
         while (cur != nullptr)
             cur = cur->next, count++;
@@ -165,7 +165,7 @@ public:
 
     void clear()
     {
-        node *cur = firstNode;   // current 
+        node *cur = firstNode;   // current
         firstNode = nullptr;
         while (cur != nullptr) {
             if (cur->prev != nullptr)
@@ -265,10 +265,10 @@ void errorHandling(string message)
     if (cin.eof())
         exit(0);
 
-    // 恢復cin的狀態 
+    // 恢復cin的狀態
     cin.clear();
 
-    // 消滅最多2048個字元遇到\n 
+    // 消滅最多2048個字元遇到\n
     cin.ignore(2048, '\n');
 
     // 顯示錯誤訊息
@@ -363,19 +363,6 @@ void syntaxParenthesesR(Stack &stack, bool &hasNum)
     if (stack.empty()) {
         hasNum = false;
     }
-    /*
-    while (!stack.empty()) {
-        if (stack.top().type == PARENTHESES_L) {
-            stack.pop();
-            stack.push(Data(NUMBER, ' '));
-            return;
-        }
-
-        stack.pop();
-    }
-
-    throw "Error 2: there is one extra close parenthesis.";
-    */
 }
 
 void syntaxOperator(Stack &stack, Data &tmp)
@@ -426,19 +413,6 @@ void syntaxCheck(string str)
     if (!stack_PARENTHESES.empty()) {
         throw "Error 2: there is one extra open parenthesis.";
     }
-    /*
-    if (!stack.empty()) {
-        while (stack.size() > 1)
-            stack.pop();
-
-        if (stack.top().type == PARENTHESES_L) {
-            throw "Error 2: there is one extra open parenthesis.";
-        }
-        // if (stack.top().type != NUMBER || stack.size() != 1)
-        //    throw "error4" ;
-    }
-    */
-
 }
 
 void calculate(int &a, int &b, char oper)
@@ -513,7 +487,7 @@ void toPostOperator(Stack &stack, Data &tmp, LinkedList &postfix)
     if (top.type != OPERATOR)
         return;
 
-    // 
+    //
     while (priority[tmp.value.c] >= priority[top.value.c] && top.type == OPERATOR) {
 
         postfix.push_back(top);
@@ -628,7 +602,7 @@ void init()
     priority['+'] = 20;
     priority['-'] = 20;
 
-    // num   
+    // num
     // oper  [+\-*/]
     tokenDefine = vector<pair<regex, Type>>{
         { regex("^[0-9]+"), NUMBER },
