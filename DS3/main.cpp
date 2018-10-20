@@ -435,6 +435,7 @@ int task3(LinkedList postfix)
             a = stack.top().value.i32;
             stack.pop();
 
+            // calculate
             calculate(a, b, oper);
             stack.push(Data(NUMBER, a));
         }
