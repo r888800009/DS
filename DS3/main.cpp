@@ -324,65 +324,45 @@ Data Tokenizer::nextToken()
     return Data(UNDEFINE, ' ');
 }
 
-void syntaxNumber(Stack &stack, Data &tmp, bool &hasNum)
+void syntaxNumber(Data &tmp, bool &hasNum)
 {
-    hasNum = true;
-    if (stack.empty()) {
-        stack.push(tmp);
-        return;
-    }
-
-    if (stack.top().type == NUMBER)
+    if (hasNum == false)
+        hasNum = true;
+    else
         throw "Error 3: there is one extra operand.";
-    else if (stack.top().type == OPERATOR)
-        stack.pop();
-
-    stack.push(tmp);
 }
 
 void syntaxParenthesesL(Stack &stack, Data &tmp, bool &hasNum)
 {
     hasNum = false;
     stack.push(tmp);
-    return;
 }
 
 void syntaxParenthesesR(Stack &stack, bool &hasNum)
 {
-    if (hasNum == false) {
+    if (hasNum == false)
         throw "Error 2: deficient operand.";
-    }
 
-    if (!stack.empty()) {
-        stack.pop();
-    }
-    else {
+    if (stack.empty())
         throw "Error 2: there is one extra close parenthesis.";
-    }
 
-    if (stack.empty()) {
-        hasNum = false;
+    else {
+        hasNum = true;
+        stack.pop();
     }
 }
 
-void syntaxOperator(Stack &stack, Data &tmp)
+void syntaxOperator(Data &tmp, bool &hasNum)
 {
-    if (stack.empty())
+    if (hasNum == false)
         throw "Error 3: there is one extra operator.";
-
-    if (stack.top().type == OPERATOR)
-        throw "Error 3: there is one extra operator.";
-
-    if (stack.top().type == NUMBER) {
-        stack.pop();
-        stack.push(tmp);
-    }
+    else
+        hasNum = false;
 }
 
 void syntaxCheck(string str)
 {
     Stack stack;
-    Stack stack_PARENTHESES;
     bool hasNum = false;
     Tokenizer tokenizer(str);
     Data tmp;
@@ -393,24 +373,24 @@ void syntaxCheck(string str)
 
         switch (tmp.type) {
         case NUMBER:
-            syntaxNumber(stack, tmp, hasNum);
+            syntaxNumber(tmp, hasNum);
             break;
 
         case PARENTHESES_R:
-            syntaxParenthesesR(stack_PARENTHESES, hasNum);
+            syntaxParenthesesR(stack, hasNum);
             break;
 
         case PARENTHESES_L:
-            syntaxParenthesesL(stack_PARENTHESES, tmp, hasNum);
+            syntaxParenthesesL(stack, tmp, hasNum);
             break;
 
         case OPERATOR:
-            syntaxOperator(stack, tmp);
+            syntaxOperator(tmp, hasNum);
             break;
         }
     }
 
-    if (!stack_PARENTHESES.empty()) {
+    if (!stack.empty()) {
         throw "Error 2: there is one extra open parenthesis.";
     }
 }
