@@ -13,9 +13,10 @@ def genInfix(deep):
         3: lambda x: genInfix(x) + "*" + genInfix(x),
         4: lambda x: genInfix(x) + "/" + genInfix(x),
         5: lambda x: "(" + genInfix(x) + ")",
-        6: lambda x: ' ' * random.randint(0, 6) + genInfix(x) + ' ' * random.randint(0, 6) 
+        6: lambda x: ' ' * random.randint(0, 6) + genInfix(x) + ' ' * random.randint(0, 6),
+        7: lambda x: '\t' * random.randint(0, 6) + genInfix(x) + '\t' * random.randint(0, 6)
     }
-    return result[random.randint(1, 6)](deep - 1)
+    return result[random.randint(1, 7)](deep - 1)
 time = 50
 
 for i in range (1, time):
