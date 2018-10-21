@@ -1,4 +1,4 @@
-
+// 第11組 106127116 許逸翔 10612150 林詠翔 資訊二甲
 // must to use -std=c++11 or higher version
 
 #include <iostream>
@@ -398,10 +398,13 @@ void syntaxCheck(string str)
             break;
         }
     }
+    if (hasNum == false) throw "Error 3: there is one extra operator.";
 
     if (!stack.empty()) {
         throw "Error 2: there is one extra open parenthesis.";
     }
+    // clear stack memory
+    stack.clear();
 }
 
 void calculate(int &a, int &b, char oper)
@@ -605,7 +608,8 @@ void init()
     // oper  [+\-*/]
     tokenDefine = vector<pair<regex, Type>>{
         { regex("^[0-9]+"), NUMBER },
-        { regex("^[+\\-*/]"), OPERATOR },
+        { regex("^[+*/]"), OPERATOR },
+        { regex("^-"), OPERATOR },
         { regex("^\\)"), PARENTHESES_R },
         { regex("^\\("), PARENTHESES_L }
     };
