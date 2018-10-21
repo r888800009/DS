@@ -1,4 +1,5 @@
 
+// must to use -std=c++11 or higher version
 
 #include <iostream>
 #include <algorithm>
@@ -280,6 +281,7 @@ void errorHandling(string message)
     cout << message << endl;
 }
 
+// tokenizer can parse formula tokens
 class Tokenizer {
     string str;
     Data ret;
@@ -371,6 +373,8 @@ void syntaxCheck(string str)
     bool hasNum = false;
     Tokenizer tokenizer(str);
     Data tmp;
+
+    // tokenizer can parse formula tokens
     while (tokenizer.hasNext()) {
         tmp = tokenizer.nextToken();
         if (!tokenizer.hasDefine())
@@ -446,7 +450,10 @@ int task3(LinkedList postfix)
         }
     }
 
+    // print answer
     cout << "Answer: " << stack.top().value.i32 << endl;
+
+    // clear stack memory
     stack.clear();
     return 0;
 }
@@ -494,6 +501,8 @@ int task2(string str)
     LinkedList postfix;
     Tokenizer tokenizer(str);
     Data tmp;
+
+    // tokenizer can parse formula tokens
     while (tokenizer.hasNext()) {
         tmp = tokenizer.nextToken();
         switch (tmp.type) {
@@ -529,6 +538,8 @@ int task2(string str)
 
     // next task
     task3(postfix);
+
+    // clear memory
     postfix.clear();
     stack.clear();
     return 0;
