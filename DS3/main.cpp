@@ -258,6 +258,11 @@ public:
         stackList.print();
     }
 
+    void clear()
+    {
+        stackList.clear();
+    }
+
 };
 
 void errorHandling(string message)
@@ -442,6 +447,7 @@ int task3(LinkedList postfix)
     }
 
     cout << "Answer: " << stack.top().value.i32 << endl;
+    stack.clear();
     return 0;
 }
 
@@ -524,6 +530,7 @@ int task2(string str)
     // next task
     task3(postfix);
     postfix.clear();
+    stack.clear();
     return 0;
 }
 
@@ -636,5 +643,4 @@ int main(int argc, char *argv[])
     system("PAUSE");
     return 0;
 }
-
 
