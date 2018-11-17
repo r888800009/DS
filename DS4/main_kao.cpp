@@ -205,7 +205,7 @@ public:
 
         }
         else {              // have node
-         // set new node prev
+            // set new node prev
             newNode->prev = endNode;
             // set prev node link to newNode
             endNode->next = newNode;
@@ -430,37 +430,36 @@ public:
             chef_arr[i].setOrder(i+1);
     }
 
-    void action(const Data &data)
+    void handleQueue(const Data *data = nullptr)
     {
-
         int min;
         while (true) {
             min = -1;
             for (int i = 0; i < size; i++) {
-                if (!chef_arr[i].empty() && chef_arr[i].getIdleTime() <= data.column[DATA_ARRIVAL]) {
-                    if (min == -1) min = i;
-                    else if (chef_arr[i].getIdleTime() < chef_arr[min].getIdleTime()) min = i;
-                    else if (chef_arr[i].getIdleTime() == chef_arr[min].getIdleTime()
-                        && chef_arr[i].top().column[DATA_ARRIVAL] < chef_arr[min].getIdleTime()) min = i;
+                if (!chef_arr[i].empty() &
+                   // check data only data is not NULL when
+                   (data == nullptr || chef_arr[i].getIdleTime() <= data->column[DATA_ARRIVAL])) {
+
+                    if (min == -1)
+                        min = i;
+                    else if (chef_arr[i].getIdleTime() < chef_arr[min].getIdleTime())
+                        min = i;
+                    else if (chef_arr[i].getIdleTime() == chef_arr[min].getIdleTime() &&
+                            chef_arr[i].top().column[DATA_ARRIVAL] < chef_arr[min].getIdleTime())
+                        min = i;
                 }
             }
-            if (min == -1) break;
+
+            if (min == -1)
+                break;
             handleOrder(chef_arr[min], chef_arr[min].top());
             chef_arr[min].pop();
         }
+    }
 
-        // must fix
-        // handle queue
-        /*
-        for (int i = 0; i < size; i++) {
-            while (chef_arr[i].getIdleTime() <= data.column[DATA_ARRIVAL]) {
-                if (chef_arr[i].empty()) break;
-                handleOrder(chef_arr[i], chef_arr[i].top());
-                chef_arr[i].pop();
-            }
-        }
-        */
-        // must fix
+    void action(const Data &data)
+    {
+        handleQueue(&data);
 
         // handle order immediately
         for (int i = 0; i < size; i++) {
@@ -471,7 +470,7 @@ public:
         }
 
         // push to queue
-        min = 0;
+        int min = 0;
         for (int i = 0; i < size; i++) {
             if (chef_arr[i].size() < chef_arr[min].size()) min = i;
         }
@@ -484,33 +483,6 @@ public:
         // cancel order
         Chef* temp = new Chef();
         cancelOrder(*temp, data, 0);
-
-    }
-
-    void action()
-    {
-        // handle queue
-
-        int min;
-        while (true) {
-            min = -1;
-            for (int i = 0; i < size; i++) {
-                if (!chef_arr[i].empty()) {
-                    if (min == -1)
-                        min = i;
-                    else if (chef_arr[i].getIdleTime() <= chef_arr[min].getIdleTime())
-                        min = i;
-                    else if (chef_arr[i].getIdleTime() == chef_arr[min].getIdleTime()
-                            && chef_arr[i].top().column[DATA_ARRIVAL] < chef_arr[min].getIdleTime())
-                        min = i;
-                }
-            }
-
-            if (min == -1)
-                break;
-            handleOrder(chef_arr[min], chef_arr[min].top());
-            chef_arr[min].pop();
-        }
 
     }
 
@@ -704,7 +676,7 @@ public:
                 total++, manager.action(temp);
         }
 
-        manager.action();
+        manager.handleQueue();
 
         string saveName = prefix + fileName + ".txt";
         total_delay = fail_order = 0;
