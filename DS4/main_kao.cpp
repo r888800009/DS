@@ -621,7 +621,7 @@ class HandleFile {
         fout << "[Total Delay]" << endl;
         fout << total_delay << " min." << endl;
         fout << "[Failure Percentage]" << endl;
-        fout << fixed << setprecision(2) << fail_order/float(total)*100 << " %" << endl;
+        fout << fixed << setprecision(2) << fail_order / float(total) * 100 << " %" << endl;
     }
 
 public:
@@ -637,6 +637,7 @@ public:
             return 0;
         }
 
+        // read
         Data temp;
         clock_t t = clock();
         while (fin >> temp)     // >> overload
@@ -644,15 +645,16 @@ public:
 
         cout << "Read File: " << (clock() - t)  << " ms"<< endl;
 
+        // sort
         t = clock();
         shell_sort(database);
         cout << "Sort File: " << (clock() - t) << " ms" << endl;
 
+        // save
+        t = clock();
         string column[4] = {
             "OID", "Arrival", "Duration", "TimeOut"
         };
-
-        t = clock();
         save("sort" + fileName + ".txt", database, column);
         cout << "Save File: " << (clock() - t) << " ms" << endl;
 
@@ -664,11 +666,13 @@ public:
         Manager manager(num);
         string fileName;
 
+        // is quit task2?
         if (!task2_3_input(fileName)) {
             cout << "switch to menu" << endl;
             return 0;
         }
 
+        // read
         int total = 0;
         Data temp;
         while (fin >> temp) {     // >> overload
@@ -678,8 +682,13 @@ public:
 
         manager.handleQueue();
 
-        string saveName = prefix + fileName + ".txt";
+        // reset
         total_delay = fail_order = 0;
+
+        // save file
+        string saveName = prefix + fileName + ".txt";
+
+        // clean old file
         fout.open(saveName, ios::out | ios::trunc);
         fout.close();
 
