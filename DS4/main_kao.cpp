@@ -463,7 +463,7 @@ public:
             }
         }
 
-        // push to queue
+        // push to minimum size queue
         int min = 0;
         for (int i = 0; i < chefs.size(); i++) {
             if (chefs[i].size() < chefs[min].size()) min = i;
@@ -517,8 +517,6 @@ class HandleFile {
             fout << database[i];         // << overload
 
         fout.close();
-
-        // cout << "Total number of records: " << database.size() << endl;
     }
 
     void save(string saveName, vector<Data> &database, string title, string column[])
@@ -540,8 +538,6 @@ class HandleFile {
         }
 
         fout.close();
-
-        cout << "Total number of records: " << database.size() << endl;
     }
 
     string fileInput(fstream &file, string message, string prefix)
