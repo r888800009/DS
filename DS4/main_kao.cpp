@@ -74,6 +74,16 @@ public:
         column[DATA_ABORT_DEPARTURE] = num4;
     }
 
+    int operator[](int i) const
+    {
+        return column[i];
+    }
+
+    int &operator[](int i)
+    {
+        return column[i];
+    }
+
     friend bool operator<(const Data &i, const Data &j)
     {
         if (j.column[DATA_ARRIVAL] > i.column[DATA_ARRIVAL]) return true;
@@ -382,15 +392,15 @@ class Manager {
 
     void handleOrder(Chef &chef, const Data &data)
     {
-        if (chef.getIdleTime() < data.column[DATA_ARRIVAL])
-            chef.setIdleTime(data.column[DATA_ARRIVAL]); // time jump
+        if (chef.getIdleTime() < data[DATA_ARRIVAL])
+            chef.setIdleTime(data[DATA_ARRIVAL]); // time jump
 
-        int final_time = chef.getIdleTime() + data.column[DATA_DEURATION];
-        int abort_delay_time = chef.getIdleTime() - data.column[DATA_ARRIVAL];
+        int final_time = chef.getIdleTime() + data[DATA_DEURATION];
+        int abort_delay_time = chef.getIdleTime() - data[DATA_ARRIVAL];
 
-        if (data.column[DATA_TIMEOUT] <= chef.getIdleTime())
+        if (data[DATA_TIMEOUT] <= chef.getIdleTime())
             abortOrder(&chef, data, chef.getIdleTime());
-        else if (data.column[DATA_TIMEOUT] < final_time)
+        else if (data[DATA_TIMEOUT] < final_time)
             timeoutOrder(chef, data, final_time);
         else
             chef.setIdleTime(final_time);
@@ -399,17 +409,17 @@ class Manager {
     void abortOrder(Chef *chef, const Data &data, int abort_time)
     {
         abort.push_back(Data(
-                    data.column[DATA_OID],
+                    data[DATA_OID],
                     chef->getOrder(),
-                    abort_time - data.column[DATA_ARRIVAL],
+                    abort_time - data[DATA_ARRIVAL],
                     abort_time));
     }
 
     void timeoutOrder(Chef &chef, const Data &data, int final_time) {
         timeout.push_back(Data(
-                    data.column[DATA_OID],
+                    data[DATA_OID],
                     chef.getOrder(),
-                    chef.getIdleTime() - data.column[DATA_ARRIVAL],
+                    chef.getIdleTime() - data[DATA_ARRIVAL],
                     final_time));
 
         chef.setIdleTime(final_time);
@@ -457,7 +467,7 @@ public:
 
         // handle order immediately
         for (int i = 0; i < chefs.size(); i++) {
-            if (chefs[i].empty() && chefs[i].getIdleTime() <= data.column[DATA_ARRIVAL]) {
+            if (chefs[i].empty() && chefs[i].getIdleTime() <= data[DATA_ARRIVAL]) {
                 handleOrder(chefs[i], data);
                 return;
             }
@@ -475,7 +485,7 @@ public:
         }
 
         // abort order
-        abortOrder(new Chef(), data, data.column[DATA_ARRIVAL]);
+        abortOrder(new Chef(), data, data[DATA_ARRIVAL]);
 
     }
 
