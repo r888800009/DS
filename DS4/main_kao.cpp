@@ -659,6 +659,7 @@ public:
         vector<Data> database;
         string fileName;
 
+        // is quit task1?
         if (!task1_input(fileName)) {
             cout << "switch to menu" << endl;
             return 0;
@@ -715,9 +716,12 @@ public:
             "OID", "CID", "Delay", "Abort"
         };
 
-        save(saveName, manager.getCancel(), "Abort List", column); // cancel
+        // cancel
+        save(saveName, manager.getCancel(), "Abort List", column);
+
+        // timeout
         column[3] = "Departure";
-        save(saveName, manager.getTimeout(), "Timeout List", column); // timeout
+        save(saveName, manager.getTimeout(), "Timeout List", column);
 
         summary(saveName, total);
 
@@ -781,10 +785,10 @@ void errorHandling(string message)
     if (cin.eof())
         exit(0);
 
-    // 恢復cin的狀態 
+    // 恢復cin的狀態
     cin.clear();
 
-    // 消滅最多2048個字元遇到\n 
+    // 消滅最多2048個字元遇到\n
     cin.ignore(2048, '\n');
 
     // 顯示錯誤訊息
