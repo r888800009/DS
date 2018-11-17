@@ -8,6 +8,8 @@
 #include <limits>
 #include <iomanip>
 #include <ctime>
+#include <functional>
+
 using namespace std;
 
 #define MENU_QUIT             0
@@ -601,6 +603,14 @@ class HandleFile {
         }
     }
 
+    typedef const function<void ()> handlerTimer;
+    void timing(const string display, handlerTimer doing)
+    {
+        clock_t t = clock();
+        doing();
+        cout << display << (clock() - t)  << " ms"<< endl;
+    }
+
     // use in task2_3
     bool task2_3_input(string &fileName)
     {
@@ -638,25 +648,23 @@ public:
         }
 
         // read
-        Data temp;
-        clock_t t = clock();
-        while (fin >> temp)     // >> overload
-            if (inputSuccess) database.push_back(temp);
-
-        cout << "Read File: " << (clock() - t)  << " ms"<< endl;
+        timing("Read File: ", [&]() {
+            Data temp;
+            while (fin >> temp)     // >> overload
+                if (inputSuccess) database.push_back(temp);
+        });
 
         // sort
-        t = clock();
-        shell_sort(database);
-        cout << "Sort File: " << (clock() - t) << " ms" << endl;
+        timing("Sort File: ", [&]() {shell_sort(database);});
 
         // save
-        t = clock();
-        string column[4] = {
-            "OID", "Arrival", "Duration", "TimeOut"
-        };
-        save("sort" + fileName + ".txt", database, column);
-        cout << "Save File: " << (clock() - t) << " ms" << endl;
+        timing("Save File: ", [&]() {
+            string column[4] = {
+                "OID", "Arrival", "Duration", "TimeOut"
+            };
+            save("sort" + fileName + ".txt", database, column);
+        });
+
 
         return 0;
     }
