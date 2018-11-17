@@ -5,12 +5,13 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <limits>
 #include <iomanip>
 #include <ctime>
 using namespace std;
 
 #define MENU_QUIT             0
-#define MENU_COPY_FILE        1 
+#define MENU_COPY_FILE        1
 #define MENU_FILTER_FILE      2
 #define MENU_MERGE_FILE       3
 
@@ -56,22 +57,23 @@ int stringToInt(string str)
 }
 
 // sort & cancel & timeout DATA use
-class Data
-{
+class Data {
 public:
     int column[DATA_SIZE];
 
     Data() {}
 
     // used to creat cancel & timeout cloumn
-    Data(int num1, int num2, int num3, int num4) {
+    Data(int num1, int num2, int num3, int num4) i
+    {
         column[DATA_OID] = num1;
         column[DATA_CID] = num2;
         column[DATA_DELAY] = num3;
         column[DATA_ABORT_DEPARTURE] = num4;
     }
 
-    friend bool operator<(const Data &i, const Data &j) {
+    friend bool operator<(const Data &i, const Data &j)
+    {
         if (j.column[DATA_ARRIVAL] > i.column[DATA_ARRIVAL]) return true;
         else if (j.column[DATA_ARRIVAL] < i.column[DATA_ARRIVAL]) return false;
         else if (j.column[DATA_OID] > i.column[DATA_OID]) return true;
@@ -86,7 +88,7 @@ public:
         if (!in)
             return in;
         // drop \r if the program running on unix
-        // or unix like system, the string may be 
+        // or unix like system, the string may be
         // contained '\r'
         if (input.back() == '\r')
             input.pop_back();
@@ -349,18 +351,22 @@ class Chef: public Queue{
     int idleTime;
 public:
     Chef() : idleTime(0), order(0){}
+
     int getOrder()
     {
         return order;
     }
+
     void setOrder(int o)
     {
         order = o;
     }
+
     int getIdleTime()
     {
         return idleTime;
     }
+
     void setIdleTime(int time)
     {
         idleTime = time;
@@ -373,32 +379,59 @@ class Manager {
     vector<Data> cancel;
     vector<Data> timeout;
 
-    void handleOrder(Chef &chef, const Data &data) {
-        if (chef.getIdleTime() < data.column[DATA_ARRIVAL]) chef.setIdleTime(data.column[DATA_ARRIVAL]); // time jump 
+    void handleOrder(Chef &chef, const Data &data)
+    {
+        if (chef.getIdleTime() < data.column[DATA_ARRIVAL])
+            chef.setIdleTime(data.column[DATA_ARRIVAL]); // time jump
+
         int final_time = chef.getIdleTime() + data.column[DATA_DEURATION];
         int cancel_delay_time = chef.getIdleTime() - data.column[DATA_ARRIVAL];
 
-        if (data.column[DATA_TIMEOUT] <= chef.getIdleTime()) cancelOrder(chef, data, cancel_delay_time);
-        else if (data.column[DATA_TIMEOUT] < final_time) timeoutOrder(chef, data, final_time);
-        else chef.setIdleTime(final_time);
+        if (data.column[DATA_TIMEOUT] <= chef.getIdleTime())
+            cancelOrder(chef, data, cancel_delay_time);
+        else if (data.column[DATA_TIMEOUT] < final_time)
+            timeoutOrder(chef, data, final_time);
+        else
+            chef.setIdleTime(final_time);
     }
-    void cancelOrder(Chef &chef, const Data &data, int cancel_delay_time) {
-        if(cancel_delay_time == 0) cancel.push_back(Data(data.column[DATA_OID], chef.getOrder(), cancel_delay_time, data.column[DATA_ARRIVAL]));
-        else cancel.push_back(Data(data.column[DATA_OID], chef.getOrder(), cancel_delay_time, chef.getIdleTime()));
+
+    void cancelOrder(Chef &chef, const Data &data, int cancel_delay_time)
+    {
+        if(cancel_delay_time == 0) {
+            cancel.push_back(Data(
+                        data.column[DATA_OID],
+                        chef.getOrder(),
+                        cancel_delay_time,
+                        data.column[DATA_ARRIVAL]));
+        } else {
+            cancel.push_back(Data(
+                        data.column[DATA_OID],
+                        chef.getOrder(),
+                        cancel_delay_time,
+                        chef.getIdleTime()));
+        }
     }
+
     void timeoutOrder(Chef &chef, const Data &data, int final_time) {
-        timeout.push_back(Data(data.column[DATA_OID], chef.getOrder(), chef.getIdleTime() - data.column[DATA_ARRIVAL], final_time));
+        timeout.push_back(Data(
+                    data.column[DATA_OID],
+                    chef.getOrder(),
+                    chef.getIdleTime() - data.column[DATA_ARRIVAL],
+                    final_time));
+
         chef.setIdleTime(final_time);
     }
 
 public:
-    Manager(int num): size(num) {
+    Manager(int num): size(num)
+    {
         chef_arr = new Chef[num];
         for(int i = 0; i < num; i++)
             chef_arr[i].setOrder(i+1);
     }
 
-    void action(const Data &data) {
+    void action(const Data &data)
+    {
 
         int min;
         while (true) {
@@ -442,7 +475,8 @@ public:
         for (int i = 0; i < size; i++) {
             if (chef_arr[i].size() < chef_arr[min].size()) min = i;
         }
-        if (chef_arr[min].size() < 3) { 
+
+        if (chef_arr[min].size() < 3) {
             chef_arr[min].push(data);
             return;
         }
@@ -453,8 +487,8 @@ public:
 
     }
 
-    void action() {
-
+    void action()
+    {
         // handle queue
 
         int min;
@@ -462,29 +496,35 @@ public:
             min = -1;
             for (int i = 0; i < size; i++) {
                 if (!chef_arr[i].empty()) {
-                    if (min == -1) min = i;
-                    else if (chef_arr[i].getIdleTime() <= chef_arr[min].getIdleTime()) min = i;
-                    else if (chef_arr[i].getIdleTime() == chef_arr[min].getIdleTime() 
-                            && chef_arr[i].top().column[DATA_ARRIVAL] < chef_arr[min].getIdleTime()) min = i;
+                    if (min == -1)
+                        min = i;
+                    else if (chef_arr[i].getIdleTime() <= chef_arr[min].getIdleTime())
+                        min = i;
+                    else if (chef_arr[i].getIdleTime() == chef_arr[min].getIdleTime()
+                            && chef_arr[i].top().column[DATA_ARRIVAL] < chef_arr[min].getIdleTime())
+                        min = i;
                 }
             }
-            if (min == -1) break;
+
+            if (min == -1)
+                break;
             handleOrder(chef_arr[min], chef_arr[min].top());
             chef_arr[min].pop();
         }
 
     }
 
-    vector<Data> &getCancel() {
+    vector<Data> &getCancel()
+    {
         return cancel;
     }
-    vector<Data> &getTimeout() {
+    vector<Data> &getTimeout()
+    {
         return timeout;
     }
 };
 
-class HandleFile
-{
+class HandleFile {
     fstream fin;
     fstream fout;
     int total_delay;
@@ -524,9 +564,8 @@ class HandleFile
         fout.open(saveName, ios::out | ios::app);
 
         fout << "\t[" << title << "]\n" << '\t';
-        for (int i = 0; i <= column->size(); i++) 
+        for (int i = 0; i <= column->size(); i++)
             fout << column[i] << (i < column->size() ? '\t' : '\n');
-        
 
         for (int i = 0; i < database.size(); i++) {
             fout << '[' << i + 1 << "]\t" << database[i];         // << overload
@@ -575,7 +614,8 @@ class HandleFile
         return fileName != "";  // {quit: 0, continue: 1}
     }
 
-    void shell_sort(vector<Data> &arr) {
+    void shell_sort(vector<Data> &arr) i
+    {
         int len = arr.size();
         for (int d = len / 2; d >= 1; d /= 2) {
             for (int i = d; i < len; i++) {
@@ -626,9 +666,9 @@ public:
 
         Data temp;
         clock_t t = clock();
-        while (fin >> temp){     // >> overload
+        while (fin >> temp)     // >> overload
             if (inputSuccess) database.push_back(temp);
-        }
+
         cout << "Read File: " << (clock() - t)  << " ms"<< endl;
 
         t = clock();
@@ -638,6 +678,7 @@ public:
         string column[4] = {
             "OID", "Arrival", "Duration", "TimeOut"
         };
+
         t = clock();
         save("sort" + fileName + ".txt", database, column);
         cout << "Save File: " << (clock() - t) << " ms" << endl;
