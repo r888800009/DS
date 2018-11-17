@@ -376,8 +376,7 @@ public:
 };
 
 class Manager {
-    Chef* chef_arr;
-    int size; // chef_arr.size
+    vector<Chef> chefs;
     vector<Data> cancel;
     vector<Data> timeout;
 
@@ -425,11 +424,11 @@ class Manager {
     }
 
 public:
-    Manager(int num): size(num)
+    Manager(int num): chefs(num)
     {
-        chef_arr = new Chef[num];
         for(int i = 0; i < num; i++)
-            chef_arr[i].setOrder(i+1);
+            chefs[i].setOrder(i+1);
+
     }
 
     void handleQueue(const Data *data = nullptr)
@@ -437,25 +436,26 @@ public:
         int min;
         while (true) {
             min = -1;
-            for (int i = 0; i < size; i++) {
-                if (!chef_arr[i].empty() &
+            for (int i = 0; i < chefs.size(); i++) {
+                if (!chefs[i].empty() &&
                    // check data only data is not NULL when
-                   (data == nullptr || chef_arr[i].getIdleTime() <= data->column[DATA_ARRIVAL])) {
+                   (data == nullptr || chefs[i].getIdleTime() <= data->column[DATA_ARRIVAL])) {
 
                     if (min == -1)
                         min = i;
-                    else if (chef_arr[i].getIdleTime() < chef_arr[min].getIdleTime())
+                    else if (chefs[i].getIdleTime() < chefs[min].getIdleTime())
                         min = i;
-                    else if (chef_arr[i].getIdleTime() == chef_arr[min].getIdleTime() &&
-                            chef_arr[i].top().column[DATA_ARRIVAL] < chef_arr[min].getIdleTime())
+                    else if (chefs[i].getIdleTime() == chefs[min].getIdleTime() &&
+                            chefs[i].top().column[DATA_ARRIVAL] < chefs[min].getIdleTime())
                         min = i;
                 }
             }
 
             if (min == -1)
                 break;
-            handleOrder(chef_arr[min], chef_arr[min].top());
-            chef_arr[min].pop();
+
+            handleOrder(chefs[min], chefs[min].top());
+            chefs[min].pop();
         }
     }
 
@@ -464,21 +464,21 @@ public:
         handleQueue(&data);
 
         // handle order immediately
-        for (int i = 0; i < size; i++) {
-            if (chef_arr[i].empty() && chef_arr[i].getIdleTime() <= data.column[DATA_ARRIVAL]) {
-                handleOrder(chef_arr[i], data);
+        for (int i = 0; i < chefs.size(); i++) {
+            if (chefs[i].empty() && chefs[i].getIdleTime() <= data.column[DATA_ARRIVAL]) {
+                handleOrder(chefs[i], data);
                 return;
             }
         }
 
         // push to queue
         int min = 0;
-        for (int i = 0; i < size; i++) {
-            if (chef_arr[i].size() < chef_arr[min].size()) min = i;
+        for (int i = 0; i < chefs.size(); i++) {
+            if (chefs[i].size() < chefs[min].size()) min = i;
         }
 
-        if (chef_arr[min].size() < 3) {
-            chef_arr[min].push(data);
+        if (chefs[min].size() < 3) {
+            chefs[min].push(data);
             return;
         }
 
@@ -664,7 +664,6 @@ public:
             };
             save("sort" + fileName + ".txt", database, column);
         });
-
 
         return 0;
     }
