@@ -686,7 +686,7 @@ public:
         return 0;
     }
 
-    bool task2_3(int num)
+    bool task2_3(int num, string prefix)
     {
         Manager manager(num);
         string fileName;
@@ -705,7 +705,7 @@ public:
 
         manager.action();
 
-        string saveName = (num == 1 ? "one" : "two") + fileName + ".txt";
+        string saveName = prefix + fileName + ".txt";
         total_delay = fail_order = 0;
         fout.open(saveName, ios::out | ios::trunc);
         fout.close();
@@ -754,11 +754,11 @@ int main(int argc, char *argv[])
             break;
 
         case MENU_FILTER_FILE:
-            result = f.task2_3(1);       // 任務2
+            result = f.task2_3(1, "one");       // 任務2
             break;
 
         case MENU_MERGE_FILE:
-            result = f.task2_3(2);       // 任務3
+            result = f.task2_3(2, "two");       // 任務3
             break;
 
         default:
