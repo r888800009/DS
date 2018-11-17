@@ -20,4 +20,4 @@
 [Total Delay]
 1034 min.
 [Failure Percentage]
-100.00 %
+83.33 %
