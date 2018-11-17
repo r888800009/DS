@@ -1,0 +1,13 @@
+	[Abort List]
+	OID	CID	Delay	Abort
+[1]	108	1	13	19
+[2]	105	2	10	20
+	[Timeout List]
+	OID	CID	Delay	Departure
+[1]	106	2	5	20
+[2]	103	1	6	19
+[3]	104	2	9	29
+[Total Delay]
+43 min.
+[Failure Percentage]
+100.00 %

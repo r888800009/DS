@@ -1,0 +1,14 @@
+	[Abort List]
+	OID	Delay	Abort
+[1]	108	0	6
+[2]	105	0	10
+[3]	104	0	11
+[4]	103	12	18
+[5]	106	12	18
+	[Timeout List]
+	OID	Delay	Departure
+[1]	112	7	18
+[Total Delay]
+31 min.
+[Failure Percentage]
+100.00 %
