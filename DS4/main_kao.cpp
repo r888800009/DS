@@ -64,7 +64,7 @@ public:
     Data() {}
 
     // used to creat cancel & timeout cloumn
-    Data(int num1, int num2, int num3, int num4) i
+    Data(int num1, int num2, int num3, int num4)
     {
         column[DATA_OID] = num1;
         column[DATA_CID] = num2;
@@ -614,7 +614,7 @@ class HandleFile {
         return fileName != "";  // {quit: 0, continue: 1}
     }
 
-    void shell_sort(vector<Data> &arr) i
+    void shell_sort(vector<Data> &arr)
     {
         int len = arr.size();
         for (int d = len / 2; d >= 1; d /= 2) {
@@ -714,6 +714,7 @@ public:
         string column[4] = {
             "OID", "CID", "Delay", "Abort"
         };
+
         save(saveName, manager.getCancel(), "Abort List", column); // cancel
         column[3] = "Departure";
         save(saveName, manager.getTimeout(), "Timeout List", column); // timeout
