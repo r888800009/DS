@@ -377,7 +377,7 @@ public:
 
 class Manager {
     vector<Chef> chefs;
-    vector<Data> cancel;
+    vector<Data> abort;
     vector<Data> timeout;
 
     void handleOrder(Chef &chef, const Data &data)
@@ -386,30 +386,30 @@ class Manager {
             chef.setIdleTime(data.column[DATA_ARRIVAL]); // time jump
 
         int final_time = chef.getIdleTime() + data.column[DATA_DEURATION];
-        int cancel_delay_time = chef.getIdleTime() - data.column[DATA_ARRIVAL];
+        int abort_delay_time = chef.getIdleTime() - data.column[DATA_ARRIVAL];
 
         if (data.column[DATA_TIMEOUT] <= chef.getIdleTime())
-            cancelOrder(chef, data, cancel_delay_time);
+            abortOrder(&chef, data, abort_delay_time);
         else if (data.column[DATA_TIMEOUT] < final_time)
             timeoutOrder(chef, data, final_time);
         else
             chef.setIdleTime(final_time);
     }
 
-    void cancelOrder(Chef &chef, const Data &data, int cancel_delay_time)
+    void abortOrder(Chef *chef, const Data &data, int abort_delay_time)
     {
-        if(cancel_delay_time == 0) {
-            cancel.push_back(Data(
+        if(abort_delay_time == 0) {
+            abort.push_back(Data(
                         data.column[DATA_OID],
-                        chef.getOrder(),
-                        cancel_delay_time,
+                        chef->getOrder(),
+                        abort_delay_time,
                         data.column[DATA_ARRIVAL]));
         } else {
-            cancel.push_back(Data(
+            abort.push_back(Data(
                         data.column[DATA_OID],
-                        chef.getOrder(),
-                        cancel_delay_time,
-                        chef.getIdleTime()));
+                        chef->getOrder(),
+                        abort_delay_time,
+                        chef->getIdleTime()));
         }
     }
 
@@ -482,16 +482,16 @@ public:
             return;
         }
 
-        // cancel order
-        Chef* temp = new Chef();
-        cancelOrder(*temp, data, 0);
+        // abort order
+        abortOrder(new Chef(), data, 0);
 
     }
 
-    vector<Data> &getCancel()
+    vector<Data> &getAbort()
     {
-        return cancel;
+        return abort;
     }
+
     vector<Data> &getTimeout()
     {
         return timeout;
@@ -704,8 +704,8 @@ public:
             "OID", "CID", "Delay", "Abort"
         };
 
-        // cancel
-        save(saveName, manager.getCancel(), "Abort List", column);
+        // abort
+        save(saveName, manager.getAbort(), "Abort List", column);
 
         // timeout
         column[3] = "Departure";
