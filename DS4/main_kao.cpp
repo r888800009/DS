@@ -118,7 +118,7 @@ public:
                 // change to int
                 int num = stringToInt(temp);
                 if (num == -1) inputSuccess = false;
-                else data.column[count++] = num;
+                else data[count++] = num;
                 temp = "";
             }
         }
@@ -132,7 +132,7 @@ public:
     friend ostream &operator<<(ostream &out, Data &data)
     {
         for (int i = 0; i < DATA_SIZE; i++)
-            out << data.column[i] << (i < DATA_SIZE - 1 ? '\t' : '\n');
+            out << data[i] << (i < DATA_SIZE - 1 ? '\t' : '\n');
 
         return out;
     }
@@ -389,6 +389,7 @@ class Manager {
     vector<Chef> chefs;
     vector<Data> abort;
     vector<Data> timeout;
+    int delay_count;
 
     void handleOrder(Chef &chef, const Data &data)
     {
@@ -413,6 +414,7 @@ class Manager {
                     chef->getOrder(),
                     abort_time - data[DATA_ARRIVAL],
                     abort_time));
+        delay_count += abort.back()[DATA_DELAY];
     }
 
     void timeoutOrder(Chef &chef, const Data &data, int final_time) {
@@ -422,11 +424,12 @@ class Manager {
                     chef.getIdleTime() - data[DATA_ARRIVAL],
                     final_time));
 
+        delay_count += timeout.back()[DATA_DELAY];
         chef.setIdleTime(final_time);
     }
 
 public:
-    Manager(int num): chefs(num)
+    Manager(int num): chefs(num), delay_count(0)
     {
         for(int i = 0; i < num; i++)
             chefs[i].setOrder(i+1);
@@ -498,13 +501,16 @@ public:
     {
         return timeout;
     }
+
+    int getTotalDelay()
+    {
+        return delay_count;
+    }
 };
 
 class HandleFile {
     fstream fin;
     fstream fout;
-    int total_delay;
-    int fail_order;
 
     void dropHeader(fstream &file, int num)
     {
@@ -543,8 +549,6 @@ class HandleFile {
 
         for (int i = 0; i < database.size(); i++) {
             fout << '[' << i + 1 << "]\t" << database[i];         // << overload
-            total_delay += database[i].column[DATA_DELAY];
-            fail_order++;
         }
 
         fout.close();
@@ -619,16 +623,20 @@ class HandleFile {
         return fileName != "";  // {quit: 0, continue: 1}
     }
 
-    void summary(string saveName, int total)
+    void summary(string saveName, int total, Manager &manager)
     {
         if (fin.is_open())
             fin.close();
 
         fout.open(saveName, ios::out | ios::app);
 
+        // display delay time
         fout << "[Total Delay]" << endl;
-        fout << total_delay << " min." << endl;
+        fout << manager.getTotalDelay() << " min." << endl;
+
+        // count fail order
         fout << "[Failure Percentage]" << endl;
+        int fail_order = manager.getAbort().size() + manager.getTimeout().size();
         fout << fixed << setprecision(2) << fail_order / float(total) * 100 << " %" << endl;
     }
 
@@ -687,9 +695,6 @@ public:
 
         manager.handleQueue();
 
-        // reset
-        total_delay = fail_order = 0;
-
         // save file
         string saveName = prefix + fileName + ".txt";
 
@@ -709,7 +714,7 @@ public:
         column[3] = "Departure";
         save(saveName, manager.getTimeout(), "Timeout List", column);
 
-        summary(saveName, total);
+        summary(saveName, total, manager);
 
         return 0;
     }
