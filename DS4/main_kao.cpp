@@ -389,28 +389,20 @@ class Manager {
         int abort_delay_time = chef.getIdleTime() - data.column[DATA_ARRIVAL];
 
         if (data.column[DATA_TIMEOUT] <= chef.getIdleTime())
-            abortOrder(&chef, data, abort_delay_time);
+            abortOrder(&chef, data, chef.getIdleTime());
         else if (data.column[DATA_TIMEOUT] < final_time)
             timeoutOrder(chef, data, final_time);
         else
             chef.setIdleTime(final_time);
     }
 
-    void abortOrder(Chef *chef, const Data &data, int abort_delay_time)
+    void abortOrder(Chef *chef, const Data &data, int abort_time)
     {
-        if(abort_delay_time == 0) {
-            abort.push_back(Data(
-                        data.column[DATA_OID],
-                        chef->getOrder(),
-                        abort_delay_time,
-                        data.column[DATA_ARRIVAL]));
-        } else {
-            abort.push_back(Data(
-                        data.column[DATA_OID],
-                        chef->getOrder(),
-                        abort_delay_time,
-                        chef->getIdleTime()));
-        }
+        abort.push_back(Data(
+                    data.column[DATA_OID],
+                    chef->getOrder(),
+                    abort_time - data.column[DATA_ARRIVAL],
+                    abort_time));
     }
 
     void timeoutOrder(Chef &chef, const Data &data, int final_time) {
@@ -483,7 +475,7 @@ public:
         }
 
         // abort order
-        abortOrder(new Chef(), data, 0);
+        abortOrder(new Chef(), data, data.column[DATA_ARRIVAL]);
 
     }
 
