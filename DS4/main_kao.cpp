@@ -397,35 +397,28 @@ class Manager {
             chef.setIdleTime(data[DATA_ARRIVAL]); // time jump
 
         int final_time = chef.getIdleTime() + data[DATA_DEURATION];
-        int abort_delay_time = chef.getIdleTime() - data[DATA_ARRIVAL];
+        int delay_time = chef.getIdleTime() - data[DATA_ARRIVAL];
+        int cid = chef.getOrder();
 
         if (data[DATA_TIMEOUT] <= chef.getIdleTime())
-            abortOrder(&chef, data, chef.getIdleTime());
-        else if (data[DATA_TIMEOUT] < final_time)
-            timeoutOrder(chef, data, final_time);
-        else
+            logOrder(abort, cid, data, delay_time, chef.getIdleTime());
+        else {
+            if (data[DATA_TIMEOUT] < final_time)
+                logOrder(timeout, cid, data, delay_time, final_time);
+
             chef.setIdleTime(final_time);
+        }
     }
 
-    void abortOrder(Chef *chef, const Data &data, int abort_time)
+    void logOrder(vector<Data> &database, int id, const Data &data, int delay_time, int time)
     {
-        abort.push_back(Data(
+        database.push_back(Data(
                     data[DATA_OID],
-                    chef->getOrder(),
-                    abort_time - data[DATA_ARRIVAL],
-                    abort_time));
-        delay_count += abort.back()[DATA_DELAY];
-    }
+                    id,
+                    delay_time,
+                    time));
 
-    void timeoutOrder(Chef &chef, const Data &data, int final_time) {
-        timeout.push_back(Data(
-                    data[DATA_OID],
-                    chef.getOrder(),
-                    chef.getIdleTime() - data[DATA_ARRIVAL],
-                    final_time));
-
-        delay_count += timeout.back()[DATA_DELAY];
-        chef.setIdleTime(final_time);
+        delay_count += delay_time;
     }
 
 public:
@@ -488,7 +481,7 @@ public:
         }
 
         // abort order
-        abortOrder(new Chef(), data, data[DATA_ARRIVAL]);
+        logOrder(abort, 0, data, 0, data[DATA_ARRIVAL]);
 
     }
 
