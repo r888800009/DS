@@ -30,6 +30,8 @@ using namespace std;
 #define DATA_DELAY            2
 #define DATA_ABORT_DEPARTURE  3
 
+#define endchar(i, end) (i < end ? '\t' : '\n')
+
 static bool inputSuccess;
 void errorHandling(string message);
 
@@ -86,9 +88,9 @@ public:
 
     friend bool operator<(const Data &i, const Data &j)
     {
-        if (j.column[DATA_ARRIVAL] > i.column[DATA_ARRIVAL]) return true;
-        else if (j.column[DATA_ARRIVAL] < i.column[DATA_ARRIVAL]) return false;
-        else if (j.column[DATA_OID] > i.column[DATA_OID]) return true;
+        if (j[DATA_ARRIVAL] > i[DATA_ARRIVAL]) return true;
+        else if (j[DATA_ARRIVAL] < i[DATA_ARRIVAL]) return false;
+        else if (j[DATA_OID] > i[DATA_OID]) return true;
         else return false;
     }
 
@@ -132,7 +134,7 @@ public:
     friend ostream &operator<<(ostream &out, Data &data)
     {
         for (int i = 0; i < DATA_SIZE; i++)
-            out << data[i] << (i < DATA_SIZE - 1 ? '\t' : '\n');
+            out << data[i] << endchar(i, DATA_SIZE - 1);
 
         return out;
     }
@@ -414,11 +416,8 @@ class Manager {
 
     void logOrder(vector<Data> &database, int id, const Data &data, int delay_time, int time)
     {
-        database.push_back(Data(
-                    data[DATA_OID],
-                    id,
-                    delay_time,
-                    time));
+        database.push_back(
+                Data(data[DATA_OID], id, delay_time, time));
 
         delay_count += delay_time;
     }
@@ -445,7 +444,7 @@ public:
                     else if (chefs[i].getIdleTime() < chefs[min].getIdleTime())
                         min = i;
                     else if (chefs[i].getIdleTime() == chefs[min].getIdleTime() &&
-                            chefs[i].front().column[DATA_ARRIVAL] < chefs[min].getIdleTime())
+                            chefs[i].front()[DATA_ARRIVAL] < chefs[min].getIdleTime())
                         min = i;
                 }
             }
@@ -473,19 +472,19 @@ public:
         }
 
         // push to minimum size queue
-        int min = 0;
+        int min = -1;
         for (int i = 0; i < chefs.size(); i++) {
-            if (chefs[i].size() < chefs[min].size()) min = i;
+            if (chefs[i].size() < 3 && (min == -1|| chefs[i].size() < chefs[min].size()))
+                min = i;
         }
 
-        if (chefs[min].size() < 3) {
+        if (min != -1) {
+            // push order
             chefs[min].push(data);
-            return;
+        } else {
+            // abort order
+            logOrder(abort, 0, data, 0, data[DATA_ARRIVAL]);
         }
-
-        // abort order
-        logOrder(abort, 0, data, 0, data[DATA_ARRIVAL]);
-
     }
 
     vector<Data> &getAbort()
@@ -501,6 +500,11 @@ public:
     int getTotalDelay()
     {
         return delay_count;
+    }
+
+    int getFailOrder()
+    {
+        return getAbort().size() + getTimeout().size();
     }
 
     int getTotal()
@@ -528,7 +532,7 @@ class HandleFile {
         fout.open(saveName, ios::out | ios::trunc);
 
         for (int i = 0; i < DATA_SIZE; i++)
-            fout << column[i] << (i < DATA_SIZE - 1 ? '\t' : '\n');
+            fout << column[i] << endchar(i, DATA_SIZE - 1);
 
         for (int i = 0; i < database.size(); i++)
             fout << database[i];         // << overload
@@ -546,7 +550,7 @@ class HandleFile {
 
         fout << "\t[" << title << "]\n" << '\t';
         for (int i = 0; i <= column->size(); i++)
-            fout << column[i] << (i < column->size() ? '\t' : '\n');
+            fout << column[i] << endchar(i, column->size());
 
         for (int i = 0; i < database.size(); i++)
             fout << '[' << i + 1 << "]\t" << database[i];         // << overload
@@ -627,9 +631,8 @@ class HandleFile {
 
         // count fail order
         fout << "[Failure Percentage]" << endl;
-        int fail_order = manager.getAbort().size() + manager.getTimeout().size();
         fout << fixed << setprecision(2) <<
-            fail_order / float(manager.getTotal()) * 100 << " %" << endl;
+            manager.getFailOrder() / float(manager.getTotal()) * 100 << " %" << endl;
     }
 
 public:
