@@ -389,6 +389,8 @@ class Manager {
     vector<Chef> chefs;
     vector<Data> abort;
     vector<Data> timeout;
+
+    int total;
     int delay_count;
 
     void handleOrder(Chef &chef, const Data &data)
@@ -422,7 +424,7 @@ class Manager {
     }
 
 public:
-    Manager(int num): chefs(num), delay_count(0)
+    Manager(int num): chefs(num), delay_count(0), total(0)
     {
         for(int i = 0; i < num; i++)
             chefs[i].setOrder(i+1);
@@ -459,6 +461,8 @@ public:
 
     void action(const Data &data)
     {
+        total++;
+
         handleQueue(&data);
 
         // handle order immediately
@@ -498,6 +502,11 @@ public:
     int getTotalDelay()
     {
         return delay_count;
+    }
+
+    int getTotal()
+    {
+        return total;
     }
 };
 
@@ -540,9 +549,8 @@ class HandleFile {
         for (int i = 0; i <= column->size(); i++)
             fout << column[i] << (i < column->size() ? '\t' : '\n');
 
-        for (int i = 0; i < database.size(); i++) {
+        for (int i = 0; i < database.size(); i++)
             fout << '[' << i + 1 << "]\t" << database[i];         // << overload
-        }
 
         fout.close();
     }
@@ -616,7 +624,7 @@ class HandleFile {
         return fileName != "";  // {quit: 0, continue: 1}
     }
 
-    void summary(string saveName, int total, Manager &manager)
+    void summary(string saveName, Manager &manager)
     {
         if (fin.is_open())
             fin.close();
@@ -630,7 +638,8 @@ class HandleFile {
         // count fail order
         fout << "[Failure Percentage]" << endl;
         int fail_order = manager.getAbort().size() + manager.getTimeout().size();
-        fout << fixed << setprecision(2) << fail_order / float(total) * 100 << " %" << endl;
+        fout << fixed << setprecision(2) <<
+            fail_order / float(manager.getTotal()) * 100 << " %" << endl;
     }
 
 public:
@@ -679,11 +688,10 @@ public:
         }
 
         // read
-        int total = 0;
         Data temp;
         while (fin >> temp) {     // >> overload
             if (inputSuccess)
-                total++, manager.action(temp);
+                manager.action(temp);
         }
 
         manager.handleQueue();
@@ -707,7 +715,7 @@ public:
         column[3] = "Departure";
         save(saveName, manager.getTimeout(), "Timeout List", column);
 
-        summary(saveName, total, manager);
+        summary(saveName, manager);
 
         return 0;
     }
