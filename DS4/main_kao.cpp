@@ -582,15 +582,15 @@ class HandleFile {
         }
     }
 
-    // use in task1
-    bool task1_input(string &fileName)
+    bool input(string &fileName, string prefix)
     {
-        fileName = fileInput(fin, "Input (401, 402, ...[0]Quit): ", "input");
+        fileName = fileInput(fin, "Input (401, 402, ...[0]Quit): ", prefix);
 
         // if fileName == "" then quit to menu
         return fileName != "";  // {quit: 0, continue: 1}
     }
 
+    // use in task1
     void shell_sort(vector<Data> &arr)
     {
         int len = arr.size();
@@ -615,15 +615,6 @@ class HandleFile {
     }
 
     // use in task2_3
-    bool task2_3_input(string &fileName)
-    {
-
-        fileName = fileInput(fin, "Input (401, 402, ...[0]Quit): ", "sort");
-
-        // if fileName == "" then quit to menu
-        return fileName != "";  // {quit: 0, continue: 1}
-    }
-
     void summary(string saveName, Manager &manager)
     {
         if (fin.is_open())
@@ -650,7 +641,7 @@ public:
         string fileName;
 
         // is quit task1?
-        if (!task1_input(fileName)) {
+        if (!input(fileName, "input")) {
             cout << "switch to menu" << endl;
             return 0;
         }
@@ -682,7 +673,7 @@ public:
         string fileName;
 
         // is quit task2?
-        if (!task2_3_input(fileName)) {
+        if (!input(fileName, "sort")) {
             cout << "switch to menu" << endl;
             return 0;
         }
