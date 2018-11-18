@@ -242,7 +242,7 @@ public:
         return firstNode == nullptr;
     }
 
-    Data top()
+    Data front()
     {
         return firstNode->data;
     }
@@ -331,9 +331,9 @@ public:
         return queueList.empty();
     }
 
-    Data top()
+    Data front()
     {
-        return queueList.top();
+        return queueList.front();
     }
 
     void pop()
@@ -428,25 +428,24 @@ public:
     {
         for(int i = 0; i < num; i++)
             chefs[i].setOrder(i+1);
-
     }
 
     void handleQueue(const Data *data = nullptr)
     {
-        int min;
         while (true) {
-            min = -1;
+            int min = -1;
             for (int i = 0; i < chefs.size(); i++) {
                 if (!chefs[i].empty() &&
                    // check data only data is not NULL when
                    (data == nullptr || chefs[i].getIdleTime() <= data->column[DATA_ARRIVAL])) {
 
+                    // no select
                     if (min == -1)
                         min = i;
                     else if (chefs[i].getIdleTime() < chefs[min].getIdleTime())
                         min = i;
                     else if (chefs[i].getIdleTime() == chefs[min].getIdleTime() &&
-                            chefs[i].top().column[DATA_ARRIVAL] < chefs[min].getIdleTime())
+                            chefs[i].front().column[DATA_ARRIVAL] < chefs[min].getIdleTime())
                         min = i;
                 }
             }
@@ -454,7 +453,7 @@ public:
             if (min == -1)
                 break;
 
-            handleOrder(chefs[min], chefs[min].top());
+            handleOrder(chefs[min], chefs[min].front());
             chefs[min].pop();
         }
     }
