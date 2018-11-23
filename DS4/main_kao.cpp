@@ -138,6 +138,12 @@ public:
 
         return out;
     }
+
+    void print(fstream &fout, int skipcloumn) {
+        for (int i = 0; i < DATA_SIZE; i++)
+            if(i != skipcloumn)
+            fout << column[i] << endchar(i, DATA_SIZE - 1);
+    }
 };
 
 class LinkedList {
@@ -360,11 +366,11 @@ public:
 
 };
 
-class Chef: public Queue{
+class Chef : public Queue {
     int order;
     int idleTime;
 public:
-    Chef() : idleTime(0), order(0){}
+    Chef() : idleTime(0), order(0) {}
 
     int getOrder()
     {
@@ -417,16 +423,16 @@ class Manager {
     void logOrder(vector<Data> &database, int id, const Data &data, int delay_time, int time)
     {
         database.push_back(
-                Data(data[DATA_OID], id, delay_time, time));
+            Data(data[DATA_OID], id, delay_time, time));
 
         delay_count += delay_time;
     }
 
 public:
-    Manager(int num): chefs(num), delay_count(0), total(0)
+    Manager(int num) : chefs(num), delay_count(0), total(0)
     {
-        for(int i = 0; i < num; i++)
-            chefs[i].setOrder(i+1);
+        for (int i = 0; i < num; i++)
+            chefs[i].setOrder(i + 1);
     }
 
     void handleQueue(const Data *data = nullptr)
@@ -434,18 +440,24 @@ public:
         while (true) {
             int min = -1;
             for (int i = 0; i < chefs.size(); i++) {
-                if (!chefs[i].empty() &&
-                   // check data only data is not NULL when
-                   (data == nullptr || chefs[i].getIdleTime() <= data->column[DATA_ARRIVAL])) {
-
-                    // no select
-                    if (min == -1)
-                        min = i;
-                    else if (chefs[i].getIdleTime() < chefs[min].getIdleTime())
-                        min = i;
-                    else if (chefs[i].getIdleTime() == chefs[min].getIdleTime() &&
+                if (!chefs[i].empty()) {
+                 // check data only data is not NULL when
+                    if (data == nullptr) {
+                        // no select
+                        if (min == -1)
+                            min = i;
+                        else if (chefs[i].getIdleTime() < chefs[min].getIdleTime())
+                            min = i;
+                        else if (chefs[i].getIdleTime() == chefs[min].getIdleTime() &&
                             chefs[i].front()[DATA_ARRIVAL] < chefs[min].getIdleTime())
-                        min = i;
+                            min = i;
+                    }
+                    else {
+                        while (!chefs[i].empty() && chefs[i].getIdleTime() <= data->column[DATA_ARRIVAL]) {
+                            handleOrder(chefs[i], chefs[i].front());
+                            chefs[i].pop();
+                        }
+                    }
                 }
             }
 
@@ -474,14 +486,15 @@ public:
         // push to minimum size queue
         int min = -1;
         for (int i = 0; i < chefs.size(); i++) {
-            if (chefs[i].size() < 3 && (min == -1|| chefs[i].size() < chefs[min].size()))
+            if (chefs[i].size() < 3 && (min == -1 || chefs[i].size() < chefs[min].size()))
                 min = i;
         }
 
         if (min != -1) {
             // push order
             chefs[min].push(data);
-        } else {
+        }
+        else {
             // abort order
             logOrder(abort, 0, data, 0, data[DATA_ARRIVAL]);
         }
@@ -540,7 +553,7 @@ class HandleFile {
         fout.close();
     }
 
-    void save(string saveName, vector<Data> &database, string title, string column[])
+    void save(string saveName, vector<Data> &database, string title, string column[], int skipcolumn)
     {
         // closs all file
         if (fin.is_open())
@@ -550,10 +563,13 @@ class HandleFile {
 
         fout << "\t[" << title << "]\n" << '\t';
         for (int i = 0; i <= column->size(); i++)
-            fout << column[i] << endchar(i, column->size());
+            if (i != skipcolumn)
+                fout << column[i] << endchar(i, column->size());
 
-        for (int i = 0; i < database.size(); i++)
-            fout << '[' << i + 1 << "]\t" << database[i];         // << overload
+        for (int i = 0; i < database.size(); i++) {
+            fout << '[' << i + 1 << "]\t";
+            database[i].print(fout, skipcolumn);         // << overload
+        }
 
         fout.close();
     }
@@ -609,12 +625,12 @@ class HandleFile {
         }
     }
 
-    typedef const function<void ()> handlerTimer;
+    typedef const function<void()> handlerTimer;
     void timing(const string display, handlerTimer doing)
     {
         clock_t t = clock();
         doing();
-        cout << display << (clock() - t)  << " ms"<< endl;
+        cout << display << (clock() - t) << " ms" << endl;
     }
 
     // use in task2_3
@@ -656,7 +672,7 @@ public:
         });
 
         // sort
-        timing("Sort File: ", [&]() {shell_sort(database);});
+        timing("Sort File: ", [&]() {shell_sort(database); });
 
         // save
         timing("Save File: ", [&]() {
@@ -702,11 +718,13 @@ public:
         };
 
         // abort
-        save(saveName, manager.getAbort(), "Abort List", column);
+        if (num == 1) save(saveName, manager.getAbort(), "Abort List", column, DATA_CID);
+        else  save(saveName, manager.getAbort(), "Abort List", column, -1);
 
         // timeout
         column[3] = "Departure";
-        save(saveName, manager.getTimeout(), "Timeout List", column);
+        if (num == 1) save(saveName, manager.getTimeout(), "Timeout List", column, DATA_CID);
+        else  save(saveName, manager.getTimeout(), "Timeout List", column, -1);
 
         summary(saveName, manager);
 
