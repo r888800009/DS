@@ -8,6 +8,6 @@ for i in range(1, 9):
     for oid in oids:
         arrival = random.randint(1, 2000)
         duration = random.randint(1, 600)
-        timeout = arrival + random.randint(1, 600)
+        timeout = arrival + duration + random.randint(0, 300)
         print("{}\t{}\t{}\t{}".format(oid, arrival, duration, timeout), file=fileout)
 
