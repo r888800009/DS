@@ -33,7 +33,7 @@ using namespace std;
 #define endchar(i, end) (i < end ? '\t' : '\n')
 
 static bool inputSuccess;
-void errorHandling(string message);
+void errorHandling(const string &message);
 
 string getOnlyDigits(string str)
 {
@@ -588,7 +588,7 @@ class HandleFile {
         fout.close();
     }
 
-    string fileInput(fstream &file, string message, string prefix)
+    string fileInput(fstream &file, const string &message, const string &prefix)
     {
         string fileName;
         while (true) {
@@ -615,7 +615,7 @@ class HandleFile {
         }
     }
 
-    bool input(string &fileName, string prefix)
+    bool input(string &fileName, const string &prefix)
     {
         fileName = fileInput(fin, "Input (401, 402, ...[0]Quit): ", prefix);
 
@@ -640,7 +640,7 @@ class HandleFile {
     }
 
     typedef const function<void()> timerHandler;
-    void timing(const string display, timerHandler doing)
+    void timing(const string &display, timerHandler doing)
     {
         clock_t t = clock();
         doing();
@@ -700,7 +700,7 @@ public:
         return 0;
     }
 
-    bool task2_3(int num, string prefix)
+    bool task2_3(int num, const string &prefix)
     {
         Manager manager(num);
         string fileName;
@@ -801,7 +801,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void errorHandling(string message)
+void errorHandling(const string &message)
 {
     // 如果eof則強制結束程式
     if (cin.eof())
