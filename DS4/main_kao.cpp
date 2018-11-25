@@ -88,10 +88,16 @@ public:
 
     friend bool operator<(const Data &i, const Data &j)
     {
-        if (j[DATA_ARRIVAL] > i[DATA_ARRIVAL]) return true;
-        else if (j[DATA_ARRIVAL] < i[DATA_ARRIVAL]) return false;
-        else if (j[DATA_OID] > i[DATA_OID]) return true;
-        else return false;
+        if (j[DATA_ARRIVAL] > i[DATA_ARRIVAL])
+            return true;
+        else if (j[DATA_ARRIVAL] < i[DATA_ARRIVAL])
+            return false;
+
+        // when j[DATA_ARRIVAL] == i[DATA_ARRIVAL]
+        else if (j[DATA_OID] > i[DATA_OID])
+            return true;
+        else
+            return false;
     }
 
     friend istream &operator>>(istream &in, Data &data)
@@ -142,7 +148,7 @@ public:
     void print(fstream &fout, int skipcloumn) {
         for (int i = 0; i < DATA_SIZE; i++)
             if(i != skipcloumn)
-            fout << column[i] << endchar(i, DATA_SIZE - 1);
+                fout << column[i] << endchar(i, DATA_SIZE - 1);
     }
 };
 
@@ -453,7 +459,9 @@ public:
                             min = i;
                     }
                     else {
-                        while (!chefs[i].empty() && chefs[i].getIdleTime() <= data->column[DATA_ARRIVAL]) {
+                        while (!chefs[i].empty() &&
+                                chefs[i].getIdleTime() <= data->column[DATA_ARRIVAL])
+                        {
                             handleOrder(chefs[i], chefs[i].front());
                             chefs[i].pop();
                         }
@@ -486,8 +494,11 @@ public:
         // push to minimum size queue
         int min = -1;
         for (int i = 0; i < chefs.size(); i++) {
-            if (chefs[i].size() < 3 && (min == -1 || chefs[i].size() < chefs[min].size()))
+            if (chefs[i].size() < 3 &&
+                (min == -1 || chefs[i].size() < chefs[min].size()))
+            {
                 min = i;
+            }
         }
 
         if (min != -1) {
@@ -553,7 +564,8 @@ class HandleFile {
         fout.close();
     }
 
-    void save(string saveName, vector<Data> &database, string title, string column[], int skipcolumn)
+    void save(string saveName, vector<Data> &database, string title,
+            string column[], int skipcolumn)
     {
         // closs all file
         if (fin.is_open())
@@ -568,7 +580,9 @@ class HandleFile {
 
         for (int i = 0; i < database.size(); i++) {
             fout << '[' << i + 1 << "]\t";
-            database[i].print(fout, skipcolumn);         // << overload
+
+            // print to database[i] to fout
+            database[i].print(fout, skipcolumn);
         }
 
         fout.close();
@@ -617,16 +631,16 @@ class HandleFile {
             for (int i = d; i < len; i++) {
                 Data temp = arr[i];
                 int j = i - d;
-                for (; j >= 0 && temp < arr[j]; j -= d) {
+                for (; j >= 0 && temp < arr[j]; j -= d)
                     arr[j + d] = arr[j];
-                }
+
                 arr[j + d] = temp;
             }
         }
     }
 
-    typedef const function<void()> handlerTimer;
-    void timing(const string display, handlerTimer doing)
+    typedef const function<void()> timerHandler;
+    void timing(const string display, timerHandler doing)
     {
         clock_t t = clock();
         doing();
@@ -648,7 +662,8 @@ class HandleFile {
         // count fail order
         fout << "[Failure Percentage]" << endl;
         fout << fixed << setprecision(2) <<
-            manager.getFailOrder() / float(manager.getTotal()) * 100 << " %" << endl;
+            manager.getFailOrder() / float(manager.getTotal()) * 100 <<
+            " %" << endl;
     }
 
 public:
@@ -718,13 +733,17 @@ public:
         };
 
         // abort
-        if (num == 1) save(saveName, manager.getAbort(), "Abort List", column, DATA_CID);
-        else  save(saveName, manager.getAbort(), "Abort List", column, -1);
+        if (num == 1)
+            save(saveName, manager.getAbort(), "Abort List", column, DATA_CID);
+        else
+            save(saveName, manager.getAbort(), "Abort List", column, -1);
 
         // timeout
         column[3] = "Departure";
-        if (num == 1) save(saveName, manager.getTimeout(), "Timeout List", column, DATA_CID);
-        else  save(saveName, manager.getTimeout(), "Timeout List", column, -1);
+        if (num == 1)
+            save(saveName, manager.getTimeout(), "Timeout List", column, DATA_CID);
+        else
+            save(saveName, manager.getTimeout(), "Timeout List", column, -1);
 
         summary(saveName, manager);
 
