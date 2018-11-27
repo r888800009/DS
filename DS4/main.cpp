@@ -403,6 +403,7 @@ class Manager {
     vector<Chef> chefs;
     vector<Data> abort;
     vector<Data> timeout;
+    vector<Data> done;
 
     int total;
     int delay_count;
@@ -421,6 +422,8 @@ class Manager {
         else {
             if (data[DATA_TIMEOUT] < final_time)
                 logOrder(timeout, cid, data, delay_time, final_time);
+            else
+                logOrder(done, cid, data, delay_time, final_time);
 
             chef.setIdleTime(final_time);
         }
@@ -519,6 +522,11 @@ public:
     vector<Data> &getTimeout()
     {
         return timeout;
+    }
+
+    vector<Data> &getDone()
+    {
+        return done;
     }
 
     int getTotalDelay()
@@ -744,6 +752,15 @@ public:
             save(saveName, manager.getTimeout(), "Timeout List", column, DATA_CID);
         else
             save(saveName, manager.getTimeout(), "Timeout List", column, -1);
+
+        // done
+        column[3] = "Departure";
+        if (num == 1)
+            save(saveName, manager.getDone(), "Done List", column, DATA_CID);
+        else
+            save(saveName, manager.getDone(), "Done List", column, -1);
+
+
 
         summary(saveName, manager);
 
