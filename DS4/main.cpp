@@ -639,6 +639,20 @@ class HandleFile {
         }
     }
 
+    // use in task1
+    void insert_sort(vector<Data> &arr)
+    {
+        int len = arr.size();
+        for (int i = 1; i < len; i++) {
+            Data temp = arr[i];
+            int j = i - 1;
+            for (; j >= 0 && temp < arr[j]; j--)
+                arr[j + 1] = arr[j];
+
+            arr[j + 1] = temp;
+        }
+    }
+
     typedef const function<void()> timerHandler;
     void timing(const string &display, timerHandler doing)
     {
@@ -687,7 +701,7 @@ public:
         });
 
         // sort
-        timing("Sort File: ", [&]() {shell_sort(database); });
+        timing("Sort File: ", [&]() {insert_sort(database); });
 
         // save
         timing("Save File: ", [&]() {
