@@ -12,10 +12,11 @@
 
 using namespace std;
 
-#define MENU_QUIT             0
-#define MENU_COPY_FILE        1
-#define MENU_FILTER_FILE      2
-#define MENU_MERGE_FILE       3
+#define MENU_QUIT                    0
+#define MENU_SHELL_SORT              1
+#define MENU_SIMULATE_ONE_QUEUE      2
+#define MENU_SIMULATE_TWO_QUEUES     3
+#define MENU_SIMULATE_SOME_QUEUES    4
 
 // sort column
 #define DATA_SIZE             4
@@ -147,7 +148,7 @@ public:
 
     void print(fstream &fout, int skipcloumn) {
         for (int i = 0; i < DATA_SIZE; i++)
-            if(i != skipcloumn)
+            if (i != skipcloumn)
                 fout << column[i] << endchar(i, DATA_SIZE - 1);
     }
 };
@@ -403,6 +404,7 @@ class Manager {
     vector<Chef> chefs;
     vector<Data> abort;
     vector<Data> timeout;
+    vector<Data> done;
 
     int total;
     int delay_count;
@@ -421,6 +423,8 @@ class Manager {
         else {
             if (data[DATA_TIMEOUT] < final_time)
                 logOrder(timeout, cid, data, delay_time, final_time);
+            else
+                logOrder(done, cid, data, delay_time, final_time);
 
             chef.setIdleTime(final_time);
         }
@@ -447,7 +451,7 @@ public:
             int min = -1;
             for (int i = 0; i < chefs.size(); i++) {
                 if (!chefs[i].empty()) {
-                 // check data only data is not NULL when
+                    // check data only data is not NULL when
                     if (data == nullptr) {
                         // no select
                         if (min == -1)
@@ -460,7 +464,7 @@ public:
                     }
                     else {
                         while (!chefs[i].empty() &&
-                                chefs[i].getIdleTime() <= data->column[DATA_ARRIVAL])
+                            chefs[i].getIdleTime() <= data->column[DATA_ARRIVAL])
                         {
                             handleOrder(chefs[i], chefs[i].front());
                             chefs[i].pop();
@@ -521,6 +525,11 @@ public:
         return timeout;
     }
 
+    vector<Data> &getDone()
+    {
+        return done;
+    }
+
     int getTotalDelay()
     {
         return delay_count;
@@ -565,7 +574,7 @@ class HandleFile {
     }
 
     void save(string saveName, vector<Data> &database, string title,
-            string column[], int skipcolumn)
+        string column[], int skipcolumn)
     {
         // closs all file
         if (fin.is_open())
@@ -666,6 +675,20 @@ class HandleFile {
             " %" << endl;
     }
 
+    // use in task4
+    int numberInput(string message, string errorMsg)
+    {
+        int result;
+        while (true) {
+            cout << message;
+            cin >> result;
+            if (cin && result > -1)
+                return result;
+            else
+                errorHandling("Error : " + errorMsg);
+        }
+    }
+
 public:
 
     bool task1()
@@ -745,6 +768,64 @@ public:
         else
             save(saveName, manager.getTimeout(), "Timeout List", column, -1);
 
+        // done
+        column[3] = "Departure";
+        if (num == 1)
+            save(saveName, manager.getDone(), "Done List", column, DATA_CID);
+        else
+            save(saveName, manager.getDone(), "Done List", column, -1);
+
+        summary(saveName, manager);
+
+        return 0;
+    }
+
+    bool task4(const string &prefix)
+    {
+        int num = numberInput("Input the positive number of queues(chefs): ", "Number out of range!");
+        Manager manager(num);
+        string fileName;
+
+        // is quit task2?
+        if (!input(fileName, "sort")) {
+            cout << "switch to menu" << endl;
+            return 0;
+        }
+
+        // read
+        Data temp;
+        while (fin >> temp) {     // >> overload
+            if (inputSuccess)
+                manager.action(temp);
+        }
+
+        manager.handleQueue();
+
+        // save file
+        string saveName = prefix + fileName + ".txt";
+
+        // clean old file
+        fout.open(saveName, ios::out | ios::trunc);
+        fout.close();
+
+        // one queue also print "CID"
+        string column[4] = {
+            "OID", "CID", "Delay", "Abort"
+        };
+
+        // abort
+        if (num == 1)
+            save(saveName, manager.getAbort(), "Abort List", column, DATA_CID);
+        else
+            save(saveName, manager.getAbort(), "Abort List", column, -1);
+
+        // timeout
+        column[3] = "Departure";
+        if (num == 1)
+            save(saveName, manager.getTimeout(), "Timeout List", column, DATA_CID);
+        else
+            save(saveName, manager.getTimeout(), "Timeout List", column, -1);
+
         summary(saveName, manager);
 
         return 0;
@@ -764,6 +845,7 @@ int main(int argc, char *argv[])
         cout << "* 1. SHELL_SORT                *" << endl;
         cout << "* 2. Simulate one queue        *" << endl;
         cout << "* 3. Simulate two queues       *" << endl;
+        cout << "* 4. Simulate some queues      *" << endl;
         cout << "choice: ";
 
         // 輸入選擇
@@ -776,16 +858,20 @@ int main(int argc, char *argv[])
         case MENU_QUIT:
             return 0;               // 退出
 
-        case MENU_COPY_FILE:
+        case MENU_SHELL_SORT:
             result = f.task1();       // 任務1
             break;
 
-        case MENU_FILTER_FILE:
+        case MENU_SIMULATE_ONE_QUEUE:
             result = f.task2_3(1, "one");       // 任務2
             break;
 
-        case MENU_MERGE_FILE:
+        case MENU_SIMULATE_TWO_QUEUES:
             result = f.task2_3(2, "two");       // 任務3
+            break;
+
+        case MENU_SIMULATE_SOME_QUEUES:
+            result = f.task4("more");       // 任務4
             break;
 
         default:
