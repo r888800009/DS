@@ -6,3 +6,4 @@ AlignEscapedNewlines: Right
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterFunction: true
+AlwaysBreakTemplateDeclarations: Yes
