@@ -103,7 +103,7 @@ class Data {
 
         return out;
     }
-
+    operator int() { return stringToInt(column[DATA_GRADUATES]); }
     bool operator>(Data &b)
     {
         return stringToInt(column[DATA_GRADUATES]) <
@@ -323,10 +323,53 @@ class HandleFile {
         quick(pivot + 1, size - leftSize - 1);
     }
 
+    int getDigit(int num, int digit, int base)
+    {
+        int hi = 1, lo = 1;
+        while (digit > 0)
+            hi *= base, digit--;
+        lo = hi / base;
+        return num % hi / lo;
+    }
+
+    int getMaxDigit(int num, int base)
+    {
+        int ret = 0;
+        while (num > 0)
+            num /= base, ret++;
+        return ret;
+    }
+
     template <class T>
-    void redix(vector<T> &array, bool (*cmp)(T, T))
+    void redix(vector<T> &array, int base)
     {
         int size = array.size();
+        // base
+        vector<T> bucket[base];
+        int digit = 1;
+        int max   = array[0];
+        do {
+            for (int i = size - 1; i >= 0; i--) {
+                bucket[getDigit(array[i], digit, base)].push_back(array[i]);
+                if (digit == 1) {
+                    if (max < array[i])
+                        max = array[i];
+                }
+            }
+
+            if (digit == 1)
+                max = getMaxDigit(max, base);
+
+            auto ptr = array.begin();
+            for (int i = base - 1; i >= 0; i--) {
+                while (bucket[i].size() > 0) {
+                    *ptr = bucket[i].back();
+                    ptr++;
+                    bucket[i].pop_back();
+                }
+            }
+            digit++;
+        } while (digit <= max);
     }
 
   public:
@@ -380,9 +423,11 @@ class HandleFile {
             return 0;
 
         // sort and timer
+        vector<Data> redixData(database);
+        timing("redix: ", [&]() { redix(redixData, 10); });
 
         // save
-        save("copy" + fileName + ".txt", database);
+        save("redix_sort" + fileName + ".txt", redixData);
 
         return 0;
     }
