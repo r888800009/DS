@@ -84,7 +84,7 @@ class HandleFile {
     fstream fout;
 
     // common function
-    string getOnlyDigits(string str)
+    static string getOnlyDigits(string str)
     {
         string tmp = "";
         for (char c : str)
@@ -172,7 +172,7 @@ class HandleFile {
         return fileName != ""; // {quit: 0, continue: 1}
     }
 
-    int stringToInt(string str)
+    static int stringToInt(string str)
     {
         try {
             // "1,223,234,234,234"
@@ -196,15 +196,55 @@ class HandleFile {
     }
 
     // sorts
-    template <class T> void selection(void (*cmp)(T, T)) {}
+    template <class T>
+    void selection(vector<T> &array, bool (*cmp)(T &, T &))
+    {
+        int size = array.size();
+        for (int i = 0; i < size; i++) {
+            int minIndex = i;
+            for (int j = i; j < size; j++) {
+                if (cmp(array[minIndex], array[j]))
+                    minIndex = j;
+            }
+            swap(array[minIndex], array[i]);
+        }
+    }
 
-    template <class T> void bubble(void (*cmp)(T, T)) {}
+    template <class T>
+    void bubble(vector<T> &array, bool (*cmp)(T &, T &))
+    {
+        int size = array.size();
+        for (int i = 0; i < size; i++) {
+            for (int j = size - 2; j >= i; j--) {
+                if (cmp(array[j], array[j + 1]))
+                    swap(array[j], array[j + 1]);
+            }
+        }
+    }
 
-    template <class T> void merge(void (*cmp)(T, T)) {}
+    template <class T>
+    void merge(vector<T> &array, bool (*cmp)(T, T))
+    {
+        int size = array.size();
+    }
 
-    template <class T> void quick(void (*cmp)(T, T)) {}
+    template <class T>
+    void quick(vector<T> &array, bool (*cmp)(T, T))
+    {
+        int size = array.size();
+    }
 
-    template <class T> void redix(void (*cmp)(T, T)) {}
+    template <class T>
+    void redix(vector<T> &array, bool (*cmp)(T, T))
+    {
+        int size = array.size();
+    }
+
+    static bool cmp1(Data &a, Data &b)
+    {
+        return stringToInt(a.column[DATA_GRADUATES]) <
+               stringToInt(b.column[DATA_GRADUATES]);
+    }
 
   public:
     bool task1()
@@ -216,9 +256,13 @@ class HandleFile {
             return 0;
 
         // sort and timer
+        vector<Data> selectData(database), bubbleData(database);
+        timing("selection: ", [&]() { selection(selectData, cmp1); });
+        timing("bubble: ", [&]() { bubble(bubbleData, cmp1); });
 
         // save
-        save("copy" + fileName + ".txt", database);
+        save("bubble_sort" + fileName + ".txt", bubbleData);
+        save("select_sort" + fileName + ".txt", selectData);
 
         return 0;
     }
