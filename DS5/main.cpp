@@ -4,6 +4,7 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
+#include <iterator>
 #include <string>
 #include <vector>
 
@@ -31,6 +32,31 @@ using namespace std;
 
 static bool inputSuccess;
 void errorHandling(string message);
+
+static string getOnlyDigits(string str)
+{
+    string tmp = "";
+    for (char c : str)
+        if (isdigit(c))
+            tmp += c;
+
+    return tmp;
+}
+
+static int stringToInt(string str)
+{
+    try {
+        // "1,223,234,234,234"
+        if (str[0] == '\"')
+            str = getOnlyDigits(str);
+
+        return stoi(str);
+    } catch (exception e) {
+        cout << "ERROR : stoi error!" << endl;
+        cout << "Value : " << str << endl;
+        return -1; // return error value
+    }
+}
 
 class Data {
   public:
@@ -77,6 +103,30 @@ class Data {
 
         return out;
     }
+
+    bool operator>(Data &b)
+    {
+        return stringToInt(column[DATA_GRADUATES]) <
+               stringToInt(b.column[DATA_GRADUATES]);
+    }
+
+    bool operator>=(Data &b)
+    {
+        return stringToInt(column[DATA_GRADUATES]) <=
+               stringToInt(b.column[DATA_GRADUATES]);
+    }
+
+    bool operator<=(Data &b)
+    {
+        return stringToInt(column[DATA_GRADUATES]) >=
+               stringToInt(b.column[DATA_GRADUATES]);
+    }
+
+    bool operator<(Data &b)
+    {
+        return stringToInt(column[DATA_GRADUATES]) >
+               stringToInt(b.column[DATA_GRADUATES]);
+    }
 };
 
 class HandleFile {
@@ -84,16 +134,6 @@ class HandleFile {
     fstream fout;
 
     // common function
-    static string getOnlyDigits(string str)
-    {
-        string tmp = "";
-        for (char c : str)
-            if (isdigit(c))
-                tmp += c;
-
-        return tmp;
-    }
-
     int numberInput(string message, string errorMsg)
     {
         int result;
@@ -172,21 +212,6 @@ class HandleFile {
         return fileName != ""; // {quit: 0, continue: 1}
     }
 
-    static int stringToInt(string str)
-    {
-        try {
-            // "1,223,234,234,234"
-            if (str[0] == '\"')
-                str = getOnlyDigits(str);
-
-            return stoi(str);
-        } catch (exception e) {
-            cout << "ERROR : stoi error!" << endl;
-            cout << "Value : " << str << endl;
-            return -1; // return error value
-        }
-    }
-
     typedef const function<void()> timerHandler;
     void timing(const string &display, timerHandler doing)
     {
@@ -197,53 +222,111 @@ class HandleFile {
 
     // sorts
     template <class T>
-    void selection(vector<T> &array, bool (*cmp)(T &, T &))
+    void selection(vector<T> &array)
     {
         int size = array.size();
         for (int i = 0; i < size; i++) {
-            int minIndex = i;
+            int maxIndex = i;
             for (int j = i; j < size; j++) {
-                if (cmp(array[minIndex], array[j]))
-                    minIndex = j;
+                if (array[maxIndex] > array[j])
+                    maxIndex = j;
             }
-            swap(array[minIndex], array[i]);
+            swap(array[maxIndex], array[i]);
         }
     }
 
     template <class T>
-    void bubble(vector<T> &array, bool (*cmp)(T &, T &))
+    void bubble(vector<T> &array)
     {
         int size = array.size();
         for (int i = 0; i < size; i++) {
             for (int j = size - 2; j >= i; j--) {
-                if (cmp(array[j], array[j + 1]))
+                if (array[j] > array[j + 1])
                     swap(array[j], array[j + 1]);
             }
         }
     }
 
     template <class T>
-    void merge(vector<T> &array, bool (*cmp)(T, T))
+    void merge(vector<T> &array)
     {
         int size = array.size();
+        if (size <= 1)
+            return;
+
+        // split
+        int lSize = size / 2;
+        vector<T> left(lSize);
+        copy(array.begin(), array.begin() + lSize, left.begin());
+
+        int rSize = size - lSize;
+        vector<T> right(rSize);
+        copy(array.begin() + lSize, array.begin() + size, right.begin());
+
+        // divide and conquer sort
+        merge(left);
+        merge(right);
+
+        // merge
+        auto lPtr = left.begin(), rPtr = right.begin();
+        auto ptr = array.begin();
+        while (lPtr < left.begin() + lSize && rPtr < right.begin() + rSize) {
+            if (*lPtr < *rPtr)
+                *ptr = *lPtr, lPtr++;
+            else
+                *ptr = *rPtr, rPtr++;
+            ptr++;
+        }
+
+        while (lPtr < left.begin() + lSize)
+            *ptr = *lPtr, lPtr++, ptr++;
+
+        while (rPtr < right.begin() + rSize)
+            *ptr = *rPtr, rPtr++, ptr++;
     }
 
-    template <class T>
-    void quick(vector<T> &array, bool (*cmp)(T, T))
+    template <class It>
+    void quick(It begin, int size)
     {
-        int size = array.size();
+        auto front = begin, last = begin + size - 1;
+
+        if (size <= 1)
+            return;
+
+        // take first for pivot
+        auto pivot = front;
+        front++;
+
+        // sort
+        while (front < last) {
+            // more than the pivot then put it after that pivot
+            if (*front > *pivot) {
+                // find a one less than the pivot then put it before that pivot
+                while (front<last && * last> * pivot)
+                    last--;
+
+                swap(*front, *last);
+            }
+            front++;
+        }
+
+        // put pivot at center
+        if (*last >= *pivot)
+            last--;
+
+        swap(*last, *pivot);
+        pivot = last;
+
+        // divide and conquer sort
+        int leftSize = (pivot - begin);
+        quick(begin, leftSize);
+        quick(pivot + 1, size - leftSize - 1);
     }
 
     template <class T>
     void redix(vector<T> &array, bool (*cmp)(T, T))
     {
         int size = array.size();
-    }
-
-    static bool cmp1(Data &a, Data &b)
-    {
-        return stringToInt(a.column[DATA_GRADUATES]) <
-               stringToInt(b.column[DATA_GRADUATES]);
     }
 
   public:
@@ -257,8 +340,8 @@ class HandleFile {
 
         // sort and timer
         vector<Data> selectData(database), bubbleData(database);
-        timing("selection: ", [&]() { selection(selectData, cmp1); });
-        timing("bubble: ", [&]() { bubble(bubbleData, cmp1); });
+        timing("selection: ", [&]() { selection(selectData); });
+        timing("bubble: ", [&]() { bubble(bubbleData); });
 
         // save
         save("bubble_sort" + fileName + ".txt", bubbleData);
@@ -276,9 +359,14 @@ class HandleFile {
             return 0;
 
         // sort and timer
+        vector<Data> mergeData(database), quickData(database);
+        timing("Merge: ", [&]() { merge(mergeData); });
+        timing("Quick: ",
+               [&]() { quick(quickData.begin(), quickData.size()); });
 
         // save
-        save("copy" + fileName + ".txt", database);
+        save("merge_sort" + fileName + ".txt", mergeData);
+        save("quick_sort" + fileName + ".txt", quickData);
 
         return 0;
     }
