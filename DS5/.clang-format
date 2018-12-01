@@ -1,0 +1,9 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+AlignConsecutiveAssignments: true
+AlignEscapedNewlines: Right
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterFunction: true
+AlwaysBreakTemplateDeclarations: Yes
