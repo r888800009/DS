@@ -7,8 +7,9 @@ def checkFile(file1):
     first = True
     pre = 0
     count = 1
-    with open(file1, encoding='big5', newline='') as csvfile:
+    with open(file1,  encoding='Big5', newline='', errors='ignore') as csvfile:
         spamerader = csv.reader(csvfile, delimiter='\t')
+
         for row in spamerader:
             cur = int(row[select])
             if first is True:
