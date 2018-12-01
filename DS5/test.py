@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 import csv
-select = 8
+select = [8, 7]
 
 def checkFile(file1):
     first = True
@@ -11,7 +11,7 @@ def checkFile(file1):
         spamerader = csv.reader(csvfile, delimiter='\t')
 
         for row in spamerader:
-            cur = int(row[select])
+            cur = [int(row[i]) for i in select]
             if first is True:
                 first = False
                 pre = cur
