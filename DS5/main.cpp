@@ -64,7 +64,7 @@ static int stringToInt(string str)
 static vector<int> selectOrder;
 
 class Data {
-     string column[DATA_SIZE];
+    string column[DATA_SIZE];
 
 public:
     friend istream &operator>>(istream &in, Data &data)
@@ -374,17 +374,17 @@ class HandleFile {
     {
         int size = array.size();
         // base
-        for (auto order : selectOrder) {
+        for (int order = selectOrder.size() - 1; order >= 0; order--) {
             vector<T>* bucket;
             bucket = new vector<T>[base];
             int digit = 1;
-            int max = array[0].convertToInt(order);
+            int max = array[0].convertToInt(selectOrder[order]);
             do {
                 for (int i = size - 1; i >= 0; i--) {
-                    bucket[getDigit(array[i].convertToInt(order), digit, base)].push_back(array[i]);
+                    bucket[getDigit(array[i].convertToInt(selectOrder[order]), digit, base)].push_back(array[i]);
                     if (digit == 1) {
-                        if (max < array[i].convertToInt(order))
-                            max = array[i].convertToInt(order);
+                        if (max < array[i].convertToInt(selectOrder[order]))
+                            max = array[i].convertToInt(selectOrder[order]);
                     }
                 }
 
