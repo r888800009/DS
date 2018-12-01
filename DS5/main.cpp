@@ -1,3 +1,4 @@
+// 第11組 106127116 許逸翔 10612150 林詠翔 資訊二甲
 // must to use -std=c++11 or higher version
 #include <algorithm>
 #include <ctime>
@@ -11,10 +12,10 @@
 using namespace std;
 
 // clang-format off
+#define MENU_QUIT               0
 #define MENU_SELECT_BUBBLE      1
 #define MENU_MERGE_QUICK        2
 #define MENU_RADIX              3
-#define MENU_QUIT               4
 
 #define DATA_SIZE               11
 #define DATA_ID                 0
@@ -51,7 +52,8 @@ static int stringToInt(string str)
             str = getOnlyDigits(str);
 
         return stoi(str);
-    } catch (exception e) {
+    }
+    catch (exception e) {
         cout << "ERROR : stoi error!" << endl;
         cout << "Value : " << str << endl;
         return -1; // return error value
@@ -59,7 +61,7 @@ static int stringToInt(string str)
 }
 
 class Data {
-  public:
+public:
     string column[DATA_SIZE];
 
     friend istream &operator>>(istream &in, Data &data)
@@ -79,14 +81,14 @@ class Data {
         input += '\t';
 
         // splitting
-        int count    = 0;
+        int count = 0;
         inputSuccess = true;
         for (char c : input) {
             if (c != '\t')
                 temp += c;
             else {
                 data.column[count++] = temp;
-                temp                 = "";
+                temp = "";
             }
         }
 
@@ -103,29 +105,33 @@ class Data {
 
         return out;
     }
-    operator int() { return stringToInt(column[DATA_GRADUATES]); }
+
+    operator int() { 
+        return stringToInt(column[DATA_GRADUATES]); 
+    }
+
     bool operator>(Data &b)
     {
         return stringToInt(column[DATA_GRADUATES]) <
-               stringToInt(b.column[DATA_GRADUATES]);
+            stringToInt(b.column[DATA_GRADUATES]);
     }
 
     bool operator>=(Data &b)
     {
         return stringToInt(column[DATA_GRADUATES]) <=
-               stringToInt(b.column[DATA_GRADUATES]);
+            stringToInt(b.column[DATA_GRADUATES]);
     }
 
     bool operator<=(Data &b)
     {
         return stringToInt(column[DATA_GRADUATES]) >=
-               stringToInt(b.column[DATA_GRADUATES]);
+            stringToInt(b.column[DATA_GRADUATES]);
     }
 
     bool operator<(Data &b)
     {
         return stringToInt(column[DATA_GRADUATES]) >
-               stringToInt(b.column[DATA_GRADUATES]);
+            stringToInt(b.column[DATA_GRADUATES]);
     }
 };
 
@@ -194,10 +200,10 @@ class HandleFile {
         }
     }
 
-    // use in task1
+    // use in task123
     bool task123_input(string &fileName, vector<Data> &database)
     {
-        fileName = fileInput(fin, "Input (201, 202, ...[0]Quit): ", "input");
+        fileName = fileInput(fin, "Input (501, 502, ...[0]Quit): ", "input");
 
         // if fileName == "" then quit to menu
         if (fileName != "") {
@@ -205,7 +211,8 @@ class HandleFile {
             while (fin >> temp) // >> overload
                 if (inputSuccess)
                     database.push_back(temp);
-        } else {
+        }
+        else {
             cout << "switch to menu" << endl;
         }
 
@@ -220,7 +227,7 @@ class HandleFile {
         cout << display << (clock() - t) << " ms" << endl;
     }
 
-    // sorts
+    // sorts (decrement)
     template <class T>
     void selection(vector<T> &array)
     {
@@ -345,9 +352,10 @@ class HandleFile {
     {
         int size = array.size();
         // base
-        vector<T> bucket[base];
+        vector<T>* bucket;
+        bucket = new vector<T>[base];
         int digit = 1;
-        int max   = array[0];
+        int max = array[0];
         do {
             for (int i = size - 1; i >= 0; i--) {
                 bucket[getDigit(array[i], digit, base)].push_back(array[i]);
@@ -372,7 +380,7 @@ class HandleFile {
         } while (digit <= max);
     }
 
-  public:
+public:
     bool task1()
     {
         vector<Data> database;
@@ -405,7 +413,7 @@ class HandleFile {
         vector<Data> mergeData(database), quickData(database);
         timing("Merge: ", [&]() { merge(mergeData); });
         timing("Quick: ",
-               [&]() { quick(quickData.begin(), quickData.size()); });
+            [&]() { quick(quickData.begin(), quickData.size()); });
 
         // save
         save("merge_sort" + fileName + ".txt", mergeData);
@@ -441,10 +449,10 @@ int main(int argc, char *argv[])
 
         // 輸出選單
         cout << "              MENU              " << endl;
+        cout << "* 0. Quit                      *" << endl;
         cout << "* 1. Selection  & Bubble Sort  *" << endl;
         cout << "* 2. Merge      & Quick Sort   *" << endl;
         cout << "* 3. Radix Sort                *" << endl;
-        cout << "* 4. Quit                      *" << endl;
         cout << "choice: ";
 
         // 輸入選擇
