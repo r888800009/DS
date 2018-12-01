@@ -60,10 +60,13 @@ static int stringToInt(string str)
     }
 }
 
-class Data {
-public:
-    string column[DATA_SIZE];
+// select column datatype must be integer
+static vector<int> selectOrder;
 
+class Data {
+     string column[DATA_SIZE];
+
+public:
     friend istream &operator>>(istream &in, Data &data)
     {
         string input, temp;
@@ -106,32 +109,48 @@ public:
         return out;
     }
 
-    operator int() { 
-        return stringToInt(column[DATA_GRADUATES]); 
+    int convertToInt(int num) { 
+        return stringToInt(column[num]);
     }
 
     bool operator>(Data &b)
     {
-        return stringToInt(column[DATA_GRADUATES]) <
-            stringToInt(b.column[DATA_GRADUATES]);
+        for (auto i : selectOrder) {
+            if (stringToInt(column[i]) < stringToInt(b.column[i])) return true;
+            else if (stringToInt(column[i]) > stringToInt(b.column[i])) return false;
+            // else stringToInt(column[i]) == stringToInt(b.column[i] then i++
+        }
+        return false;
     }
 
     bool operator>=(Data &b)
     {
-        return stringToInt(column[DATA_GRADUATES]) <=
-            stringToInt(b.column[DATA_GRADUATES]);
+        for (auto i : selectOrder) {
+            if (stringToInt(column[i]) < stringToInt(b.column[i])) return true;
+            else if (stringToInt(column[i]) > stringToInt(b.column[i])) return false;
+            // else stringToInt(column[i]) == stringToInt(b.column[i] then i++
+        }
+        return true;
     }
 
     bool operator<=(Data &b)
     {
-        return stringToInt(column[DATA_GRADUATES]) >=
-            stringToInt(b.column[DATA_GRADUATES]);
+        for (auto i : selectOrder) {
+            if (stringToInt(column[i]) > stringToInt(b.column[i])) return true;
+            else if (stringToInt(column[i]) < stringToInt(b.column[i])) return false;
+            // else stringToInt(column[i]) == stringToInt(b.column[i] then i++
+        }
+        return true;
     }
 
     bool operator<(Data &b)
     {
-        return stringToInt(column[DATA_GRADUATES]) >
-            stringToInt(b.column[DATA_GRADUATES]);
+        for (auto i : selectOrder) {
+            if (stringToInt(column[i]) > stringToInt(b.column[i])) return true;
+            else if (stringToInt(column[i]) < stringToInt(b.column[i])) return false;
+            // else stringToInt(column[i]) == stringToInt(b.column[i] then i++
+        }
+        return false;
     }
 };
 
@@ -200,7 +219,7 @@ class HandleFile {
         }
     }
 
-    // use in task123
+    // use in task123 & set select order
     bool task123_input(string &fileName, vector<Data> &database)
     {
         fileName = fileInput(fin, "Input (501, 502, ...[0]Quit): ", "input");
@@ -215,6 +234,9 @@ class HandleFile {
         else {
             cout << "switch to menu" << endl;
         }
+
+        selectOrder.push_back(DATA_GRADUATES);
+        selectOrder.push_back(DATA_TEACHERS);
 
         return fileName != ""; // {quit: 0, continue: 1}
     }
@@ -352,32 +374,34 @@ class HandleFile {
     {
         int size = array.size();
         // base
-        vector<T>* bucket;
-        bucket = new vector<T>[base];
-        int digit = 1;
-        int max = array[0];
-        do {
-            for (int i = size - 1; i >= 0; i--) {
-                bucket[getDigit(array[i], digit, base)].push_back(array[i]);
-                if (digit == 1) {
-                    if (max < array[i])
-                        max = array[i];
+        for (auto order : selectOrder) {
+            vector<T>* bucket;
+            bucket = new vector<T>[base];
+            int digit = 1;
+            int max = array[0].convertToInt(order);
+            do {
+                for (int i = size - 1; i >= 0; i--) {
+                    bucket[getDigit(array[i].convertToInt(order), digit, base)].push_back(array[i]);
+                    if (digit == 1) {
+                        if (max < array[i].convertToInt(order))
+                            max = array[i].convertToInt(order);
+                    }
                 }
-            }
 
-            if (digit == 1)
-                max = getMaxDigit(max, base);
+                if (digit == 1)
+                    max = getMaxDigit(max, base);
 
-            auto ptr = array.begin();
-            for (int i = base - 1; i >= 0; i--) {
-                while (bucket[i].size() > 0) {
-                    *ptr = bucket[i].back();
-                    ptr++;
-                    bucket[i].pop_back();
+                auto ptr = array.begin();
+                for (int i = base - 1; i >= 0; i--) {
+                    while (bucket[i].size() > 0) {
+                        *ptr = bucket[i].back();
+                        ptr++;
+                        bucket[i].pop_back();
+                    }
                 }
-            }
-            digit++;
-        } while (digit <= max);
+                digit++;
+            } while (digit <= max);
+        } 
     }
 
 public:
@@ -506,3 +530,4 @@ void errorHandling(string message)
     // Åã¥Ü¿ù»~°T®§
     cout << message << endl;
 }
+
