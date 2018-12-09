@@ -249,6 +249,7 @@ class HandleFile {
         cout << display << (clock() - t) << " ms" << endl;
     }
 
+public:
     // sorts (decrement)
     template <class T>
     void selection(vector<T> &array)
@@ -404,7 +405,6 @@ class HandleFile {
         } 
     }
 
-public:
     bool task1()
     {
         vector<Data> database;
