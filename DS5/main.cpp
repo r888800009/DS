@@ -16,6 +16,7 @@ using namespace std;
 #define MENU_SELECT_BUBBLE      1
 #define MENU_MERGE_QUICK        2
 #define MENU_RADIX              3
+#define MENU_TIME               4
 
 #define DATA_SIZE               11
 #define DATA_ID                 0
@@ -249,6 +250,14 @@ class HandleFile {
         cout << display << (clock() - t) << " ms" << endl;
     }
 
+    string timing(timerHandler doing)
+    {
+        clock_t t = clock();
+        doing();
+        return to_string(clock() - t) + " ms";
+    }
+
+
 public:
     // sorts (decrement)
     template <class T>
@@ -463,6 +472,39 @@ public:
 
         return 0;
     }
+
+    bool task4()
+    {
+        vector<Data> database;
+        string fileName;
+
+        if (!task123_input(fileName, database))
+            return 0;
+
+
+        // is exist
+        ifstream existfile("sort_time.txt");
+        fout.open("sort_time.txt", fstream::out | fstream::app);
+        if (existfile)
+            existfile.close();
+        else
+            fout << "\t選擇排序\t氣泡排序\t合併排序\t快速排序\t基數排序" << endl;
+
+        // sort and timer
+        vector<Data> selectData(database), bubbleData(database);
+        vector<Data> mergeData(database), quickData(database);
+        vector<Data> redixData(database);
+        fout << fileName << '\t';
+        fout << timing([&]() { selection(selectData); }) << '\t';
+        fout << timing([&]() { bubble(bubbleData); }) << '\t';
+        fout << timing([&]() { merge(mergeData); }) << '\t';
+        fout << timing([&]() { quick(quickData.begin(), quickData.size()); }) << '\t';
+        fout << timing([&]() { redix(redixData, 10); }) << endl;
+
+        fout.close();
+
+        return 0;
+    }
 };
 
 int main(int argc, char *argv[])
@@ -477,6 +519,7 @@ int main(int argc, char *argv[])
         cout << "* 1. Selection  & Bubble Sort  *" << endl;
         cout << "* 2. Merge      & Quick Sort   *" << endl;
         cout << "* 3. Radix Sort                *" << endl;
+        cout << "* 4. Sort Time                 *" << endl;
         cout << "choice: ";
 
         // 輸入選擇
@@ -499,6 +542,9 @@ int main(int argc, char *argv[])
 
         case MENU_RADIX:
             result = f.task3(); // 任務3
+            break;
+        case MENU_TIME:
+            result = f.task4();
             break;
 
         default:
