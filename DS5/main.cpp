@@ -278,6 +278,24 @@ public:
     }
 
     template <class T>
+    void bubbleX(vector<T> &array)
+    {
+        int size = array.size();
+        for (int i = 0; i < size; i++) {
+            bool swaped = false;
+            for (int j = size - 2; j >= i; j--) {
+                if (array[j] > array[j + 1]) {
+                    swaped = true;
+                    swap(array[j], array[j + 1]);
+                }
+            }
+
+            if (!swaped)
+                break;
+        }
+    }
+
+    template <class T>
     void merge(vector<T> &array)
     {
         int size = array.size();
@@ -414,12 +432,15 @@ public:
             return 0;
 
         // sort and timer
-        vector<Data> selectData(database), bubbleData(database);
+        vector<Data> selectData(database), bubbleData(database),
+            bubbleXData(database);
         timing("selection: ", [&]() { selection(selectData); });
         timing("bubble: ", [&]() { bubble(bubbleData); });
+        timing("bubbleX: ", [&]() { bubbleX(bubbleXData); });
 
         // save
         save("bubble_sort" + fileName + ".txt", bubbleData);
+        save("bubble2_sort" + fileName + ".txt", bubbleXData);
         save("select_sort" + fileName + ".txt", selectData);
 
         return 0;
