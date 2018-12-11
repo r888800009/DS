@@ -1,7 +1,7 @@
 #!/bin/bash
 g++ main.cpp
 rm *_sort*.txt
-files=( 1 201 202 203 204 205 501 502 503 )
+files=( 1 201 202 203 204 205 501 502 503 300 )
 for i in "${files[@]}"
 do
     echo "***$i***"
