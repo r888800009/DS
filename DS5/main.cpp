@@ -369,7 +369,8 @@ public:
 
         if (size <= 1)
             return;
-            
+        
+        // min( max(mid,last), front )    
         if(*mid > *last){
             if(*mid < *front) swap(*front, *mid);
         }
@@ -489,15 +490,16 @@ public:
 
         // sort and timer
         vector<Data> mergeData(database), quickData(database);
-        //timing("Merge: ", [&]() { merge(mergeData); });
+        timing("Merge: ", [&]() { merge(mergeData); });
         timing("Quick: ",
             [&]() { quick(quickData.begin(), quickData.size()); });
         timing("Quickx: ",
             [&]() { quickx(quickData.begin(), quickData.size()); });
 
         // save
-        //save("merge_sort" + fileName + ".txt", mergeData);
-        //save("quick_sort" + fileName + ".txt", quickData);
+        save("merge_sort" + fileName + ".txt", mergeData);
+        save("quick_sort" + fileName + ".txt", quickData);
+        save("quickx_sort" + fileName + ".txt", quickData);
 
         return 0;
     }
