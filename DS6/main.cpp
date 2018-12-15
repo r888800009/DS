@@ -144,7 +144,7 @@ class BST {
 
     bool cmpMoreThen(Data &a, Data &b) { return a[select] > b[select]; }
 
-    void insert(Node *root, Data data)
+    void insert(Node *root, Data *data)
     {
         if (root == nullptr) {
             // is null
@@ -170,7 +170,7 @@ class BST {
 public:
     BST() { root = nullptr; }
     void clear() { clear(root); }
-    void insert(Data data) { insert(root, data); }
+    void insert(Data *data) { insert(root, data); }
     void setOrder(int order = DATA_HP) { select = order; }
 
     Data remove(int key)
@@ -197,7 +197,7 @@ public:
         // or right
     }
 
-    void range(vector<Data> &result, int min = INT_MIN, int max = INT_MAX)
+    void range(vector<Data *> &result, int min = INT_MIN, int max = INT_MAX)
     {
         if (root == nullptr)
             throw BSTException::NullTree;
@@ -236,7 +236,7 @@ class HandleFile {
 
     BST bst;
 
-    vector<Data> database;
+    vector<Data *> database;
     string cloumnName[DATA_SIZE] = {
         "#",     "Name",       "Type 1",   "Type 2", "Total",
         "HP",    "Attack",     "Defense",  "Sp.Atk", "Sp.Def",
@@ -287,18 +287,18 @@ class HandleFile {
         }
     }
 
-    void dataOutput(vector<int> &selectOrder, vector<Data> &db)
+    void dataOutput(vector<int> &selectOrder, vector<Data *> &db)
     {
         for (auto i : selectOrder)
             cout << cloumnName[i] << '\t';
         cout << '\n';
         for (auto i : db)
-            i.print(selectOrder);
+            i->print(selectOrder);
         cout << '\n';
     }
 
     // use in task1 & set select order
-    bool task1_input(string &fileName, vector<Data> &database)
+    bool task1_input(string &fileName, vector<Data *> &database)
     {
         fileName = fileInput(fin, "Input (601, 602, ...[0]Quit): ", "input");
 
@@ -307,7 +307,7 @@ class HandleFile {
             Data temp;
             while (fin >> temp) // >> overload
                 if (inputSuccess)
-                    database.push_back(temp);
+                    database.push_back(new Data(temp));
         }
         else {
             cout << "switch to menu" << endl;
@@ -339,6 +339,8 @@ public:
         dataOutput(selectOrder, database);
 
         // build tree HP
+        for (auto it : database)
+            bst.insert(it);
 
         // show tree hight
 
@@ -347,7 +349,7 @@ public:
 
     bool task2()
     {
-        vector<Data> result;
+        vector<Data *> result;
         int min;
         // input range
         min = numberInput("Threshold (a positive integer):", "out of range!");
