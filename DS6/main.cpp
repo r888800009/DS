@@ -125,27 +125,33 @@ class BST {
 
     Node *root;
 
-    bool cmp(Data &a, Data &b) { return false; }
+    bool cmpMoreThen(Data &a, Data &b) { return a[select] > b[select]; }
+
+    void insert(Node *root, Data data)
+    {
+        if (root == nullptr) {
+            // is null
+        } else {
+            // not null
+            // recurive or push back
+            if (1) {
+                // this node
+            } else if (1) {
+                // or left
+            } else {
+                // or right
+            }
+        }
+    }
+    void clear(Node *root) {}
+    Node remove(Node *root) {}
+    Node *find(Node *root) {}
 
   public:
     BST() { root = nullptr; }
-    void setOrder(vector<int> Order = {DATA_HP}) {}
-
-    void clear()
-    {
-        // is null
-        // recurive
-    }
-
-    Data insert(Data data)
-    {
-        // is null
-        // not null
-        // recurive
-        // this node
-        // or left
-        // or right
-    }
+    void clear() { clear(root); }
+    void insert(Data data) { insert(root, data); }
+    void setOrder(int order = DATA_HP) { select = order; }
 
     Data remove(int key)
     {
