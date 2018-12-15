@@ -1,5 +1,6 @@
 // 第11組 106127116 許逸翔 10612150 林詠翔 資訊二甲
 // must to use -std=c++11 or higher version
+#include <algorithm>
 #include <climits>
 #include <fstream>
 #include <iostream>
@@ -174,7 +175,60 @@ class BST {
         }
     }
     void clear(Node *root) {}
-    Node remove(Node *root) {}
+
+    Node *pickInorderSuccessor(Node *root, bool success = false)
+    {
+        Node *successor, *pre;
+        successor = pre = root->right;
+        if (successor == nullptr)
+            return nullptr;
+
+        while (successor->left != nullptr)
+            pre = successor, successor = successor->left;
+
+        if (success)
+            pre->left = nullptr;
+
+        return successor;
+    }
+
+    Node *remove(Node *root, Data *data)
+    {
+        if (root == nullptr)
+            return nullptr;
+
+        // not only one data in node
+        if (root->datas.size() > 1) {
+            vector<Data *> *datas = &root->datas;
+            auto found = std::remove(datas->begin(), datas->end(), data);
+            datas->erase(found, datas->end());
+        }
+        else {
+            // two child
+            if (root->left != nullptr && root->right != nullptr) {
+                Node *successor = pickInorderSuccessor(root, true);
+                successor->left = root->left;
+                successor->right = root->right;
+                return successor;
+            }
+            else if (root->left != nullptr) {
+
+                Node *left = root->left;
+                delete root;
+                return left;
+            }
+            else if (root->right != nullptr) {
+                Node *right = root->right;
+                delete root;
+                return right;
+            }
+            else {
+                delete root;
+                return nullptr;
+            }
+        }
+    }
+
     Node *find(Node *root, int key)
     {
         if (root == nullptr)
@@ -223,17 +277,16 @@ public:
     void insert(Data *data) { root = insert(root, data); }
     void setOrder(int order = DATA_HP) { select = order; }
 
-    Data remove(int key)
+    Data remove(Data *data)
     {
         if (root == nullptr)
             throw BSTException::NullTree;
 
-        // is null
-        // not null
-        // recurive
-        // this node
-        // or left
-        // or right
+        Node *found = find(root, data->convertToInt(select));
+        if (found == nullptr)
+            throw BSTException::NotFound;
+
+        remove(found, data);
     }
 
     vector<Data *> find(int key)
@@ -257,7 +310,7 @@ public:
         inorderTraversal(root, result, min, max);
     }
 
-    int getMin()
+    int getMinKey()
     {
         Node *cur = root;
         if (cur == nullptr)
@@ -270,7 +323,7 @@ public:
         return cur->datas.back()->convertToInt(select);
     }
 
-    int getMax()
+    int getMaxKey()
     {
         Node *cur = root;
         if (cur == nullptr)
