@@ -1,5 +1,6 @@
 // 第11組 106127116 許逸翔 10612150 林詠翔 資訊二甲
 // must to use -std=c++11 or higher version
+#include <climits>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -98,6 +99,8 @@ class Data {
         return in;
     }
 
+    int operator[](int i) const { return stringToInt(column[i]); }
+
     friend ostream &operator<<(ostream &out, Data &data)
     {
         for (int i = 0; i < DATA_SIZE; i++)
@@ -109,28 +112,102 @@ class Data {
     int convertToInt(int num) { return stringToInt(column[num]); }
 };
 
+enum BSTException { NullTree, NotFound };
+
 class BST {
-    // select column datatype must be integer
-    static vector<int> selectOrder;
     typedef struct Node {
         vector<Data> datas;
         Node *left, *right;
     } Node;
 
-  public:
-    BST() {}
+    // select column datatype must be integer
+    int select;
 
-    void insert() {}
-    void remove() {}
-    void find() {}
-    void getMin() {}
-    void getMax() {}
+    Node *root;
+
+    bool cmp(Data &a, Data &b) { return false; }
+
+  public:
+    BST() { root = nullptr; }
+    void setOrder(vector<int> Order = {DATA_HP}) {}
+
+    void clear()
+    {
+        // is null
+        // recurive
+    }
+
+    Data insert(Data data)
+    {
+        // is null
+        // not null
+        // recurive
+        // this node
+        // or left
+        // or right
+    }
+
+    Data remove(int key)
+    {
+        if (root == nullptr)
+            throw BSTException::NullTree;
+        // is null
+        // not null
+        // recurive
+        // this node
+        // or left
+        // or right
+    }
+
+    Data find(int key)
+    {
+        if (root == nullptr)
+            throw BSTException::NullTree;
+        // is null
+        // not null
+        // recurive
+        // this node
+        // or left
+        // or right
+    }
+
+    void range(vector<Data> &result, int min = INT_MIN, int max = INT_MAX)
+    {
+        if (root == nullptr)
+            throw BSTException::NullTree;
+    }
+
+    int getMin()
+    {
+        Node *cur = root;
+        if (cur == nullptr)
+            throw BSTException::NullTree;
+
+        // always left side
+        while (cur->left != nullptr)
+            cur = cur->left;
+
+        return cur->datas.back()[select];
+    }
+
+    int getMax()
+    {
+        Node *cur = root;
+        if (cur == nullptr)
+            throw BSTException::NullTree;
+
+        // always right side
+        while (cur->right != nullptr)
+            cur = cur->right;
+
+        return cur->datas.back()[select];
+    }
 };
 
 class HandleFile {
     fstream fin;
     fstream fout;
-    BST bst();
+    BST bst;
 
     // common function
     int numberInput(string message, string errorMsg)
@@ -211,6 +288,11 @@ class HandleFile {
     }
 
   public:
+    ~HandleFile()
+    {
+        // clear tree
+    }
+
     bool task1()
     {
         // load file
