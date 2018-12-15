@@ -154,28 +154,22 @@ class BST {
 
     Node *insert(Node *root, Data *data)
     {
+        // is null
         if (root == nullptr) {
-            // is null
             Node *newNode = new Node;
             newNode->datas.push_back(data);
             newNode->left = newNode->right = nullptr;
             return newNode;
         }
         else {
-            // not null
             // recurive or push back
-            if (cmpEqual(data, root->datas.back())) {
-                // this node
+            if (cmpEqual(data, root->datas.back()))
                 root->datas.push_back(data);
-            }
-            else if (cmpLessThen(data, root->datas.back())) {
-                // left
+            else if (cmpLessThen(data, root->datas.back()))
                 root->left = insert(root->left, data);
-            }
-            else {
-                // right
+            else
                 root->right = insert(root->right, data);
-            }
+
             return root;
         }
     }
@@ -218,28 +212,21 @@ class BST {
             return root;
         }
         else {
+            Node *result = nullptr;
             // two child
             if (root->left != nullptr && root->right != nullptr) {
-                Node *successor = pickInorderSuccessor(root, true);
-                successor->left = root->left;
-                successor->right = root->right;
-                return successor;
+                result = pickInorderSuccessor(root, true);
+                result->left = root->left;
+                result->right = root->right;
             }
-            else if (root->left != nullptr) {
+            else if (root->left != nullptr)
+                result = root->left, delete root;
+            else if (root->right != nullptr)
+                result = root->right, delete root;
+            else
+                delete root;
 
-                Node *left = root->left;
-                delete root;
-                return left;
-            }
-            else if (root->right != nullptr) {
-                Node *right = root->right;
-                delete root;
-                return right;
-            }
-            else {
-                delete root;
-                return nullptr;
-            }
+            return result;
         }
     }
 
@@ -284,9 +271,8 @@ class BST {
     int getHight(Node *node)
     {
         int result = 0;
-        if (node != nullptr) {
+        if (node != nullptr)
             result = 1 + max(getHight(node->left), getHight(node->right));
-        }
 
         return result;
     }
@@ -461,6 +447,11 @@ class HandleFile {
         return fileName != ""; // {quit: 0, continue: 1}
     }
 
+    static bool cmp(Data *a, Data *b)
+    {
+        return a->convertToInt(DATA_NUMERO) < b->convertToInt(DATA_NUMERO);
+    }
+
 public:
     ~HandleFile()
     {
@@ -475,7 +466,8 @@ public:
         if (!task1_input(fileName, database))
             return 0;
 
-        // qsort ID
+        // sort ID
+        sort(database.begin(), database.end(), cmp);
 
         // display vector
         vector<int> selectOrder(6);
