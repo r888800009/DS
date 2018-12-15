@@ -199,6 +199,24 @@ class BST {
         }
     }
 
+    void inorderTraversal(Node *root, vector<Data *> &result, int min, int max)
+    {
+        if (root == nullptr)
+            return;
+
+        int rootKey = root->datas.back()->convertToInt(select);
+
+        if (min < rootKey)
+            inorderTraversal(root->left, result, min, max);
+
+        if (min <= rootKey && rootKey <= max)
+            for (auto it : root->datas)
+                result.push_back(it);
+
+        if (rootKey < max)
+            inorderTraversal(root->right, result, min, max);
+    }
+
 public:
     BST() { root = nullptr; }
     void clear() { clear(root); }
@@ -233,6 +251,9 @@ public:
     {
         if (root == nullptr)
             throw BSTException::NullTree;
+
+        // inorder traversal
+        inorderTraversal(root, result, min, max);
     }
 
     int getMin()
