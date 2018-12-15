@@ -100,7 +100,8 @@ public:
         return in;
     }
 
-    int operator[](int i) const { return stringToInt(column[i]); }
+    string operator[](int i) const { return column[i]; }
+    string &operator[](int i) { return column[i]; }
 
     friend ostream &operator<<(ostream &out, Data &data)
     {
@@ -140,14 +141,17 @@ class BST {
     {
         if (root == nullptr) {
             // is null
-        } else {
+        }
+        else {
             // not null
             // recurive or push back
             if (1) {
                 // this node
-            } else if (1) {
+            }
+            else if (1) {
                 // or left
-            } else {
+            }
+            else {
                 // or right
             }
         }
@@ -192,7 +196,6 @@ public:
             throw BSTException::NullTree;
     }
 
-
     int getMin()
     {
         Node *cur = root;
@@ -203,7 +206,7 @@ public:
         while (cur->left != nullptr)
             cur = cur->left;
 
-        return cur->datas.back()[select];
+        return cur->datas.back()->convertToInt(select);
     }
 
     int getMax()
@@ -216,7 +219,7 @@ public:
         while (cur->right != nullptr)
             cur = cur->right;
 
-        return cur->datas.back()[select];
+        return cur->datas.back()->convertToInt(select);
     }
 };
 
@@ -321,13 +324,11 @@ class HandleFile {
         return fileName != ""; // {quit: 0, continue: 1}
     }
 
-
 public:
     ~HandleFile()
     {
         // clear tree
     }
-
 
     bool task1()
     {
