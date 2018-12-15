@@ -130,6 +130,17 @@ public:
 };
 
 enum BSTException { NullTree, NotFound };
+string getBSTExceptionString(BSTException e)
+{
+    switch (e) {
+    case NullTree:;
+        return "Null tree";
+    case NotFound:;
+        return "Not Found Node";
+    }
+
+    return "Undefine";
+}
 
 class BST {
 
@@ -510,7 +521,7 @@ public:
             cout << "Number of visited nodes = " << visted << endl;
         }
         catch (BSTException e) {
-            cout << e << endl;
+            cout << getBSTExceptionString(e) << endl;
         }
         return 0;
     }
@@ -540,7 +551,7 @@ public:
             cout << "HP tree height = " << bst.getHight() << endl;
         }
         catch (BSTException e) {
-            cout << e << endl;
+            cout << getBSTExceptionString(e) << endl;
         }
         return 0;
     }
