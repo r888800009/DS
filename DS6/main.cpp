@@ -142,7 +142,7 @@ class BST {
     int select;
 
     Node *treeRoot;
-
+    int visitedCounter;
     bool cmpMoreThen(Data *a, Data *b) { return (*a)[select] > (*b)[select]; }
     bool cmpLessThen(Data *a, Data *b) { return (*a)[select] < (*b)[select]; }
     bool cmpEqual(Data *a, Data *b) { return (*a)[select] == (*b)[select]; }
@@ -257,7 +257,7 @@ class BST {
     {
         if (root == nullptr)
             return;
-
+        visitedCounter++;
         int rootKey = root->datas.back()->convertToInt(select);
 
         if (rootKey < max)
@@ -306,13 +306,15 @@ public:
         return found->datas;
     }
 
-    void range(vector<Data *> &result, int min = INT_MIN, int max = INT_MAX)
+    int range(vector<Data *> &result, int min = INT_MIN, int max = INT_MAX)
     {
         if (treeRoot == nullptr)
             throw BSTException::NullTree;
 
         // inorder traversal
+        visitedCounter = 0;
         inorderTraversal(treeRoot, result, min, max);
+        return visitedCounter;
     }
 
     int getMinKey()
@@ -471,7 +473,7 @@ public:
         min = numberInput("Threshold (a positive integer):", "out of range!");
 
         // get range
-        bst.range(result, min);
+        int visted = bst.range(result, min);
 
         // tree show range
         vector<int> selectOrder(7);
@@ -480,6 +482,8 @@ public:
 
         dataOutput(selectOrder, result);
 
+        // show visited times
+        cout << "Number of visited nodes = " << visted << endl;
         return 0;
     }
 
