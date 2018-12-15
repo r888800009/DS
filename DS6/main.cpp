@@ -287,12 +287,12 @@ class HandleFile {
         }
     }
 
-    void dataOutput(vector<int> &selectOrder)
+    void dataOutput(vector<int> &selectOrder, vector<Data> &db)
     {
         for (auto i : selectOrder)
             cout << cloumnName[i] << '\t';
         cout << '\n';
-        for (auto i : database)
+        for (auto i : db)
             i.print(selectOrder);
         cout << '\n';
     }
@@ -336,7 +336,7 @@ public:
         vector<int> selectOrder(6);
         selectOrder = {DATA_NUMERO, DATA_NAME,   DATA_TYPE1,
                        DATA_HP,     DATA_ATTACK, DATA_DEFENSE};
-        dataOutput(selectOrder);
+        dataOutput(selectOrder, database);
 
         // build tree HP
 
@@ -360,7 +360,7 @@ public:
         selectOrder = {DATA_NUMERO, DATA_NAME,   DATA_TYPE1,  DATA_TOTAL,
                        DATA_HP,     DATA_ATTACK, DATA_DEFENSE};
 
-        dataOutput(selectOrder);
+        dataOutput(selectOrder, result);
 
         return 0;
     }
