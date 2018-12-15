@@ -179,7 +179,15 @@ class BST {
             return root;
         }
     }
-    void clear(Node *root) {}
+
+    void clear(Node *root)
+    {
+        if (root != nullptr) {
+            clear(root->left);
+            clear(root->right);
+            delete root;
+        }
+    }
 
     Node *pickInorderSuccessor(Node *root, bool success = false)
     {
