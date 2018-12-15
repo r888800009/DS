@@ -175,7 +175,29 @@ class BST {
     }
     void clear(Node *root) {}
     Node remove(Node *root) {}
-    Node *find(Node *root) {}
+    Node *find(Node *root, int key)
+    {
+        if (root == nullptr)
+            // is null
+            return nullptr;
+        else {
+            // not null
+            // recurive or return
+            int rootKey = root->datas.back()->convertToInt(select);
+            if (rootKey == key) {
+                // this node
+                return root;
+            }
+            else if (rootKey < key) {
+                // left
+                return find(root->left, rootKey);
+            }
+            else {
+                // right
+                return find(root->right, rootKey);
+            }
+        }
+    }
 
 public:
     BST() { root = nullptr; }
