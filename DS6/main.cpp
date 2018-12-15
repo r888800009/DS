@@ -138,6 +138,11 @@ class BST {
         Node *left, *right;
     } Node;
 
+    typedef struct FoundNode {
+        Node *root, *child;
+        bool isLeft;
+    } FoundNode;
+
     // select column datatype must be integer
     int select;
 
@@ -230,28 +235,24 @@ class BST {
         }
     }
 
-    Node *find(Node *root, int key)
+    FoundNode inner_find(int key)
     {
-        if (root == nullptr)
-            // is null
-            return nullptr;
-        else {
+        Node *pre, *cur;
+        pre = cur = treeRoot;
+        bool isLeft = false;
+        while (cur != nullptr) {
             // not null
             // recurive or return
-            int rootKey = root->datas.back()->convertToInt(select);
-            if (rootKey == key) {
-                // this node
-                return root;
-            }
-            else if (key < rootKey) {
-                // left
-                return find(root->left, key);
-            }
-            else {
-                // right
-                return find(root->right, key);
-            }
+            int rootKey = cur->datas.back()->convertToInt(select);
+            if (rootKey == key)
+                break;
+            else if (key < rootKey)
+                pre = cur, cur = cur->left, isLeft = true;
+            else
+                pre = cur, cur = cur->right, isLeft = false;
         }
+
+        return {pre, cur, isLeft};
     }
 
     void inorderTraversal(Node *root, vector<Data *> &result, int min, int max)
@@ -299,11 +300,16 @@ public:
         if (treeRoot == nullptr)
             throw BSTException::NullTree;
 
-        Node *found = find(treeRoot, data->convertToInt(select));
-        if (found == nullptr)
+        FoundNode found = inner_find(data->convertToInt(select));
+        if (found.child == nullptr)
             throw BSTException::NotFound;
 
-        remove(found, data);
+        if (found.child == found.root)
+            treeRoot = remove(found.child, data);
+        else if (found.isLeft)
+            found.root->left = remove(found.child, data);
+        else
+            found.root->right = remove(found.child, data);
     }
 
     vector<Data *> find(int key)
@@ -311,7 +317,7 @@ public:
         if (treeRoot == nullptr)
             throw BSTException::NullTree;
 
-        Node *found = find(treeRoot, key);
+        Node *found = inner_find(key).child;
         if (found == nullptr)
             throw BSTException::NotFound;
 
