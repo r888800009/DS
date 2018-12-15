@@ -1,5 +1,6 @@
-// ²Ä11²Õ 106127116 ³\¶hµ¾ 10612150 ªLµúµ¾ ¸ê°T¤G¥Ò
+// ç¬¬11çµ„ 106127116 è¨±é€¸ç¿” 10612150 æ—è© ç¿” è³‡è¨ŠäºŒç”²
 // must to use -std=c++11 or higher version
+#include <climits>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -99,6 +100,9 @@ public:
         return in;
     }
 
+    string operator[](int i) const { return column[i]; }
+    string &operator[](int i) { return column[i]; }
+
     friend ostream &operator<<(ostream &out, Data &data)
     {
         for (int i = 0; i < DATA_SIZE; i++)
@@ -117,6 +121,8 @@ public:
     int convertToInt(int num) { return stringToInt(column[num]); }
 };
 
+enum BSTException { NullTree, NotFound };
+
 class BST {
 
     typedef struct Node {
@@ -124,25 +130,110 @@ class BST {
         Node *left, *right;
     } Node;
 
-public:
-    BST() {}
+    // select column datatype must be integer
+    int select;
 
-    void insert() {}
-    void remove() {}
-    void find() {}
-    void getMin() {}
-    void getMax() {}
+    Node *root;
+
+    bool cmpMoreThen(Data &a, Data &b) { return a[select] > b[select]; }
+
+    void insert(Node *root, Data data)
+    {
+        if (root == nullptr) {
+            // is null
+        }
+        else {
+            // not null
+            // recurive or push back
+            if (1) {
+                // this node
+            }
+            else if (1) {
+                // or left
+            }
+            else {
+                // or right
+            }
+        }
+    }
+    void clear(Node *root) {}
+    Node remove(Node *root) {}
+    Node *find(Node *root) {}
+
+public:
+    BST() { root = nullptr; }
+    void clear() { clear(root); }
+    void insert(Data data) { insert(root, data); }
+    void setOrder(int order = DATA_HP) { select = order; }
+
+    Data remove(int key)
+    {
+        if (root == nullptr)
+            throw BSTException::NullTree;
+        // is null
+        // not null
+        // recurive
+        // this node
+        // or left
+        // or right
+    }
+
+    Data find(int key)
+    {
+        if (root == nullptr)
+            throw BSTException::NullTree;
+        // is null
+        // not null
+        // recurive
+        // this node
+        // or left
+        // or right
+    }
+
+    void range(vector<Data> &result, int min = INT_MIN, int max = INT_MAX)
+    {
+        if (root == nullptr)
+            throw BSTException::NullTree;
+    }
+
+    int getMin()
+    {
+        Node *cur = root;
+        if (cur == nullptr)
+            throw BSTException::NullTree;
+
+        // always left side
+        while (cur->left != nullptr)
+            cur = cur->left;
+
+        return cur->datas.back()->convertToInt(select);
+    }
+
+    int getMax()
+    {
+        Node *cur = root;
+        if (cur == nullptr)
+            throw BSTException::NullTree;
+
+        // always right side
+        while (cur->right != nullptr)
+            cur = cur->right;
+
+        return cur->datas.back()->convertToInt(select);
+    }
 };
 
 class HandleFile {
     fstream fin;
     fstream fout;
+
+    BST bst;
+
     vector<Data> database;
     string cloumnName[DATA_SIZE] = {
         "#",     "Name",       "Type 1",   "Type 2", "Total",
         "HP",    "Attack",     "Defense",  "Sp.Atk", "Sp.Def",
         "Speed", "Generation", "Legendary"};
-    BST bst();
 
     // common function
     int numberInput(string message, string errorMsg)
@@ -234,6 +325,11 @@ class HandleFile {
     }
 
 public:
+    ~HandleFile()
+    {
+        // clear tree
+    }
+
     bool task1()
     {
         // load file
@@ -280,10 +376,10 @@ public:
 
 int main(int argc, char *argv[])
 {
-    int mode;   // ¿ï³æ¿ï¶µ
-    int result; // «ü¥O¦^¶ÇÀË¬d
+    int mode;   // é¸å–®é¸é …
+    int result; // æŒ‡ä»¤å›å‚³æª¢æŸ¥
     while (true) {
-        // ¿é¥X¿ï³æ
+        // è¼¸å‡ºé¸å–®
         cout << "              MENU              " << endl;
         cout << "* 0. Quit                      *" << endl;
         cout << "* 1. Load Data                 *" << endl;
@@ -291,12 +387,12 @@ int main(int argc, char *argv[])
         cout << "* 3. Remove Max                *" << endl;
         cout << "choice: ";
 
-        // ¿é¤J¿ï¾Ü
+        // è¼¸å…¥é¸æ“‡
         cin >> mode;
 
         HandleFile f;
 
-        // §PÂ_¿ï¾Üªº¤º®e
+        // åˆ¤æ–·é¸æ“‡çš„å…§å®¹
         switch (mode) {
         case MENU_QUIT:
             return 0;
@@ -318,7 +414,7 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        // ÀË¬d¦^¶Ç­È¬O§_¬°successful
+        // æª¢æŸ¥å›å‚³å€¼æ˜¯å¦ç‚ºsuccessful
         if (result)
             return 1;
         else
@@ -329,16 +425,16 @@ int main(int argc, char *argv[])
 
 void errorHandling(string message)
 {
-    // ¦pªGeof«h±j¨îµ²§ôµ{¦¡
+    // å¦‚æœeofå‰‡å¼·åˆ¶çµæŸç¨‹å¼
     if (cin.eof())
         exit(0);
 
-    // «ì´_cinªºª¬ºA
+    // æ¢å¾©cinçš„ç‹€æ…‹
     cin.clear();
 
-    // ®ø·À³Ì¦h2048­Ó¦r¤¸¹J¨ì\n
+    // æ¶ˆæ»…æœ€å¤š2048å€‹å­—å…ƒé‡åˆ°\n
     cin.ignore(2048, '\n');
 
-    // Åã¥Ü¿ù»~°T®§
+    // é¡¯ç¤ºéŒ¯èª¤è¨Šæ¯
     cout << message << endl;
 }
