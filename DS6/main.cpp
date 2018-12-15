@@ -118,6 +118,13 @@ public:
         cout << '\n';
     }
 
+    void printAll(vector<int> &select)
+    {
+        for (auto i : select)
+            cout << column[i] << '\t';
+        cout << '\n';
+    }
+
     int convertToInt(int num) { return stringToInt(column[num]); }
 };
 
