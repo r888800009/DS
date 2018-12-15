@@ -249,24 +249,9 @@ class HandleFile {
         }
     }
 
-    void save(string saveName, vector<Data> &database)
-    {
-        // closs all file
-        if (fin.is_open())
-            fin.close();
-
-        fout.open(saveName, ios::out | ios::trunc);
-        for (Data i : database)
-            fout << i; // << overload
-
-        fout.close();
-
-        cout << "Total number of records: " << database.size() << endl;
-    }
-
     void dropHeader(fstream &file)
     {
-        for (int i = 0; i < 3; ++i)
+        for (int i = 0; i < 1; ++i)
             file.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
@@ -305,7 +290,7 @@ class HandleFile {
         cout << '\n';
     }
 
-    // use in task123 & set select order
+    // use in task1 & set select order
     bool task1_input(string &fileName, vector<Data> &database)
     {
         fileName = fileInput(fin, "Input (601, 602, ...[0]Quit): ", "input");
