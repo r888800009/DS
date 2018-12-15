@@ -340,9 +340,20 @@ public:
 
     bool task2()
     {
+        vector<Data> result;
+        int min;
         // input range
+        min = numberInput("Threshold (a positive integer):", "out of range!");
+
+        // get range
+        bst.range(result, min);
 
         // tree show range
+        vector<int> selectOrder(7);
+        selectOrder = {DATA_NUMERO, DATA_NAME,   DATA_TYPE1,  DATA_TOTAL,
+                       DATA_HP,     DATA_ATTACK, DATA_DEFENSE};
+
+        dataOutput(selectOrder);
 
         return 0;
     }
