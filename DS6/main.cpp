@@ -7,10 +7,11 @@
 #include <vector>
 
 // clang-format off
+
 #define MENU_QUIT               0
-#define MENU_SELECT_BUBBLE      1
-#define MENU_MERGE_QUICK        2
-#define MENU_RADIX              3
+#define MENU_LOAD_DATA          1
+#define MENU_SHOW_RANGE         2
+#define MENU_REMOVE_DATA        3
 
 #define DATA_ID                 0
 #define DATA_NAME               1
@@ -254,10 +255,9 @@ int main(int argc, char *argv[])
         // 輸出選單
         cout << "              MENU              " << endl;
         cout << "* 0. Quit                      *" << endl;
-        cout << "* 1. Selection  & Bubble Sort  *" << endl;
-        cout << "* 2. Merge      & Quick Sort   *" << endl;
-        cout << "* 3. Radix Sort                *" << endl;
-        cout << "* 4. Sort Time                 *" << endl;
+        cout << "* 1. Load Data                 *" << endl;
+        cout << "* 2. Show Range                *" << endl;
+        cout << "* 3. Remove Max                *" << endl;
         cout << "choice: ";
 
         // 輸入選擇
@@ -270,15 +270,15 @@ int main(int argc, char *argv[])
         case MENU_QUIT:
             return 0;
 
-        case MENU_SELECT_BUBBLE:
+        case MENU_LOAD_DATA:
             result = f.task1();
             break;
 
-        case MENU_MERGE_QUICK:
+        case MENU_SHOW_RANGE:
             result = f.task2();
             break;
 
-        case MENU_RADIX:
+        case MENU_REMOVE_DATA:
             result = f.task3();
             break;
 
