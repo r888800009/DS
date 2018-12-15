@@ -331,6 +331,52 @@ public:
 
         if (size <= 1)
             return;
+            
+        // take first for pivot
+        auto pivot = front;
+        front++;
+
+        // sort
+        while (front < last) {
+            // more than the pivot then put it after that pivot
+            if (*front > *pivot) {
+                // find a one less than the pivot then put it before that pivot
+                while (front<last && * last> * pivot)
+                    last--;
+
+                swap(*front, *last);
+            }
+            front++;
+        }
+
+        // put pivot at center
+        if (*last >= *pivot)
+            last--;
+
+        swap(*last, *pivot);
+        pivot = last;
+
+        // divide and conquer sort
+        int leftSize = (pivot - begin);
+        quick(begin, leftSize);
+        quick(pivot + 1, size - leftSize - 1);
+    }
+    
+    template <class It>
+    void quickx(It begin, int size)
+    {
+        auto front = begin, last = begin + size - 1, mid = begin + size/2;
+
+        if (size <= 1)
+            return;
+        
+        // min( max(mid,last), front )    
+        if(*mid > *last){
+            if(*mid < *front) swap(*front, *mid);
+        }
+        else{
+            if(*last < *front) swap(*front, *last);
+        }
 
         // take first for pivot
         auto pivot = front;
@@ -447,10 +493,13 @@ public:
         timing("Merge: ", [&]() { merge(mergeData); });
         timing("Quick: ",
             [&]() { quick(quickData.begin(), quickData.size()); });
+        timing("Quickx: ",
+            [&]() { quickx(quickData.begin(), quickData.size()); });
 
         // save
         save("merge_sort" + fileName + ".txt", mergeData);
         save("quick_sort" + fileName + ".txt", quickData);
+        save("quickx_sort" + fileName + ".txt", quickData);
 
         return 0;
     }

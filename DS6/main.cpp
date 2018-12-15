@@ -14,7 +14,7 @@
 #define MENU_SHOW_RANGE         2
 #define MENU_REMOVE_DATA        3
 
-#define DATA_ID                 0
+#define DATA_NUMERO             0
 #define DATA_NAME               1
 #define DATA_TYPE1              2
 #define DATA_TYPE2              3
@@ -54,7 +54,8 @@ static int stringToInt(string str)
             str = getOnlyDigits(str);
 
         return stoi(str);
-    } catch (exception e) {
+    }
+    catch (exception e) {
         cout << "ERROR : stoi error!" << endl;
         cout << "Value : " << str << endl;
         return -1; // return error value
@@ -64,7 +65,7 @@ static int stringToInt(string str)
 class Data {
     string column[DATA_SIZE];
 
-  public:
+public:
     friend istream &operator>>(istream &in, Data &data)
     {
         string input, temp;
@@ -82,14 +83,14 @@ class Data {
         input += '\t';
 
         // splitting
-        int count    = 0;
+        int count = 0;
         inputSuccess = true;
         for (char c : input) {
             if (c != '\t')
                 temp += c;
             else {
                 data.column[count++] = temp;
-                temp                 = "";
+                temp = "";
             }
         }
 
@@ -109,14 +110,22 @@ class Data {
         return out;
     }
 
+    void print(vector<int> &select)
+    {
+        for (auto i : select)
+            cout << column[i] << '\t';
+        cout << '\n';
+    }
+
     int convertToInt(int num) { return stringToInt(column[num]); }
 };
 
 enum BSTException { NullTree, NotFound };
 
 class BST {
+
     typedef struct Node {
-        vector<Data> datas;
+        vector<Data *> datas;
         Node *left, *right;
     } Node;
 
@@ -147,7 +156,7 @@ class BST {
     Node remove(Node *root) {}
     Node *find(Node *root) {}
 
-  public:
+public:
     BST() { root = nullptr; }
     void clear() { clear(root); }
     void insert(Data data) { insert(root, data); }
@@ -183,6 +192,7 @@ class BST {
             throw BSTException::NullTree;
     }
 
+
     int getMin()
     {
         Node *cur = root;
@@ -213,7 +223,14 @@ class BST {
 class HandleFile {
     fstream fin;
     fstream fout;
+
     BST bst;
+
+    vector<Data> database;
+    string cloumnName[DATA_SIZE] = {
+        "#",     "Name",       "Type 1",   "Type 2", "Total",
+        "HP",    "Attack",     "Defense",  "Sp.Atk", "Sp.Def",
+        "Speed", "Generation", "Legendary"};
 
     // common function
     int numberInput(string message, string errorMsg)
@@ -275,6 +292,16 @@ class HandleFile {
         }
     }
 
+    void dataOutput(vector<int> &selectOrder)
+    {
+        for (auto i : selectOrder)
+            cout << cloumnName[i] << '\t';
+        cout << '\n';
+        for (auto i : database)
+            i.print(selectOrder);
+        cout << '\n';
+    }
+
     // use in task123 & set select order
     bool task1_input(string &fileName, vector<Data> &database)
     {
@@ -286,26 +313,37 @@ class HandleFile {
             while (fin >> temp) // >> overload
                 if (inputSuccess)
                     database.push_back(temp);
-        } else {
+        }
+        else {
             cout << "switch to menu" << endl;
         }
 
         return fileName != ""; // {quit: 0, continue: 1}
     }
 
-  public:
+
+public:
     ~HandleFile()
     {
         // clear tree
     }
 
+
     bool task1()
     {
         // load file
+        string fileName;
+
+        if (!task1_input(fileName, database))
+            return 0;
 
         // qsort ID
 
         // display vector
+        vector<int> selectOrder(6);
+        selectOrder = {DATA_NUMERO, DATA_NAME,   DATA_TYPE1,
+                       DATA_HP,     DATA_ATTACK, DATA_DEFENSE};
+        dataOutput(selectOrder);
 
         // build tree HP
 
