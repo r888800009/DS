@@ -109,7 +109,7 @@ public:
 
     void print(vector<int> &select)
     {
-        for(auto i: select)
+        for (auto i : select)
             cout << column[i] << '\t';
         cout << '\n';
     }
@@ -120,7 +120,7 @@ public:
 class BST {
 
     typedef struct Node {
-        vector<Data*> datas;
+        vector<Data *> datas;
         Node *left, *right;
     } Node;
 
@@ -139,8 +139,9 @@ class HandleFile {
     fstream fout;
     vector<Data> database;
     string cloumnName[DATA_SIZE] = {
-        "#", "Name", "Type 1", "Type 2", "Total", "HP", "Attack", "Defense", "Sp.Atk", "Sp.Def", "Speed", "Generation", "Legendary"
-    };
+        "#",     "Name",       "Type 1",   "Type 2", "Total",
+        "HP",    "Attack",     "Defense",  "Sp.Atk", "Sp.Def",
+        "Speed", "Generation", "Legendary"};
     BST bst();
 
     // common function
@@ -234,7 +235,7 @@ class HandleFile {
 
 public:
     bool task1()
-    {   
+    {
         // load file
         string fileName;
 
@@ -245,7 +246,8 @@ public:
 
         // display vector
         vector<int> selectOrder(6);
-        selectOrder = { DATA_NUMERO, DATA_NAME, DATA_TYPE1, DATA_HP, DATA_ATTACK, DATA_DEFENSE };
+        selectOrder = {DATA_NUMERO, DATA_NAME,   DATA_TYPE1,
+                       DATA_HP,     DATA_ATTACK, DATA_DEFENSE};
         dataOutput(selectOrder);
 
         // build tree HP
@@ -340,4 +342,3 @@ void errorHandling(string message)
     // Åã¥Ü¿ù»~°T®§
     cout << message << endl;
 }
-
