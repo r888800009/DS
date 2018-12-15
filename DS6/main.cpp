@@ -142,25 +142,35 @@ class BST {
 
     Node *root;
 
-    bool cmpMoreThen(Data &a, Data &b) { return a[select] > b[select]; }
+    bool cmpMoreThen(Data *a, Data *b) { return (*a)[select] > (*b)[select]; }
+    bool cmpLessThen(Data *a, Data *b) { return (*a)[select] < (*b)[select]; }
+    bool cmpEqual(Data *a, Data *b) { return (*a)[select] == (*b)[select]; }
 
-    void insert(Node *root, Data *data)
+    Node *insert(Node *root, Data *data)
     {
         if (root == nullptr) {
             // is null
+            Node *newNode = new Node;
+            newNode->datas.push_back(data);
+            newNode->left = newNode->right = nullptr;
+            return newNode;
         }
         else {
             // not null
             // recurive or push back
-            if (1) {
+            if (cmpEqual(data, root->datas.back())) {
                 // this node
+                root->datas.push_back(data);
             }
-            else if (1) {
-                // or left
+            else if (cmpLessThen(data, root->datas.back())) {
+                // left
+                root->left = insert(root->left, data);
             }
             else {
-                // or right
+                // right
+                root->right = insert(root->right, data);
             }
+            return root;
         }
     }
     void clear(Node *root) {}
@@ -170,7 +180,7 @@ class BST {
 public:
     BST() { root = nullptr; }
     void clear() { clear(root); }
-    void insert(Data *data) { insert(root, data); }
+    void insert(Data *data) { root = insert(root, data); }
     void setOrder(int order = DATA_HP) { select = order; }
 
     Data remove(int key)
