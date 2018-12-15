@@ -227,6 +227,7 @@ public:
     {
         if (root == nullptr)
             throw BSTException::NullTree;
+
         // is null
         // not null
         // recurive
@@ -235,16 +236,16 @@ public:
         // or right
     }
 
-    Data find(int key)
+    vector<Data *> find(int key)
     {
         if (root == nullptr)
             throw BSTException::NullTree;
-        // is null
-        // not null
-        // recurive
-        // this node
-        // or left
-        // or right
+
+        Node *found = find(root, key);
+        if (found == nullptr)
+            throw BSTException::NotFound;
+
+        return found->datas;
     }
 
     void range(vector<Data *> &result, int min = INT_MIN, int max = INT_MAX)
