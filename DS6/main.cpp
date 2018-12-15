@@ -119,10 +119,10 @@ public:
         cout << '\n';
     }
 
-    void printAll(vector<int> &select)
+    void printAll()
     {
-        for (auto i : select)
-            cout << column[i] << '\t';
+        for (auto it : column)
+            cout << it << '\t';
         cout << '\n';
     }
 
@@ -202,6 +202,7 @@ class BST {
             vector<Data *> *datas = &root->datas;
             auto found = std::remove(datas->begin(), datas->end(), data);
             datas->erase(found, datas->end());
+            return root;
         }
         else {
             // two child
@@ -242,13 +243,13 @@ class BST {
                 // this node
                 return root;
             }
-            else if (rootKey < key) {
+            else if (key < rootKey) {
                 // left
-                return find(root->left, rootKey);
+                return find(root->left, key);
             }
             else {
                 // right
-                return find(root->right, rootKey);
+                return find(root->right, key);
             }
         }
     }
@@ -293,7 +294,7 @@ public:
         setOrder();
     }
 
-    Data remove(Data *data)
+    void remove(Data *data)
     {
         if (treeRoot == nullptr)
             throw BSTException::NullTree;
@@ -479,34 +480,60 @@ public:
 
     bool task2()
     {
-        vector<Data *> result;
-        int min;
-        // input range
-        min = numberInput("Threshold (a positive integer):", "out of range!");
 
-        // get range
-        int visted = bst.range(result, min);
+        try {
+            vector<Data *> result;
+            int min;
+            // input range
+            min =
+                numberInput("Threshold (a positive integer):", "out of range!");
 
-        // tree show range
-        vector<int> selectOrder(7);
-        selectOrder = {DATA_NUMERO, DATA_NAME,   DATA_TYPE1,  DATA_TOTAL,
-                       DATA_HP,     DATA_ATTACK, DATA_DEFENSE};
+            // get range
+            int visted = bst.range(result, min);
 
-        dataOutput(selectOrder, result);
+            // tree show range
+            vector<int> selectOrder(7);
+            selectOrder = {DATA_NUMERO, DATA_NAME,   DATA_TYPE1,  DATA_TOTAL,
+                           DATA_HP,     DATA_ATTACK, DATA_DEFENSE};
 
-        // show visited times
-        cout << "Number of visited nodes = " << visted << endl;
+            dataOutput(selectOrder, result);
+
+            // show visited times
+            cout << "Number of visited nodes = " << visted << endl;
+        }
+        catch (BSTException e) {
+            cout << e << endl;
+        }
         return 0;
     }
 
     bool task3()
     {
-        // show max one data all field
+        try {
+            // get max items
+            int maxKey = bst.getMaxKey();
+            vector<Data *> max = bst.find(maxKey);
 
-        // delete max one data
+            // show max one data all field
+            for (auto it : cloumnName)
+                cout << it << '\t';
+            cout << '\n';
+            auto max1 = *max.begin();
+            max1->printAll();
 
-        // show tree hight
+            // delete BST max one data
+            bst.remove(max1);
 
+            // delete array max
+            auto found = std::remove(database.begin(), database.end(), max1);
+            database.erase(found, database.end());
+
+            // show tree hight
+            cout << "HP tree height = " << bst.getHight() << endl;
+        }
+        catch (BSTException e) {
+            cout << e << endl;
+        }
         return 0;
     }
 };
