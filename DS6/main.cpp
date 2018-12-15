@@ -271,10 +271,21 @@ class BST {
             inorderTraversal(root->left, result, min, max);
     }
 
+    int getHight(Node *node)
+    {
+        int result = 0;
+        if (node != nullptr) {
+            result = 1 + max(getHight(node->left), getHight(node->right));
+        }
+
+        return result;
+    }
+
 public:
     void clear() { clear(treeRoot); }
     void insert(Data *data) { treeRoot = insert(treeRoot, data); }
     void setOrder(int order = DATA_HP) { select = order; }
+    int getHight() { return getHight(treeRoot); }
 
     BST()
     {
@@ -461,6 +472,7 @@ public:
             bst.insert(it);
 
         // show tree hight
+        cout << "HP tree height = " << bst.getHight() << endl;
 
         return 0;
     }
