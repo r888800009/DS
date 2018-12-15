@@ -456,6 +456,8 @@ class HandleFile {
             cout << "switch to menu" << endl;
         }
 
+        fin.close();
+
         return fileName != ""; // {quit: 0, continue: 1}
     }
 
