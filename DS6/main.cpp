@@ -1,4 +1,4 @@
-// ç¬¬11çµ„ 106127116 è¨±é€¸ç¿” 10612150 æ—è© ç¿” è³‡è¨ŠäºŒç”²
+// ²Ä11²Õ 106127116 ³\¶hµ¾ 10612150 ªLµúµ¾ ¸ê°T¤G¥Ò
 // must to use -std=c++11 or higher version
 #include <fstream>
 #include <iostream>
@@ -13,7 +13,7 @@
 #define MENU_SHOW_RANGE         2
 #define MENU_REMOVE_DATA        3
 
-#define DATA_ID                 0
+#define DATA_NUMERO             0
 #define DATA_NAME               1
 #define DATA_TYPE1              2
 #define DATA_TYPE2              3
@@ -53,7 +53,8 @@ static int stringToInt(string str)
             str = getOnlyDigits(str);
 
         return stoi(str);
-    } catch (exception e) {
+    }
+    catch (exception e) {
         cout << "ERROR : stoi error!" << endl;
         cout << "Value : " << str << endl;
         return -1; // return error value
@@ -63,7 +64,7 @@ static int stringToInt(string str)
 class Data {
     string column[DATA_SIZE];
 
-  public:
+public:
     friend istream &operator>>(istream &in, Data &data)
     {
         string input, temp;
@@ -81,14 +82,14 @@ class Data {
         input += '\t';
 
         // splitting
-        int count    = 0;
+        int count = 0;
         inputSuccess = true;
         for (char c : input) {
             if (c != '\t')
                 temp += c;
             else {
                 data.column[count++] = temp;
-                temp                 = "";
+                temp = "";
             }
         }
 
@@ -106,18 +107,24 @@ class Data {
         return out;
     }
 
+    void print(vector<int> &select)
+    {
+        for(auto i: select)
+            cout << column[i] << '\t';
+        cout << '\n';
+    }
+
     int convertToInt(int num) { return stringToInt(column[num]); }
 };
 
 class BST {
-    // select column datatype must be integer
-    static vector<int> selectOrder;
+
     typedef struct Node {
-        vector<Data> datas;
+        vector<Data*> datas;
         Node *left, *right;
     } Node;
 
-  public:
+public:
     BST() {}
 
     void insert() {}
@@ -130,6 +137,10 @@ class BST {
 class HandleFile {
     fstream fin;
     fstream fout;
+    vector<Data> database;
+    string cloumnName[DATA_SIZE] = {
+        "#", "Name", "Type 1", "Type 2", "Total", "HP", "Attack", "Defense", "Sp.Atk", "Sp.Def", "Speed", "Generation", "Legendary"
+    };
     BST bst();
 
     // common function
@@ -192,6 +203,16 @@ class HandleFile {
         }
     }
 
+    void dataOutput(vector<int> &selectOrder)
+    {
+        for (auto i : selectOrder)
+            cout << cloumnName[i] << '\t';
+        cout << '\n';
+        for (auto i : database)
+            i.print(selectOrder);
+        cout << '\n';
+    }
+
     // use in task123 & set select order
     bool task1_input(string &fileName, vector<Data> &database)
     {
@@ -203,21 +224,29 @@ class HandleFile {
             while (fin >> temp) // >> overload
                 if (inputSuccess)
                     database.push_back(temp);
-        } else {
+        }
+        else {
             cout << "switch to menu" << endl;
         }
 
         return fileName != ""; // {quit: 0, continue: 1}
     }
 
-  public:
+public:
     bool task1()
-    {
+    {   
         // load file
+        string fileName;
+
+        if (!task1_input(fileName, database))
+            return 0;
 
         // qsort ID
 
         // display vector
+        vector<int> selectOrder(6);
+        selectOrder = { DATA_NUMERO, DATA_NAME, DATA_TYPE1, DATA_HP, DATA_ATTACK, DATA_DEFENSE };
+        dataOutput(selectOrder);
 
         // build tree HP
 
@@ -249,10 +278,10 @@ class HandleFile {
 
 int main(int argc, char *argv[])
 {
-    int mode;   // é¸å–®é¸é …
-    int result; // æŒ‡ä»¤å›å‚³æª¢æŸ¥
+    int mode;   // ¿ï³æ¿ï¶µ
+    int result; // «ü¥O¦^¶ÇÀË¬d
     while (true) {
-        // è¼¸å‡ºé¸å–®
+        // ¿é¥X¿ï³æ
         cout << "              MENU              " << endl;
         cout << "* 0. Quit                      *" << endl;
         cout << "* 1. Load Data                 *" << endl;
@@ -260,12 +289,12 @@ int main(int argc, char *argv[])
         cout << "* 3. Remove Max                *" << endl;
         cout << "choice: ";
 
-        // è¼¸å…¥é¸æ“‡
+        // ¿é¤J¿ï¾Ü
         cin >> mode;
 
         HandleFile f;
 
-        // åˆ¤æ–·é¸æ“‡çš„å…§å®¹
+        // §PÂ_¿ï¾Üªº¤º®e
         switch (mode) {
         case MENU_QUIT:
             return 0;
@@ -287,7 +316,7 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        // æª¢æŸ¥å›å‚³å€¼æ˜¯å¦ç‚ºsuccessful
+        // ÀË¬d¦^¶Ç­È¬O§_¬°successful
         if (result)
             return 1;
         else
@@ -298,16 +327,17 @@ int main(int argc, char *argv[])
 
 void errorHandling(string message)
 {
-    // å¦‚æœeofå‰‡å¼·åˆ¶çµæŸç¨‹å¼
+    // ¦pªGeof«h±j¨îµ²§ôµ{¦¡
     if (cin.eof())
         exit(0);
 
-    // æ¢å¾©cinçš„ç‹€æ…‹
+    // «ì´_cinªºª¬ºA
     cin.clear();
 
-    // æ¶ˆæ»…æœ€å¤š2048å€‹å­—å…ƒé‡åˆ°\n
+    // ®ø·À³Ì¦h2048­Ó¦r¤¸¹J¨ì\n
     cin.ignore(2048, '\n');
 
-    // é¡¯ç¤ºéŒ¯èª¤è¨Šæ¯
+    // Åã¥Ü¿ù»~°T®§
     cout << message << endl;
 }
+
