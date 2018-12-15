@@ -1,0 +1,13 @@
+#	Name	Type 1	Type 2	Total	HP	Attack	Defense	Sp. Atk	Sp. Def	Speed	Generation	Legendary
+1	Bulbasaur	Grass	Poison	318	45	49	49	65	65	45	1	FALSE
+2	Ivysaur	Grass	Poison	405	60	62	65	80	80	60	1	FALSE
+3	Venusaur	Grass	Poison	525	80	82	80	100	100	80	1	FALSE
+6	Charizard	Fire	Flying	534	78	84	78	109	85	100	1	FALSE
+7	Squirtle	Water		314	44	48	65	50	64	43	1	FALSE
+8	Wartortle	Water		405	59	63	80	65	80	58	1	FALSE
+9	Blastoise	Water		530	79	83	80	85	105	78	1	FALSE
+10	Caterpie	Bug		195	45	30	30	20	20	45	1	FALSE
+11	Metapod	Bug		205	50	20	50	25	25	30	1	FALSE
+13	Weedle	Bug	Poison	195	40	35	30	20	20	50	1	FALSE
+14	Kakuna	Bug	Poison	205	45	25	50	25	25	35	1	FALSE
+15	Beedrill	Bug	Poison	395	65	90	40	45	80	75	1	FALSE
