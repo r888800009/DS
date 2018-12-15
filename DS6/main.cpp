@@ -141,7 +141,7 @@ class BST {
     // select column datatype must be integer
     int select;
 
-    Node *root;
+    Node *treeRoot;
 
     bool cmpMoreThen(Data *a, Data *b) { return (*a)[select] > (*b)[select]; }
     bool cmpLessThen(Data *a, Data *b) { return (*a)[select] < (*b)[select]; }
@@ -260,29 +260,34 @@ class BST {
 
         int rootKey = root->datas.back()->convertToInt(select);
 
-        if (min < rootKey)
-            inorderTraversal(root->left, result, min, max);
+        if (rootKey < max)
+            inorderTraversal(root->right, result, min, max);
 
         if (min <= rootKey && rootKey <= max)
             for (auto it : root->datas)
                 result.push_back(it);
 
-        if (rootKey < max)
-            inorderTraversal(root->right, result, min, max);
+        if (min < rootKey)
+            inorderTraversal(root->left, result, min, max);
     }
 
 public:
-    BST() { root = nullptr; }
-    void clear() { clear(root); }
-    void insert(Data *data) { root = insert(root, data); }
+    void clear() { clear(treeRoot); }
+    void insert(Data *data) { treeRoot = insert(treeRoot, data); }
     void setOrder(int order = DATA_HP) { select = order; }
+
+    BST()
+    {
+        treeRoot = nullptr;
+        setOrder();
+    }
 
     Data remove(Data *data)
     {
-        if (root == nullptr)
+        if (treeRoot == nullptr)
             throw BSTException::NullTree;
 
-        Node *found = find(root, data->convertToInt(select));
+        Node *found = find(treeRoot, data->convertToInt(select));
         if (found == nullptr)
             throw BSTException::NotFound;
 
@@ -291,10 +296,10 @@ public:
 
     vector<Data *> find(int key)
     {
-        if (root == nullptr)
+        if (treeRoot == nullptr)
             throw BSTException::NullTree;
 
-        Node *found = find(root, key);
+        Node *found = find(treeRoot, key);
         if (found == nullptr)
             throw BSTException::NotFound;
 
@@ -303,16 +308,16 @@ public:
 
     void range(vector<Data *> &result, int min = INT_MIN, int max = INT_MAX)
     {
-        if (root == nullptr)
+        if (treeRoot == nullptr)
             throw BSTException::NullTree;
 
         // inorder traversal
-        inorderTraversal(root, result, min, max);
+        inorderTraversal(treeRoot, result, min, max);
     }
 
     int getMinKey()
     {
-        Node *cur = root;
+        Node *cur = treeRoot;
         if (cur == nullptr)
             throw BSTException::NullTree;
 
@@ -325,7 +330,7 @@ public:
 
     int getMaxKey()
     {
-        Node *cur = root;
+        Node *cur = treeRoot;
         if (cur == nullptr)
             throw BSTException::NullTree;
 
@@ -396,11 +401,14 @@ class HandleFile {
 
     void dataOutput(vector<int> &selectOrder, vector<Data *> &db)
     {
+        cout << "\t";
         for (auto i : selectOrder)
             cout << cloumnName[i] << '\t';
         cout << '\n';
+
+        int count = 1;
         for (auto i : db)
-            i->print(selectOrder);
+            cout << '[' << count << "]\t", i->print(selectOrder), count++;
         cout << '\n';
     }
 
@@ -446,6 +454,7 @@ public:
         dataOutput(selectOrder, database);
 
         // build tree HP
+        bst.setOrder();
         for (auto it : database)
             bst.insert(it);
 
@@ -490,6 +499,8 @@ int main(int argc, char *argv[])
 {
     int mode;   // 選單選項
     int result; // 指令回傳檢查
+
+    HandleFile f;
     while (true) {
         // 輸出選單
         cout << "              MENU              " << endl;
@@ -501,8 +512,6 @@ int main(int argc, char *argv[])
 
         // 輸入選擇
         cin >> mode;
-
-        HandleFile f;
 
         // 判斷選擇的內容
         switch (mode) {
