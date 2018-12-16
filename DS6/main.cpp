@@ -1,4 +1,4 @@
-// ç¬¬11çµ„ 106127116 è¨±é€¸ç¿” 10612150 æ—è© ç¿” è³‡è¨ŠäºŒç”²
+// ²Ä11²Õ 106127116 ³\¶hµ¾ 10612150 ªLµúµ¾ ¸ê°T¤G¥Ò
 // must to use -std=c++11 or higher version
 #include <algorithm>
 #include <climits>
@@ -159,8 +159,8 @@ class BST {
 
     Node *treeRoot;
     int visitedCounter;
-    bool cmpMoreThen(Data *a, Data *b) { return (*a)[select] > (*b)[select]; }
-    bool cmpLessThen(Data *a, Data *b) { return (*a)[select] < (*b)[select]; }
+    bool cmpAMoreThenB(Data *a, Data *b) { return a->convertToInt(select) > b->convertToInt(select); }
+    bool cmpALessThenB(Data *a, Data *b) { return a->convertToInt(select) < b->convertToInt(select); }
     bool cmpEqual(Data *a, Data *b) { return (*a)[select] == (*b)[select]; }
 
     Node *insert(Node *root, Data *data)
@@ -176,7 +176,7 @@ class BST {
             // recurive or push back
             if (cmpEqual(data, root->datas.back()))
                 root->datas.push_back(data);
-            else if (cmpLessThen(data, root->datas.back()))
+            else if (cmpALessThenB(data, root->datas.back()))
                 root->left = insert(root->left, data);
             else
                 root->right = insert(root->right, data);
@@ -258,7 +258,7 @@ class BST {
                 pre = cur, cur = cur->right, isLeft = false;
         }
 
-        return {pre, cur, isLeft};
+        return { pre, cur, isLeft };
     }
 
     void inorderTraversal(Node *root, vector<Data *> &result, int min, int max)
@@ -377,7 +377,7 @@ class HandleFile {
     string cloumnName[DATA_SIZE] = {
         "#",     "Name",       "Type 1",   "Type 2", "Total",
         "HP",    "Attack",     "Defense",  "Sp.Atk", "Sp.Def",
-        "Speed", "Generation", "Legendary"};
+        "Speed", "Generation", "Legendary" };
 
     // common function
     int numberInput(string message, string errorMsg)
@@ -477,13 +477,13 @@ public:
         if (!task1_input(fileName, database))
             return 0;
 
-        // sort ID
+        // sort NUMERO
         sort(database.begin(), database.end(), cmp);
 
         // display vector
         vector<int> selectOrder(6);
-        selectOrder = {DATA_NUMERO, DATA_NAME,   DATA_TYPE1,
-                       DATA_HP,     DATA_ATTACK, DATA_DEFENSE};
+        selectOrder = { DATA_NUMERO, DATA_NAME,   DATA_TYPE1,
+                       DATA_HP,     DATA_ATTACK, DATA_DEFENSE };
         dataOutput(selectOrder, database);
 
         // build tree HP
@@ -512,8 +512,8 @@ public:
 
             // tree show range
             vector<int> selectOrder(7);
-            selectOrder = {DATA_NUMERO, DATA_NAME,   DATA_TYPE1,  DATA_TOTAL,
-                           DATA_HP,     DATA_ATTACK, DATA_DEFENSE};
+            selectOrder = { DATA_NUMERO, DATA_NAME,   DATA_TYPE1,  DATA_TOTAL,
+                           DATA_HP,     DATA_ATTACK, DATA_DEFENSE };
 
             dataOutput(selectOrder, result);
 
@@ -559,12 +559,12 @@ public:
 
 int main(int argc, char *argv[])
 {
-    int mode;   // é¸å–®é¸é …
-    int result; // æŒ‡ä»¤å›å‚³æª¢æŸ¥
+    int mode;   // ¿ï³æ¿ï¶µ
+    int result; // «ü¥O¦^¶ÇÀË¬d
 
     HandleFile f;
     while (true) {
-        // è¼¸å‡ºé¸å–®
+        // ¿é¥X¿ï³æ
         cout << "              MENU              " << endl;
         cout << "* 0. Quit                      *" << endl;
         cout << "* 1. Load Data                 *" << endl;
@@ -572,10 +572,10 @@ int main(int argc, char *argv[])
         cout << "* 3. Remove Max                *" << endl;
         cout << "choice: ";
 
-        // è¼¸å…¥é¸æ“‡
+        // ¿é¤J¿ï¾Ü
         cin >> mode;
 
-        // åˆ¤æ–·é¸æ“‡çš„å…§å®¹
+        // §PÂ_¿ï¾Üªº¤º®e
         switch (mode) {
         case MENU_QUIT:
             return 0;
@@ -597,7 +597,7 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        // æª¢æŸ¥å›å‚³å€¼æ˜¯å¦ç‚ºsuccessful
+        // ÀË¬d¦^¶Ç­È¬O§_¬°successful
         if (result)
             return 1;
         else
@@ -608,16 +608,17 @@ int main(int argc, char *argv[])
 
 void errorHandling(string message)
 {
-    // å¦‚æœeofå‰‡å¼·åˆ¶çµæŸç¨‹å¼
+    // ¦pªGeof«h±j¨îµ²§ôµ{¦¡
     if (cin.eof())
         exit(0);
 
-    // æ¢å¾©cinçš„ç‹€æ…‹
+    // «ì´_cinªºª¬ºA
     cin.clear();
 
-    // æ¶ˆæ»…æœ€å¤š2048å€‹å­—å…ƒé‡åˆ°\n
+    // ®ø·À³Ì¦h2048­Ó¦r¤¸¹J¨ì\n
     cin.ignore(2048, '\n');
 
-    // é¡¯ç¤ºéŒ¯èª¤è¨Šæ¯
+    // Åã¥Ü¿ù»~°T®§
     cout << message << endl;
 }
+
