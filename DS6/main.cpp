@@ -1,4 +1,4 @@
-// ²Ä11²Õ 106127116 ³\¶hµ¾ 10612150 ªLµúµ¾ ¸ê°T¤G¥Ò
+// ç¬¬11çµ„ 106127116 è¨±é€¸ç¿” 10612150 æ—è© ç¿” è³‡è¨ŠäºŒç”²
 // must to use -std=c++11 or higher version
 #include <algorithm>
 #include <climits>
@@ -559,12 +559,12 @@ public:
 
 int main(int argc, char *argv[])
 {
-    int mode;   // ¿ï³æ¿ï¶µ
-    int result; // «ü¥O¦^¶ÇÀË¬d
+    int mode;   // é¸å–®é¸é …
+    int result; // æŒ‡ä»¤å›å‚³æª¢æŸ¥
 
     HandleFile f;
     while (true) {
-        // ¿é¥X¿ï³æ
+        // è¼¸å‡ºé¸å–®
         cout << "              MENU              " << endl;
         cout << "* 0. Quit                      *" << endl;
         cout << "* 1. Load Data                 *" << endl;
@@ -572,10 +572,10 @@ int main(int argc, char *argv[])
         cout << "* 3. Remove Max                *" << endl;
         cout << "choice: ";
 
-        // ¿é¤J¿ï¾Ü
+        // è¼¸å…¥é¸æ“‡
         cin >> mode;
 
-        // §PÂ_¿ï¾Üªº¤º®e
+        // åˆ¤æ–·é¸æ“‡çš„å…§å®¹
         switch (mode) {
         case MENU_QUIT:
             return 0;
@@ -597,7 +597,7 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        // ÀË¬d¦^¶Ç­È¬O§_¬°successful
+        // æª¢æŸ¥å›å‚³å€¼æ˜¯å¦ç‚ºsuccessful
         if (result)
             return 1;
         else
@@ -608,17 +608,17 @@ int main(int argc, char *argv[])
 
 void errorHandling(string message)
 {
-    // ¦pªGeof«h±j¨îµ²§ôµ{¦¡
+    // å¦‚æœeofå‰‡å¼·åˆ¶çµæŸç¨‹å¼
     if (cin.eof())
         exit(0);
 
-    // «ì´_cinªºª¬ºA
+    // æ¢å¾©cinçš„ç‹€æ…‹
     cin.clear();
 
-    // ®ø·À³Ì¦h2048­Ó¦r¤¸¹J¨ì\n
+    // æ¶ˆæ»…æœ€å¤š2048å€‹å­—å…ƒé‡åˆ°\n
     cin.ignore(2048, '\n');
 
-    // Åã¥Ü¿ù»~°T®§
+    // é¡¯ç¤ºéŒ¯èª¤è¨Šæ¯
     cout << message << endl;
 }
 
