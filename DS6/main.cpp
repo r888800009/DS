@@ -185,13 +185,14 @@ class BST {
         }
     }
 
-    void clear(Node *root)
+    void clear(Node* &root)
     {
-        if (root != nullptr) {
-            clear(root->left);
-            clear(root->right);
-            delete root;
-        }
+        if (root == nullptr)
+            return;
+        clear(root->right);
+        clear(root->left);
+        delete root;
+        root = nullptr;
     }
 
     Node *pickInorderSuccessor(Node *root, bool success = false)
@@ -437,6 +438,12 @@ class HandleFile {
         cout << '\n';
     }
 
+    void init() 
+    {
+        bst.clear();
+        database.clear();
+    }
+
     // use in task1 & set select order
     bool task1_input(string &fileName, vector<Data *> &database)
     {
@@ -471,6 +478,9 @@ public:
 
     bool task1()
     {
+        // init
+        init();
+
         // load file
         string fileName;
 
@@ -621,4 +631,5 @@ void errorHandling(string message)
     // 顯示錯誤訊息
     cout << message << endl;
 }
+
 
