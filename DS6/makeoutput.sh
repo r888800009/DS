@@ -33,6 +33,7 @@ function testTask2()
 {
     local fileid=$1
     local stdin=""
+    local i=0
 
     for i in $range
     do
