@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -166,7 +167,7 @@ string getBSTExceptionString(BSTException e)
 class BST {
 
     typedef struct Node {
-        vector<Data *> datas;
+        vector<shared_ptr<Data>> datas;
         Node *left, *right;
     } Node;
 
@@ -180,19 +181,22 @@ class BST {
 
     Node *treeRoot;
     int visitedCounter;
-    bool cmpAMoreThenB(Data *a, Data *b)
+    bool cmpAMoreThenB(shared_ptr<Data> a, shared_ptr<Data> b)
     {
         return a->convertToInt(select) > b->convertToInt(select);
     }
 
-    bool cmpALessThenB(Data *a, Data *b)
+    bool cmpALessThenB(shared_ptr<Data> a, shared_ptr<Data> b)
     {
         return a->convertToInt(select) < b->convertToInt(select);
     }
 
-    bool cmpEqual(Data *a, Data *b) { return (*a)[select] == (*b)[select]; }
+    bool cmpEqual(shared_ptr<Data> a, shared_ptr<Data> b)
+    {
+        return (*a)[select] == (*b)[select];
+    }
 
-    Node *insert(Node *root, Data *data)
+    Node *insert(Node *root, shared_ptr<Data> data)
     {
         // is null
         if (root == nullptr) {
@@ -240,14 +244,14 @@ class BST {
         return successor;
     }
 
-    Node *remove(Node *root, Data *data)
+    Node *remove(Node *root, shared_ptr<Data> data)
     {
         if (root == nullptr)
             return nullptr;
 
         // not only one data in node
         if (root->datas.size() > 1) {
-            vector<Data *> *datas = &root->datas;
+            vector<shared_ptr<Data>> *datas = &root->datas;
             auto found = std::remove(datas->begin(), datas->end(), data);
             datas->erase(found, datas->end());
             return root;
@@ -291,7 +295,8 @@ class BST {
         return {pre, cur, isLeft};
     }
 
-    void inorderTraversal(Node *root, vector<Data *> &result, int min, int max)
+    void inorderTraversal(Node *root, vector<shared_ptr<Data>> &result, int min,
+                          int max)
     {
         if (root == nullptr)
             return;
@@ -320,7 +325,7 @@ class BST {
 
 public:
     void clear() { clear(treeRoot); }
-    void insert(Data *data) { treeRoot = insert(treeRoot, data); }
+    void insert(shared_ptr<Data> data) { treeRoot = insert(treeRoot, data); }
     void setOrder(int order = DATA_HP) { select = order; }
     int getHight() { return getHight(treeRoot); }
 
@@ -330,7 +335,7 @@ public:
         setOrder();
     }
 
-    void remove(Data *data)
+    void remove(shared_ptr<Data> data)
     {
         if (treeRoot == nullptr)
             throw BSTException::NullTree;
@@ -347,7 +352,7 @@ public:
             found.root->right = remove(found.child, data);
     }
 
-    vector<Data *> find(int key)
+    vector<shared_ptr<Data>> find(int key)
     {
         if (treeRoot == nullptr)
             throw BSTException::NullTree;
@@ -359,7 +364,8 @@ public:
         return found->datas;
     }
 
-    int range(vector<Data *> &result, int min = INT_MIN, int max = INT_MAX)
+    int range(vector<shared_ptr<Data>> &result, int min = INT_MIN,
+              int max = INT_MAX)
     {
         if (treeRoot == nullptr)
             throw BSTException::NullTree;
@@ -403,7 +409,7 @@ class HandleFile {
 
     BST bst;
 
-    vector<Data *> database;
+    vector<shared_ptr<Data>> database;
     Data cloumnName;
 
     // common function
@@ -451,7 +457,7 @@ class HandleFile {
         }
     }
 
-    void dataOutput(vector<int> &selectOrder, vector<Data *> &db)
+    void dataOutput(vector<int> &selectOrder, vector<shared_ptr<Data>> &db)
     {
 
         cout << '\t';
@@ -470,7 +476,7 @@ class HandleFile {
     }
 
     // use in task1 & set select order
-    bool task1_input(string &fileName, vector<Data *> &database)
+    bool task1_input(string &fileName, vector<shared_ptr<Data>> &database)
     {
         fileName = fileInput(fin, "Input (601, 602, ...[0]Quit): ", "input");
 
@@ -479,7 +485,7 @@ class HandleFile {
             Data temp;
             while (fin >> temp) // >> overload
                 if (inputSuccess)
-                    database.push_back(new Data(temp));
+                    database.push_back(shared_ptr<Data>(new Data(temp)));
         }
         else {
             cout << "switch to menu" << endl;
@@ -490,7 +496,7 @@ class HandleFile {
         return fileName != ""; // {quit: 0, continue: 1}
     }
 
-    static bool cmp(Data *a, Data *b)
+    static bool cmp(shared_ptr<Data> a, shared_ptr<Data> b)
     {
         return a->convertToInt(DATA_NUMERO) < b->convertToInt(DATA_NUMERO);
     }
@@ -508,6 +514,8 @@ public:
     ~HandleFile()
     {
         // clear tree
+        database.clear();
+        bst.clear();
     }
 
     bool task1()
@@ -546,7 +554,7 @@ public:
     {
 
         try {
-            vector<Data *> result;
+            vector<shared_ptr<Data>> result;
             int min;
             // input range
             min =
@@ -576,7 +584,7 @@ public:
         try {
             // get max items
             int maxKey = bst.getMaxKey();
-            vector<Data *> max = bst.find(maxKey);
+            vector<shared_ptr<Data>> max = bst.find(maxKey);
 
             // show max one data all field
             cloumnName.printAll();
