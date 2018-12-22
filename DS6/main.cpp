@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <climits>
 #include <fstream>
+#include <initializer_list>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <string>
@@ -66,7 +68,26 @@ static int stringToInt(string str)
 class Data {
     string column[DATA_SIZE];
 
+    void printColumn(int select)
+    {
+        cout << left;
+        switch (select) {
+        case DATA_NAME:
+            cout << setw(30);
+            break;
+        default:
+            cout << setw(10);
+        };
+
+        cout << column[select];
+    }
+
 public:
+    void setColumns(string initColumn[DATA_SIZE])
+    {
+        copy(initColumn, initColumn + DATA_SIZE, column);
+    }
+
     friend istream &operator>>(istream &in, Data &data)
     {
         string input, temp;
@@ -115,14 +136,14 @@ public:
     void print(vector<int> &select)
     {
         for (auto i : select)
-            cout << column[i] << '\t';
+            printColumn(i);
         cout << '\n';
     }
 
     void printAll()
     {
-        for (auto it : column)
-            cout << it << '\t';
+        for (int i = 0; i < DATA_SIZE; i++)
+            printColumn(i);
         cout << '\n';
     }
 
@@ -159,8 +180,16 @@ class BST {
 
     Node *treeRoot;
     int visitedCounter;
-    bool cmpAMoreThenB(Data *a, Data *b) { return a->convertToInt(select) > b->convertToInt(select); }
-    bool cmpALessThenB(Data *a, Data *b) { return a->convertToInt(select) < b->convertToInt(select); }
+    bool cmpAMoreThenB(Data *a, Data *b)
+    {
+        return a->convertToInt(select) > b->convertToInt(select);
+    }
+
+    bool cmpALessThenB(Data *a, Data *b)
+    {
+        return a->convertToInt(select) < b->convertToInt(select);
+    }
+
     bool cmpEqual(Data *a, Data *b) { return (*a)[select] == (*b)[select]; }
 
     Node *insert(Node *root, Data *data)
@@ -185,7 +214,7 @@ class BST {
         }
     }
 
-    void clear(Node* &root)
+    void clear(Node *&root)
     {
         if (root == nullptr)
             return;
@@ -259,7 +288,7 @@ class BST {
                 pre = cur, cur = cur->right, isLeft = false;
         }
 
-        return { pre, cur, isLeft };
+        return {pre, cur, isLeft};
     }
 
     void inorderTraversal(Node *root, vector<Data *> &result, int min, int max)
@@ -375,10 +404,7 @@ class HandleFile {
     BST bst;
 
     vector<Data *> database;
-    string cloumnName[DATA_SIZE] = {
-        "#",     "Name",       "Type 1",   "Type 2", "Total",
-        "HP",    "Attack",     "Defense",  "Sp.Atk", "Sp.Def",
-        "Speed", "Generation", "Legendary" };
+    Data cloumnName;
 
     // common function
     int numberInput(string message, string errorMsg)
@@ -427,10 +453,9 @@ class HandleFile {
 
     void dataOutput(vector<int> &selectOrder, vector<Data *> &db)
     {
-        cout << "\t";
-        for (auto i : selectOrder)
-            cout << cloumnName[i] << '\t';
-        cout << '\n';
+
+        cout << '\t';
+        cloumnName.print(selectOrder);
 
         int count = 1;
         for (auto i : db)
@@ -438,7 +463,7 @@ class HandleFile {
         cout << '\n';
     }
 
-    void init() 
+    void init()
     {
         bst.clear();
         database.clear();
@@ -471,6 +496,15 @@ class HandleFile {
     }
 
 public:
+    HandleFile()
+    {
+        string names[DATA_SIZE] = {"#",        "Name",   "Type 1", "Type 2",
+                                   "Total",    "HP",     "Attack", "Defense",
+                                   "Sp.Atk",   "Sp.Def", "Speed",  "Generation",
+                                   "Legendary"};
+        cloumnName.setColumns(names);
+    }
+
     ~HandleFile()
     {
         // clear tree
@@ -492,8 +526,9 @@ public:
 
         // display vector
         vector<int> selectOrder(6);
-        selectOrder = { DATA_NUMERO, DATA_NAME,   DATA_TYPE1,
-                       DATA_HP,     DATA_ATTACK, DATA_DEFENSE };
+        selectOrder = {DATA_NUMERO, DATA_NAME,   DATA_TYPE1,
+                       DATA_HP,     DATA_ATTACK, DATA_DEFENSE};
+
         dataOutput(selectOrder, database);
 
         // build tree HP
@@ -522,8 +557,8 @@ public:
 
             // tree show range
             vector<int> selectOrder(7);
-            selectOrder = { DATA_NUMERO, DATA_NAME,   DATA_TYPE1,  DATA_TOTAL,
-                           DATA_HP,     DATA_ATTACK, DATA_DEFENSE };
+            selectOrder = {DATA_NUMERO, DATA_NAME,   DATA_TYPE1,  DATA_TOTAL,
+                           DATA_HP,     DATA_ATTACK, DATA_DEFENSE};
 
             dataOutput(selectOrder, result);
 
@@ -544,9 +579,8 @@ public:
             vector<Data *> max = bst.find(maxKey);
 
             // show max one data all field
-            for (auto it : cloumnName)
-                cout << it << '\t';
-            cout << '\n';
+            cloumnName.printAll();
+
             auto max1 = *max.begin();
             max1->printAll();
 
@@ -631,5 +665,4 @@ void errorHandling(string message)
     // 顯示錯誤訊息
     cout << message << endl;
 }
-
 
