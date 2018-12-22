@@ -74,7 +74,10 @@ class Data {
         cout << left;
         switch (select) {
         case DATA_NAME:
-            cout << setw(30);
+            cout << setw(25);
+            break;
+        case DATA_GENERATION:
+            cout << setw(13);
             break;
         default:
             cout << setw(10);
@@ -460,12 +463,15 @@ class HandleFile {
     void dataOutput(vector<int> &selectOrder, vector<shared_ptr<Data>> &db)
     {
 
-        cout << '\t';
+        cout << left << setw(8) << " ";
         cloumnName.print(selectOrder);
 
         int count = 1;
+
         for (auto i : db)
-            cout << '[' << count << "]\t", i->print(selectOrder), count++;
+            cout << '[' << right << setw(5) << count << "] ",
+                i->print(selectOrder), count++;
+
         cout << '\n';
     }
 
