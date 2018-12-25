@@ -542,13 +542,6 @@ public:
         // sort NUMERO
         sort(database.begin(), database.end(), cmp);
 
-        // display vector
-        vector<int> selectOrder(6);
-        selectOrder = {DATA_NUMERO, DATA_NAME,   DATA_TYPE1,
-                       DATA_HP,     DATA_ATTACK, DATA_DEFENSE};
-
-        dataOutput(selectOrder, database);
-
         // build tree HP
         bst.setOrder();
         for (auto it : database)
@@ -585,26 +578,17 @@ public:
             // show visited times
             cout << "Number of visited nodes = " << visted << endl;
 
-            vector<int> selectOrder(1);
-            selectOrder = {DATA_HP};
-            dataOutput(selectOrder, result);
-
             // get range
             result.clear();
             visted = bstAtt.range(result, minAtt);
             // show visited times
             cout << "Att Number of visited nodes = " << visted << endl;
 
-            selectOrder = {DATA_ATTACK};
-            dataOutput(selectOrder, result);
             // get range
             result.clear();
             visted = bstDef.range(result, minDef);
             // show visited times
             cout << "Def Number of visited nodes = " << visted << endl;
-
-            selectOrder = {DATA_DEFENSE};
-            dataOutput(selectOrder, result);
         }
         catch (BSTException e) {
             cout << getBSTExceptionString(e) << endl;
