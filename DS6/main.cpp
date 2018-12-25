@@ -410,7 +410,7 @@ class HandleFile {
     fstream fin;
     fstream fout;
 
-    BST bst;
+    BST bst, bstAtt, bstDef;
 
     vector<shared_ptr<Data>> database;
     Data cloumnName;
@@ -478,6 +478,8 @@ class HandleFile {
     void init()
     {
         bst.clear();
+        bstAtt.clear();
+        bstDef.clear();
         database.clear();
     }
 
@@ -520,8 +522,10 @@ public:
     ~HandleFile()
     {
         // clear tree
-        database.clear();
         bst.clear();
+        bstAtt.clear();
+        bstDef.clear();
+        database.clear();
     }
 
     bool task1()
@@ -550,6 +554,13 @@ public:
         for (auto it : database)
             bst.insert(it);
 
+        bstAtt.setOrder(DATA_ATTACK);
+        for (auto it : database)
+            bstAtt.insert(it);
+
+        bstDef.setOrder(DATA_DEFENSE);
+        for (auto it : database)
+            bstDef.insert(it);
         // show tree hight
         cout << "HP tree height = " << bst.getHight() << endl;
 
@@ -561,23 +572,39 @@ public:
 
         try {
             vector<shared_ptr<Data>> result;
-            int min;
+            int min, minAtt, minDef;
             // input range
             min =
                 numberInput("Threshold (a positive integer):", "out of range!");
-
+            minAtt =
+                numberInput("Threshold (a positive integer):", "out of range!");
+            minDef =
+                numberInput("Threshold (a positive integer):", "out of range!");
             // get range
             int visted = bst.range(result, min);
-
-            // tree show range
-            vector<int> selectOrder(7);
-            selectOrder = {DATA_NUMERO, DATA_NAME,   DATA_TYPE1,  DATA_TOTAL,
-                           DATA_HP,     DATA_ATTACK, DATA_DEFENSE};
-
-            dataOutput(selectOrder, result);
-
             // show visited times
             cout << "Number of visited nodes = " << visted << endl;
+
+            vector<int> selectOrder(1);
+            selectOrder = {DATA_HP};
+            dataOutput(selectOrder, result);
+
+            // get range
+            result.clear();
+            visted = bstAtt.range(result, minAtt);
+            // show visited times
+            cout << "Att Number of visited nodes = " << visted << endl;
+
+            selectOrder = {DATA_ATTACK};
+            dataOutput(selectOrder, result);
+            // get range
+            result.clear();
+            visted = bstDef.range(result, minDef);
+            // show visited times
+            cout << "Def Number of visited nodes = " << visted << endl;
+
+            selectOrder = {DATA_DEFENSE};
+            dataOutput(selectOrder, result);
         }
         catch (BSTException e) {
             cout << getBSTExceptionString(e) << endl;
